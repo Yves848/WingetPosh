@@ -41,15 +41,46 @@ $Double.BR = "╝"
 $Double.BOTTOM = "═"
 
 Import-Module ~/CLRCLI.dll
+$enc = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
 
 function wgList {
-    $upgradeResult = winget list "" | Out-String
+    $command = "winget upgrade"
+    $upgradeResult = Invoke-Expression $command | Out-String
     $lines = $upgradeResult.Split([Environment]::NewLine)
     # $lines
     $fl = 0
     while (-not $lines[$fl].StartsWith("Nom")) {
         $fl++
     }
+
+    $idStart = $lines[$fl].IndexOf("ID")
+    $versionStart = $lines[$fl].IndexOf("Version")
+    $availableStart = $lines[$fl].IndexOf("Disponible")
+    $sourceStart = $lines[$fl].IndexOf("Source")
+
+    $upgradeList = @()
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+        $line = $lines[$i]
+        if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+            $name = $line.Substring(0, $idStart).TrimEnd()
+            $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+            $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            $software = [Software]::new()
+            $temp = $enc.GetBytes($name)
+            # $software.Name = $enc.GetString($temp)
+            $software.Name = $name;
+            $temp = $enc.GetBytes($id)
+            # $software.Id = $enc.GetString($temp)
+            $software.Id = $id;
+            $software.Version = $version
+            $software.AvailableVersion = $available;
+
+            $upgradeList += $software
+        }
+    }
+    $upgradeList
 }
 
 function setPosition {
@@ -121,3 +152,5 @@ function drawBox {
 function testFrame {
     drawFrame 10 10 100 10 Blue
 }
+
+wgList
