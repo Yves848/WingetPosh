@@ -1,6 +1,5 @@
-# Invoke-WingetList -Query "git" | Select-Object { $_.NamePrefix }
+Add-Type -AssemblyName PresentationFramework
 
-# https://github.com/PhonicUK/CLRCLI/blob/master/CLRCLI/ConsoleHelper.cs
 
 class Software {
     [string]$Name
@@ -41,10 +40,47 @@ $Double.BR = "╝"
 $Double.BOTTOM = "═"
 
 Import-Module ~/CLRCLI.dll
-$enc = [System.Text.Encoding]::UTF8
+
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
 
-function wgList {
+function wgGUI {
+    $xamlFile = "C:\Users\yvesg\git\WingetPosh\GUI\WingetGUI\MainWindow.xaml"
+    $inputXML = Get-Content $xamlFile -Raw
+    $inputXML = $inputXML -replace 'mc:Ignorable="d"', '' -replace "x:N", 'N' -replace '^<Win.*', '<Window'
+    [XML]$XAML = $inputXML
+
+    $reader = (New-Object System.Xml.XmlNodeReader $xaml)
+    try {
+        $window = [Windows.Markup.XamlReader]::Load( $reader )
+    }
+    catch {
+        Write-Warning $_.Exception
+        throw
+    }
+    $xaml.SelectNodes("//*[@Name]") | ForEach-Object {
+        #"trying item $($_.Name)"
+        try {
+            Set-Variable -Name "var_$($_.Name)" -Value $window.FindName($_.Name) -ErrorAction Stop
+        }
+        catch {
+            throw
+        }
+    }
+
+    Get-Variable var_*
+
+    $ids = wgUpgradable
+
+    foreach ($id in $ids) {
+        $var_listBox.Items.add($id.id) | Out-Null
+    }
+
+
+    
+    $Null = $window.ShowDialog()
+}
+
+function wgUpgradable {
     $command = "winget upgrade"
     $upgradeResult = Invoke-Expression $command | Out-String
     $lines = $upgradeResult.Split([Environment]::NewLine)
@@ -68,18 +104,14 @@ function wgList {
             $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
             $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
             $software = [Software]::new()
-            $temp = $enc.GetBytes($name)
-            # $software.Name = $enc.GetString($temp)
             $software.Name = $name;
-            $temp = $enc.GetBytes($id)
-            # $software.Id = $enc.GetString($temp)
             $software.Id = $id;
             $software.Version = $version
             $software.AvailableVersion = $available;
-
             $upgradeList += $software
         }
     }
+
     $upgradeList
 }
 
@@ -136,7 +168,7 @@ function drawBox {
     $Root = [CLRCLI.Widgets.RootWindow]::new()
     $Dialog = [CLRCLI.Widgets.Dialog]::new($Root)
 
-    $Dialog.Text = "Packages List"
+    $Dialog.Text = "Upgradable Packages List"
     $Dialog.Width = $Host.UI.RawUI.WindowSize.Width - 8
     $Dialog.Height = $Host.UI.RawUI.WindowSize.Height - 8
     $Dialog.Top = 4
@@ -152,5 +184,3 @@ function drawBox {
 function testFrame {
     drawFrame 10 10 100 10 Blue
 }
-
-wgList
