@@ -45,8 +45,9 @@ Import-Module ~/CLRCLI.dll
 function wgList {
     $upgradeResult = winget list "" | Out-String
     $lines = $upgradeResult.Split([Environment]::NewLine)
+    # $lines
     $fl = 0
-    while (-not $lines[$fl].StartsWith("Name")) {
+    while (-not $lines[$fl].StartsWith("Nom")) {
         $fl++
     }
 }
