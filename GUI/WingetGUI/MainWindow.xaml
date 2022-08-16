@@ -5,11 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WingetGUI"
         mc:Ignorable="d"
-        Title="Winget GUI" Height="450" Width="800">
-    <Grid>
-        <ListBox x:Name="listBox"  Margin="10,34,118,10"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="625"/>
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="642,9,0,0" VerticalAlignment="Top"/>
+        Title="Winget GUI" Height="765" Width="800">
+    <Grid Margin="0,10,0,-6" RenderTransformOrigin="0.497,0.537">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="401*"/>
+            <ColumnDefinition Width="399*"/>
+        </Grid.ColumnDefinitions>
+        <ListBox x:Name="listBox"  Margin="10,34,118,878" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="625" Grid.ColumnSpan="2"/>
+        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="241,9,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <ListView x:Name="listView" Margin="10,311,118,450" Grid.ColumnSpan="2">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+
+
 
     </Grid>
 </Window>
