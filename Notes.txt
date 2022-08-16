@@ -1,1 +1,4 @@
 https://github.com/PhonicUK/CLRCLI/blob/master/CLRCLI/ConsoleHelper.cs
+
+
+https://www.codewrecks.com/post/general/winget-update-selective/
