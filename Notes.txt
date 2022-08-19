@@ -9,3 +9,6 @@ https://stackoverflow.com/questions/70012084/powershell-encoding-issue-when-stor
 https://adamtheautomator.com/powershell-gui/
 
 Save-Script -Name Wimwitch -Path Wimwitch -force
+
+PSGalery API Key
+oy2jx7auobop3aawb7yqhsacjoffv6wedmvxsgsgofjphi

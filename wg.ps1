@@ -6,6 +6,7 @@ class Software {
     [string]$Id
     [string]$Version
     [string]$AvailableVersion
+    [string]$Source
 }
 
 class Frame {
@@ -97,7 +98,7 @@ function Wait-KeyPress {
 
     $keyInfo = [Console]::ReadKey($false)
     
-    $keyInfo
+    $keyInfo | Select-Object -Property Key
 }
 
 
@@ -147,13 +148,6 @@ function setPosition {
     $host.UI.RawUI.CursorPosition = $cursorPos
 }
 
-function displayFrame {
-    $esc = [char]27
-    setPosition 0 10
-    $bloc1 = "".PadLeft($Host.UI.RawUI.WindowSize.Width - 2, '─')
-    Write-Host "┌$bloc1┐"
-}
-
 function drawFrame {
     param (
         [parameter(
@@ -177,32 +171,51 @@ function drawFrame {
         )]
         [int]$H,
         [parameter(
+            HelpMessage = "Single or double line frame"
+        )]
+        [switch]$DoubleLine,
+        [parameter(
+            HelpMessage = "Clear the frame content"
+        )]
+        [switch]$Clear,
+        [parameter(
             Mandatory,
             HelpMessage = 'Frame Color'
         )]
         [System.ConsoleColor]$COLOR
     )
     setPosition $X $Y
-    $bloc1 = "".PadLeft($W - 2, $Single.TOP)
-    Write-Host $Single.UL -NoNewline -ForegroundColor $COLOR
+    $Frame = $Single
+    if ($DoubleLine.IsPresent) {
+        $Frame = $Double
+    }
+
+    $bloc1 = "".PadLeft($W - 2, $Frame.TOP)
+    $blank = "".PadLeft($W - 2, " ") 
+    Write-Host $Frame.UL -NoNewline -ForegroundColor $COLOR
     Write-Host $bloc1 -ForegroundColor $COLOR -NoNewline
-    Write-Host $Single.UR -ForegroundColor $COLOR
+    Write-Host $Frame.UR -ForegroundColor $COLOR
 
     for ($i = 1; $i -lt $H; $i++) {
         $Y2 = $Y + $i
         $X2 = $X + $W - 1
         setPosition $X $Y2
-        Write-Host $Single.LEFT -ForegroundColor $COLOR
+        Write-Host $Frame.LEFT -ForegroundColor $COLOR
+        if ($Clear.IsPresent) {
+            $X3 = $X + 1
+            setPosition $X3 $Y2
+            Write-Host $blank 
+        }
         setPosition $X2 $Y2
-        Write-Host $Single.RIGHT -ForegroundColor $COLOR
+        Write-Host $Frame.RIGHT -ForegroundColor $COLOR
     }
 
     $Y2 = $Y + $H
     setPosition $X $Y2
-    $bloc1 = "".PadLeft($W - 2, $Single.BOTTOM)
-    Write-Host $Single.BL -NoNewline -ForegroundColor $COLOR
+    $bloc1 = "".PadLeft($W - 2, $Frame.BOTTOM)
+    Write-Host $Frame.BL -NoNewline -ForegroundColor $COLOR
     Write-Host $bloc1 -ForegroundColor $COLOR -NoNewline
-    Write-Host $Single.BR -ForegroundColor $COLOR
+    Write-Host $Frame.BR -ForegroundColor $COLOR
 }
 
 function drawBox {
@@ -223,6 +236,20 @@ function drawBox {
 
 
 function testFrame {
-    drawFrame 10 10 100 10 Blue
+    Clear-Host
+    $maxHeight = $Host.UI.RawUI.WindowSize.Height - 2
+    $maxWidth = $Host.UI.RawUI.WindowSize.Width
+    drawFrame 0 0 $maxWidth $maxHeight DarkGreen
+    drawFrame 10 10 40 10 Blue
+    drawFrame 35 15 50 25 Red -DoubleLine -Clear
+    setPosition 0 0
     Wait-KeyPress "" Enter
+    Clear-Host
+}
+
+function getUIInfos {
+    Write-Host "Width: " -ForegroundColor Gray -NoNewline
+    Write-Host $Host.UI.RawUI.WindowSize.Width
+    Write-Host "Height: " -ForegroundColor Gray -NoNewline
+    Write-Host $Host.UI.RawUI.WindowSize.Height 
 }
