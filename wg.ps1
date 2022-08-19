@@ -312,10 +312,11 @@ function testMenu {
         drawItems
         $key = Wait-KeyPress
         switch ($key.key) {
-            DownArrow { 
-                 
+            DownArrow {            
                 if ($line -eq 18) {
-                    $startLine += 1  
+                    if (($line + $startLine) -lt $menuItems.Length - 1) {
+                        $startLine += 1  
+                    }
                 }
                 else {
                     $line += 1
