@@ -40,7 +40,7 @@ class column {
     [Int16]$Len
 }
 
-$columns = [ordered]@{}
+$Global:columns = @()
 
 $ColorNormal = @{
     BackgroundColor = "Black"
@@ -149,9 +149,9 @@ function getColumnsHeaders {
         [string]$columsLine   
     )
 
-    $columns.Clear()
     $tempCols = $columsLine.Split(" ")
     $cols = @()
+    $result = @()
     foreach ($column in $tempCols) {
         if ($column.Trim() -ne "") {
             $cols += $column
@@ -174,15 +174,12 @@ function getColumnsHeaders {
         $acolumn.Name = $Cols[$i]
         $acolumn.Position = $pos
         $acolumn.Len = $len
-        $columns.Add($Cols[$i], $acolumn)
+        $result += $acolumn
         $i++
     }
 
-    # foreach ($key in $columns.Keys) {
-    #     $columns[$key]
-    # }
 
-    $columns
+    $result
 }
 
 # function wgList {
@@ -285,7 +282,7 @@ function wgList {
     while (-not $lines[$fl].StartsWith("Nom")) {
         $fl++
     }
-    getColumnsHeaders -columsLine $lines[$fl] | Out-Null
+    $Global:columns = getColumnsHeaders -columsLine $lines[$fl]
 
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")
@@ -562,12 +559,17 @@ function wgSearch {
         $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
         setPosition -X 0 -Y 1
         Write-Host $bloc @ColorTitle -NoNewline
-        foreach ($key in $columns.Keys) {
-            $col = $columns[$key]
+        foreach ($col in $columns) {
             $X = $col.Position + 1
             setPosition -X $X -Y 1 
             Write-Host $col.name @ColorTitle -NoNewline
         }
+        # foreach ($key in $columns.Keys) {
+        #     $col = $columns[$key]
+        #     $X = $col.Position + 1
+        #     setPosition -X $X -Y 1 
+        #     Write-Host $col.name @ColorTitle -NoNewline
+        # }
     }
 
     function drawFooter {
@@ -599,6 +601,7 @@ function wgSearch {
             else {
                 Write-Host ' ' @Colors -NoNewline
             }
+
             setPosition -X 1 -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
             $currentLine += 1
