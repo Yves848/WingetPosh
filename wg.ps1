@@ -290,7 +290,7 @@ function testMenu {
             setPosition -X 6 -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Name -BackgroundColor $back -ForegroundColor $front
             $currentLine += 1
-        } while ($currentLine -lt 28)
+        } while ($currentLine -lt 19)
     }
 
     $line = 0
@@ -306,20 +306,38 @@ function testMenu {
         $menuitem.Selected = $false
         $menuItems += $menuitem
     }
-    drawFrame -X 3 -Y 3 -W 70 -H 30 -COLOR Blue
+    drawFrame -X 3 -Y 3 -W 70 -H 20 -COLOR Blue
 
     do {
         drawItems
         $key = Wait-KeyPress
         switch ($key.key) {
             DownArrow { 
-                $line += 1 
+                 
+                if ($line -eq 18) {
+                    $startLine += 1  
+                }
+                else {
+                    $line += 1
+                }
             }
             UpArrow { 
                 $line -= 1 
                 if ($line -lt 0) {
+                    if ($startLine -gt 0) {
+                        $startLine -= 1
+                    }
                     $line = 0
                 }
+            }
+            SpaceBar {
+                if ($menuItems[$line + $startLine].Selected -eq $false) {
+                    $menuItems[$line + $startLine].Selected = $true
+                }
+                else {
+                    $menuItems[$line + $startLine].Selected = $false
+                }
+                
             }
             Default {}
         }
