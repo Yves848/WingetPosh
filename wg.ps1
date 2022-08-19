@@ -29,6 +29,16 @@ class Frame {
     [char]$BOTTOM
 }
 
+$ColorNormal = @{
+    BackgroundColor = "Black"
+    ForegroundColor = "White"
+}
+
+$ColorInverse = @{
+    BackgroundColor = "Yellow"
+    ForegroundColor = "Blue"
+}
+
 $Single = [Frame]::new()
 $Single.UL = "┌"
 $Single.UR = "┐"
@@ -51,6 +61,11 @@ $Double.BOTTOM = "═"
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
 
+function spacer {
+    Write-Host " " -NoNewline
+    Write-Host $Single.LEFT -NoNewline
+    Write-Host " " -NoNewline
+}
 function Wait-KeyPress {
     param
     (
@@ -268,33 +283,34 @@ function testMenu {
     function drawItems {
         $currentLine = 0
         do {
-            
-            $back = [System.ConsoleColor]::Black 
-            $front = [System.ConsoleColor]::White
             if ($currentLine -eq $line) {
-                $back = [System.ConsoleColor]::Yellow
-                $front = [System.ConsoleColor]::Blue
+                $Colors = $ColorInverse
+            }
+            else {
+                <# Action when all if and elseif conditions are false #>
+                $Colors = $ColorNormal
             }
             $Y = 4 + $currentLine
             setPosition -X 4 -Y $Y
             $bloc = "".PadLeft(67, " ")
-            Write-Host $bloc -BackgroundColor $back -ForegroundColor $front
+            Write-Host $bloc @Colors 
             
             setPosition -X 4 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
-                Write-Host '✔️' -BackgroundColor $back -ForegroundColor $front
+                Write-Host '✔️' @Colors 
             }
             else {
-                Write-Host ' ' -BackgroundColor $back -ForegroundColor $front
+                Write-Host ' ' @Colors 
             }
             setPosition -X 6 -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Name -BackgroundColor $back -ForegroundColor $front
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors  
             $currentLine += 1
         } while ($currentLine -lt 19)
     }
 
     $line = 0
     $startLine = 0
+    $over = 0
     Clear-Host
     displayStatus -Status 'Getting packages List'
     $list = wgList -search "test"
@@ -337,14 +353,21 @@ function testMenu {
                 }
                 else {
                     $menuItems[$line + $startLine].Selected = $false
-                }
-                
+                } 
+            }
+            Enter {
+                $over = 1
+            }
+            Escape {
+                $over = 2
             }
             Default {}
         }
     } until (
-        $key.key -eq [ConsoleKey]::Escape
+        $over -gt 0
     )
+    
+    $menuItems
 }
 
 function getUIInfos {
@@ -355,3 +378,8 @@ function getUIInfos {
     Write-Host "☑️✔️"
 }
 
+function testSplatting {
+    # $Colors = @{ForegroundColor = "black"; BackgroundColor = "white" }
+    Write-Host @ColorNormal "Test Normal"
+    Write-Host @ColorInverse "Test Inverse"
+}
