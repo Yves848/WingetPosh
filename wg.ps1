@@ -34,6 +34,13 @@ class Frame {
     [char]$BOTTOM
 }
 
+class column {
+    [string]$name
+    [Int16]$Position
+}
+
+$columns = @()
+
 $ColorNormal = @{
     BackgroundColor = "Black"
     ForegroundColor = "White"
@@ -127,6 +134,50 @@ function wgUpgradable {
     $upgradeList
 }
 
+function getColumnsHeaders {
+    param(
+        [parameter (
+            Mandatory,
+            HelpMessage = "Package (or part) name to search"
+        )]
+        [string]$search,
+        # Store Filter
+        [Parameter(
+            HelpMessage = "store to filter on"
+        )]
+        [string]
+        $Store    
+    )
+
+    $command = "winget search --name ${search}"
+
+    if ($Store -ne "") {
+        $command = $command + " --source " + $Store
+    }
+
+    # Write-Host $command
+    
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
+
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("----")) {
+        $fl++
+    }
+    $columsLine = $lines[$fl - 1]
+    # $columsLine
+
+    $columns = @()
+    $cols = $columsLine.Split(" ")
+    foreach ($column in $cols) {
+        if ($column.Trim() -ne "") {
+            $columns += $column
+        }
+    }
+    $columns
+
+}
+
 function wgList {
     param(
         [parameter (
@@ -145,7 +196,6 @@ function wgList {
     $command = "winget search --name ${search}"
 
     if ($Store -ne "") {
-        Write-Host "Filter on store"
         $command = $command + " --source " + $Store
     }
     else {
@@ -332,7 +382,7 @@ function testMenu {
             else {
                 Write-Host ' ' @Colors 
             }
-            setPosition -X 6 -Y $Y
+            setPosition -X 7 -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors  
             $currentLine += 1
         } while ($currentLine -lt 19)
@@ -352,6 +402,7 @@ function testMenu {
         $menuitem.Selected = $false
         $menuItems += $menuitem
     }
+    $result = @()
     drawFrame -X 3 -Y 3 -W 70 -H 20 -COLOR Blue
 
     do {
@@ -387,6 +438,11 @@ function testMenu {
             }
             Enter {
                 $over = 1
+                foreach ($item in $menuItems) {
+                    if ($item.Selected) {
+                        $result += $item.Package
+                    }
+                }
             }
             Escape {
                 $over = 2
@@ -397,7 +453,135 @@ function testMenu {
         $over -gt 0
     )
     
-    $menuItems
+    
+    $result
+}
+
+function wgSearch {
+    [CmdletBinding()]
+    param (
+        # Package to search
+        [Parameter(
+            Mandatory,
+            HelpMessage = "Winget get search Helper"
+        )]
+        [String]
+        $Search,
+        # Source Filter
+        [Parameter(
+            HelpMessage = "Optional Source Filter"
+        )]
+        [String]
+        $Store
+    )
+
+    function drawTitle {
+        setPosition -x 3 -y 0
+        Write-Host "Package Search"
+    }
+
+    function drawColumnNames {
+        setPosition -x 1 -Y 1
+        Write-Host "Nom"
+    }
+    function drawItems {
+        $currentLine = 0
+        do {
+            if ($currentLine -eq $line) {
+                $Colors = $ColorInverse
+            }
+            else {
+                <# Action when all if and elseif conditions are false #>
+                $Colors = $ColorNormal
+            }
+            $Y = 1 + $currentLine
+            setPosition -X 1 -Y $Y
+            $bloc = "".PadLeft($W - 2, " ")
+            Write-Host $bloc @Colors 
+            
+            setPosition -X 1 -Y $Y
+            if ($menuItems[$currentLine + $startLine].Selected) {
+                Write-Host '✔️' @Colors 
+            }
+            else {
+                Write-Host ' ' @Colors 
+            }
+            setPosition -X 5 -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors  
+            $currentLine += 1
+        } while ($currentLine -lt $H - 1)
+    }
+
+    $line = 0
+    $startLine = 0
+    $over = 0
+    Clear-Host
+    displayStatus -Status 'Getting packages List'
+    $list = wgList -search $Search -Store $Store
+    ClearStatus
+    $menuItems = @()
+    foreach ($item in $list) {
+        $menuitem = [listSearchItem]::new()
+        $menuitem.Package = $item
+        $menuitem.Selected = $false
+        $menuItems += $menuitem
+    }
+    $result = @()
+    $W = $Host.UI.RawUI.WindowSize.Width
+    $H = $Host.UI.RawUI.WindowSize.Height - 2
+    drawFrame -X 0 -Y 0 -W $W -H $H -COLOR Blue
+    drawTitle
+    
+    do {
+        drawItems
+        $key = Wait-KeyPress
+        switch ($key.key) {
+            DownArrow {            
+                if ($line -eq $H - 2) {
+                    if (($line + $startLine) -lt $menuItems.Length - 1) {
+                        $startLine += 1  
+                    }
+                }
+                else {
+                    $line += 1
+                }
+            }
+            UpArrow { 
+                $line -= 1 
+                if ($line -lt 0) {
+                    if ($startLine -gt 0) {
+                        $startLine -= 1
+                    }
+                    $line = 0
+                }
+            }
+            SpaceBar {
+                if ($menuItems[$line + $startLine].Selected -eq $false) {
+                    $menuItems[$line + $startLine].Selected = $true
+                }
+                else {
+                    $menuItems[$line + $startLine].Selected = $false
+                } 
+            }
+            Enter {
+                $over = 1
+                foreach ($item in $menuItems) {
+                    if ($item.Selected) {
+                        $result += $item.Package
+                    }
+                }
+            }
+            Escape {
+                $over = 2
+            }
+            Default {}
+        }
+    } until (
+        $over -gt 0
+    )
+    
+    
+    $result
 }
 
 function getUIInfos {
