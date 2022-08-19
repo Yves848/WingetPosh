@@ -52,6 +52,11 @@ $ColorInverse = @{
     ForegroundColor = "Blue"
 }
 
+$ColorTitle = @{
+    BackgroundColor = "Gray"
+    ForegroundColor = "Black"
+}
+
 $Single = [Frame]::new()
 $Single.UL = "┌"
 $Single.UR = "┐"
@@ -180,6 +185,73 @@ function getColumnsHeaders {
     $columns
 }
 
+# function wgList {
+#     param(
+#         [parameter (
+#             Mandatory,
+#             HelpMessage = "Package (or part) name to search"
+#         )]
+#         [string]$search,
+#         # Store Filter
+#         [Parameter(
+#             HelpMessage = "store to filter on"
+#         )]
+#         [string]
+#         $Store    
+#     )
+
+#     $command = "winget search --name ${search}"
+
+#     if ($Store -ne "") {
+#         $command = $command + " --source " + $Store
+#     }
+#     else {
+#         Write-Host "no filter on store"
+#     }
+
+#     # Write-Host $command
+    
+#     $SearchResult = Invoke-Expression $command | Out-String
+#     $lines = $SearchResult.Split([Environment]::NewLine)
+
+#     $fl = 0
+#     while (-not $lines[$fl].StartsWith("Nom")) {
+#         $fl++
+#     }
+#     getColumnsHeaders -columsLine $lines[$fl]
+
+#     $idStart = $lines[$fl].IndexOf("ID")
+#     $versionStart = $lines[$fl].IndexOf("Version")
+#     if ($store -eq "") {
+#         $sourceStart = $lines[$fl].IndexOf("Source")
+#     }
+#     $SearchList = @()
+#     For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+#         $line = $lines[$i]
+#         if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+#             $name = $line.Substring(0, $idStart).TrimEnd()
+#             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            
+#             if ($Store -eq "") {
+#                 $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+#                 $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+#             }
+#             else {
+#                 $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
+#                 $source = $store
+#             }
+#             $software = [installSoftware]::new()
+#             $software.Name = $name;
+#             $software.Id = $id;
+#             $software.Version = $version
+#             $software.Source = $source;
+#             $SearchList += $software
+#         }
+#     }
+
+#     $SearchList
+# }
+
 function wgList {
     param(
         [parameter (
@@ -201,7 +273,7 @@ function wgList {
         $command = $command + " --source " + $Store
     }
     else {
-        Write-Host "no filter on store"
+        # Write-Host "no filter on store"
     }
 
     # Write-Host $command
@@ -213,7 +285,7 @@ function wgList {
     while (-not $lines[$fl].StartsWith("Nom")) {
         $fl++
     }
-    getColumnsHeaders -columsLine $lines[$fl]
+    getColumnsHeaders -columsLine $lines[$fl] | Out-Null
 
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")
@@ -479,14 +551,32 @@ function wgSearch {
     )
 
     function drawTitle {
-        setPosition -x 3 -y 0
-        Write-Host "Package Search"
+        $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, "…")
+        setPosition -X 0 -y 0
+        Write-Host $bloc -NoNewline
+        setPosition -x 2 -y 0
+        Write-Host "Select Packqages to Install" -NoNewline
     }
 
     function drawColumnNames {
-        setPosition -x 1 -Y 1
-        Write-Host "Nom"
+        $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
+        setPosition -X 0 -Y 1
+        Write-Host $bloc @ColorTitle -NoNewline
+        foreach ($key in $columns.Keys) {
+            $col = $columns[$key]
+            $X = $col.Position + 1
+            setPosition -X $X -Y 1 
+            Write-Host $col.name @ColorTitle -NoNewline
+        }
     }
+
+    function drawFooter {
+        $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, "…")
+        $Y = $Host.UI.RawUI.WindowSize.Height - 1
+        setPosition -X 0 -y $Y
+        Write-Host $bloc -NoNewline
+    }
+
     function drawItems {
         $currentLine = 0
         do {
@@ -497,20 +587,20 @@ function wgSearch {
                 <# Action when all if and elseif conditions are false #>
                 $Colors = $ColorNormal
             }
-            $Y = 1 + $currentLine
-            setPosition -X 1 -Y $Y
-            $bloc = "".PadLeft($W - 2, " ")
-            Write-Host $bloc @Colors 
+            $Y = 2 + $currentLine
+            setPosition -X 0 -Y $Y
+            $bloc = "".PadLeft($W, " ")
+            Write-Host $bloc @Colors -NoNewline
             
-            setPosition -X 1 -Y $Y
+            setPosition -X 0 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
-                Write-Host '✔️' @Colors 
+                Write-Host '✔️' @Colors -NoNewline 
             }
             else {
-                Write-Host ' ' @Colors 
+                Write-Host ' ' @Colors -NoNewline
             }
-            setPosition -X 5 -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors  
+            setPosition -X 1 -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
             $currentLine += 1
         } while ($currentLine -lt $H - 1)
     }
@@ -521,6 +611,7 @@ function wgSearch {
     Clear-Host
     displayStatus -Status 'Getting packages List'
     $list = wgList -search $Search -Store $Store
+    
     ClearStatus
     $menuItems = @()
     foreach ($item in $list) {
@@ -532,9 +623,10 @@ function wgSearch {
     $result = @()
     $W = $Host.UI.RawUI.WindowSize.Width
     $H = $Host.UI.RawUI.WindowSize.Height - 2
-    drawFrame -X 0 -Y 0 -W $W -H $H -COLOR Blue
+    # drawFrame -X 0 -Y 0 -W $W -H $H -COLOR Blue
     drawTitle
-    
+    drawColumnNames
+    drawFooter
     do {
         drawItems
         $key = Wait-KeyPress
@@ -601,4 +693,5 @@ function testSplatting {
     Write-Host @ColorInverse "Test Inverse"
 }
 
-getColumnsHeaders -columsLine "Nom                                                      ID                                       Version      Source   "
+# getColumnsHeaders -columsLine "Nom                                                      ID                                       Version      Source   "
+wgSearch -Search Photo
