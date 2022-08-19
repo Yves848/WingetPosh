@@ -35,11 +35,12 @@ class Frame {
 }
 
 class column {
-    [string]$name
+    [string]$Name
     [Int16]$Position
+    [Int16]$Len
 }
 
-$columns = @()
+$columns = [ordered]@{}
 
 $ColorNormal = @{
     BackgroundColor = "Black"
@@ -140,42 +141,43 @@ function getColumnsHeaders {
             Mandatory,
             HelpMessage = "Package (or part) name to search"
         )]
-        [string]$search,
-        # Store Filter
-        [Parameter(
-            HelpMessage = "store to filter on"
-        )]
-        [string]
-        $Store    
+        [string]$columsLine   
     )
 
-    $command = "winget search --name ${search}"
-
-    if ($Store -ne "") {
-        $command = $command + " --source " + $Store
-    }
-
-    # Write-Host $command
-    
-    $SearchResult = Invoke-Expression $command | Out-String
-    $lines = $SearchResult.Split([Environment]::NewLine)
-
-    $fl = 0
-    while (-not $lines[$fl].StartsWith("----")) {
-        $fl++
-    }
-    $columsLine = $lines[$fl - 1]
-    # $columsLine
-
-    $columns = @()
-    $cols = $columsLine.Split(" ")
-    foreach ($column in $cols) {
+    $columns.Clear()
+    $tempCols = $columsLine.Split(" ")
+    $cols = @()
+    foreach ($column in $tempCols) {
         if ($column.Trim() -ne "") {
-            $columns += $column
+            $cols += $column
         }
     }
-    $columns
+    
+    $i = 0
+    while ($i -lt $Cols.Length) {
+        $pos = $columsLine.IndexOf($Cols[$i])
+        if ($i -eq $Cols.Length) {
+            #Last Column
+            $len = $columsLine.Length - $pos
+        }
+        else {
+            #Not Last Column
+            $pos2 = $columsLine.IndexOf($Cols[$i + 1])
+            $len = $pos2 - $pos
+        }
+        $acolumn = [column]::new()
+        $acolumn.Name = $Cols[$i]
+        $acolumn.Position = $pos
+        $acolumn.Len = $len
+        $columns.Add($Cols[$i], $acolumn)
+        $i++
+    }
 
+    # foreach ($key in $columns.Keys) {
+    #     $columns[$key]
+    # }
+
+    $columns
 }
 
 function wgList {
@@ -211,6 +213,7 @@ function wgList {
     while (-not $lines[$fl].StartsWith("Nom")) {
         $fl++
     }
+    getColumnsHeaders -columsLine $lines[$fl]
 
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")
@@ -597,3 +600,5 @@ function testSplatting {
     Write-Host @ColorNormal "Test Normal"
     Write-Host @ColorInverse "Test Inverse"
 }
+
+getColumnsHeaders -columsLine "Nom                                                      ID                                       Version      Source   "
