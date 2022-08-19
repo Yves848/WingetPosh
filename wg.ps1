@@ -602,8 +602,22 @@ function wgSearch {
                 Write-Host ' ' @Colors -NoNewline
             }
 
+            
             setPosition -X 1 -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
+            $col = $columns[0]
+            $X = 1 + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.ID @Colors -NoNewline
+            $col = $columns[1]
+            $X = $X + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Version @Colors -NoNewline
+            $col = $columns[2]
+            $X = $X + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Source @Colors -NoNewline
+
             $currentLine += 1
         } while ($currentLine -lt $H - 1)
     }
