@@ -13,6 +13,11 @@ class installSoftware {
     [string]$Source
 }
 
+class listSearchItem {
+    [installSoftware]$Package
+    [bool]$Selected
+}
+
 class Frame {
     [char]$UL
     [char]$UR
@@ -237,22 +242,80 @@ function testFrame {
     Clear-Host
 }
 
+function displayStatus {
+    param(
+        # Parameter help description
+        [Parameter(
+            Mandatory
+        )]
+        [String]
+        $Status
+    )
+    setPosition -X 0 -Y 0
+    $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
+    Write-Host $bloc -BackgroundColor Cyan -NoNewline
+    setPosition -X 2 -Y 0
+    Write-Host $Status -ForegroundColor White -BackgroundColor Cyan -NoNewline
+}
+
+function ClearStatus {
+    setPosition -X 0 -Y 0
+    $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
+    Write-Host $bloc -BackgroundColor black -NoNewline
+}
+
 function testMenu {
+    function drawItems {
+        $currentLine = 0
+        do {
+            
+            $back = [System.ConsoleColor]::Black 
+            $front = [System.ConsoleColor]::White
+            if ($currentLine -eq $line) {
+                $back = [System.ConsoleColor]::Yellow
+                $front = [System.ConsoleColor]::Blue
+            }
+            $Y = 4 + $currentLine
+            setPosition -X 4 -Y $Y
+            $bloc = "".PadLeft(67, " ")
+            Write-Host $bloc -BackgroundColor $back -ForegroundColor $front
+            
+            setPosition -X 4 -Y $Y
+            if ($menuItems[$currentLine + $startLine].Selected) {
+                Write-Host '✔️' -BackgroundColor $back -ForegroundColor $front
+            }
+            else {
+                Write-Host ' ' -BackgroundColor $back -ForegroundColor $front
+            }
+            setPosition -X 6 -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name -BackgroundColor $back -ForegroundColor $front
+            $currentLine += 1
+        } while ($currentLine -lt 28)
+    }
+
     $line = 0
+    $startLine = 0
     Clear-Host
+    displayStatus -Status 'Getting packages List'
+    $list = wgList -search "test"
+    ClearStatus
+    $menuItems = @()
+    foreach ($item in $list) {
+        $menuitem = [listSearchItem]::new()
+        $menuitem.Package = $item
+        $menuitem.Selected = $false
+        $menuItems += $menuitem
+    }
+    drawFrame -X 3 -Y 3 -W 70 -H 30 -COLOR Blue
+
     do {
+        drawItems
         $key = Wait-KeyPress
-        setPosition 10 9
-        Write-Host $key.key
         switch ($key.key) {
             DownArrow { 
-                setPosition 10 10
-                Write-Host "↓" -NoNewline
                 $line += 1 
             }
             UpArrow { 
-                setPosition 10 10 
-                Write-Host "↑" -NoNewline
                 $line -= 1 
                 if ($line -lt 0) {
                     $line = 0
@@ -260,9 +323,7 @@ function testMenu {
             }
             Default {}
         }
-        Write-Host $line
     } until (
-        <# Condition that stops the loop if it returns true #>
         $key.key -eq [ConsoleKey]::Escape
     )
 }
@@ -274,3 +335,4 @@ function getUIInfos {
     Write-Host $Host.UI.RawUI.WindowSize.Height 
     Write-Host "☑️✔️"
 }
+
