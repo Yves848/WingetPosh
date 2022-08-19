@@ -57,13 +57,13 @@ function Wait-KeyPress {
     )
     
     # emit your custom message
-    Write-Host -Object $Message -ForegroundColor Yellow -BackgroundColor Black
+    # Write-Host -Object $Message -ForegroundColor Yellow -BackgroundColor Black
     
     # use a blocking call because we *want* to wait
 
     $keyInfo = [Console]::ReadKey($false)
     
-    $keyInfo | Select-Object -Property Key
+    $keyInfo
 }
 
 
@@ -120,7 +120,6 @@ function wgList {
         $fl++
     }
 
-    # $NomStart = $lines[$fl].IndexOf("Nom")
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")
     $sourceStart = $lines[$fl].IndexOf("Source")
@@ -236,6 +235,36 @@ function testFrame {
     setPosition 0 0
     Wait-KeyPress "" Enter
     Clear-Host
+}
+
+function testMenu {
+    $line = 0
+    Clear-Host
+    do {
+        $key = Wait-KeyPress
+        setPosition 10 9
+        Write-Host $key.key
+        switch ($key.key) {
+            DownArrow { 
+                setPosition 10 10
+                Write-Host "↓" -NoNewline
+                $line += 1 
+            }
+            UpArrow { 
+                setPosition 10 10 
+                Write-Host "↑" -NoNewline
+                $line -= 1 
+                if ($line -lt 0) {
+                    $line = 0
+                }
+            }
+            Default {}
+        }
+        Write-Host $line
+    } until (
+        <# Condition that stops the loop if it returns true #>
+        $key.key -eq [ConsoleKey]::Escape
+    )
 }
 
 function getUIInfos {
