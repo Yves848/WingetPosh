@@ -80,6 +80,27 @@ function wgGUI {
     $Null = $window.ShowDialog()
 }
 
+function Wait-KeyPress {
+    param
+    (
+        [string]
+        $Message = 'Press Arrow-Down to continue',
+
+        [ConsoleKey]
+        $Key = [ConsoleKey]::DownArrow
+    )
+    
+    # emit your custom message
+    Write-Host -Object $Message -ForegroundColor Yellow -BackgroundColor Black
+    
+    # use a blocking call because we *want* to wait
+
+    $keyInfo = [Console]::ReadKey($false)
+    
+    $keyInfo
+}
+
+
 function wgUpgradable {
     $command = "winget upgrade"
     $upgradeResult = Invoke-Expression $command | Out-String
@@ -135,10 +156,30 @@ function displayFrame {
 
 function drawFrame {
     param (
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Left Position (X)'
+        )]
         [int]$X,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Top Position (Y)'
+        )]
         [int]$Y,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Window Width (W)'
+        )]
         [int]$W,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Window Height (H)'
+        )]
         [int]$H,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Frame Color'
+        )]
         [System.ConsoleColor]$COLOR
     )
     setPosition $X $Y
@@ -183,4 +224,5 @@ function drawBox {
 
 function testFrame {
     drawFrame 10 10 100 10 Blue
+    Wait-KeyPress "" Enter
 }
