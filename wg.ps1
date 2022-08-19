@@ -553,6 +553,10 @@ function wgSearch {
         Write-Host $bloc -NoNewline
         setPosition -x 2 -y 0
         Write-Host "Select Packqages to Install" -NoNewline
+        $right = "[↑/↓ ⋮ Choice]"
+        $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
+        setPosition -X $X -Y 0
+        Write-Host $right -NoNewline
     }
 
     function drawColumnNames {
@@ -564,12 +568,6 @@ function wgSearch {
             setPosition -X $X -Y 1 
             Write-Host $col.name @ColorTitle -NoNewline
         }
-        # foreach ($key in $columns.Keys) {
-        #     $col = $columns[$key]
-        #     $X = $col.Position + 1
-        #     setPosition -X $X -Y 1 
-        #     Write-Host $col.name @ColorTitle -NoNewline
-        # }
     }
 
     function drawFooter {
@@ -577,6 +575,10 @@ function wgSearch {
         $Y = $Host.UI.RawUI.WindowSize.Height - 1
         setPosition -X 0 -y $Y
         Write-Host $bloc -NoNewline
+        $right = "[Space ⋮ Check/Uncheck] [Enter ⋮ Install] [Esc ⋮ Abort]"
+        $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
+        setPosition -X $X -Y $Y 
+        Write-Host $right -NoNewline
     }
 
     function drawItems {
