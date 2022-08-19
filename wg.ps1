@@ -18,6 +18,11 @@ class listSearchItem {
     [bool]$Selected
 }
 
+class listUpdateItem {
+    [upgradeSoftware]$Package
+    [bool]$Selected
+}
+
 class Frame {
     [char]$UL
     [char]$UR
@@ -128,10 +133,27 @@ function wgList {
             Mandatory,
             HelpMessage = "Package (or part) name to search"
         )]
-        [string]$search
+        [string]$search,
+        # Store Filter
+        [Parameter(
+            HelpMessage = "store to filter on"
+        )]
+        [string]
+        $Store    
     )
 
     $command = "winget search --name ${search}"
+
+    if ($Store -ne "") {
+        Write-Host "Filter on store"
+        $command = $command + " --source " + $Store
+    }
+    else {
+        Write-Host "no filter on store"
+    }
+
+    # Write-Host $command
+    
     $SearchResult = Invoke-Expression $command | Out-String
     $lines = $SearchResult.Split([Environment]::NewLine)
 
@@ -142,16 +164,24 @@ function wgList {
 
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")
-    $sourceStart = $lines[$fl].IndexOf("Source")
-
+    if ($store -eq "") {
+        $sourceStart = $lines[$fl].IndexOf("Source")
+    }
     $SearchList = @()
     For ($i = $fl + 1; $i -le $lines.Length; $i++) {
         $line = $lines[$i]
         if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
             $name = $line.Substring(0, $idStart).TrimEnd()
             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-            $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-            $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+            
+            if ($Store -eq "") {
+                $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+            }
+            else {
+                $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
+                $source = $store
+            }
             $software = [installSoftware]::new()
             $software.Name = $name;
             $software.Id = $id;
