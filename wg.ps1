@@ -1,8 +1,15 @@
-class Software {
+class upgradeSoftware {
     [string]$Name
     [string]$Id
     [string]$Version
     [string]$AvailableVersion
+    [string]$Source
+}
+
+class installSoftware {
+    [string]$Name
+    [string]$id
+    [string]$Version
     [string]$Source
 }
 
@@ -83,7 +90,7 @@ function wgUpgradable {
             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
             $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
             $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-            $software = [Software]::new()
+            $software = [upgradeSoftware]::new()
             $software.Name = $name;
             $software.Id = $id;
             $software.Version = $version
@@ -93,6 +100,49 @@ function wgUpgradable {
     }
 
     $upgradeList
+}
+
+function wgList {
+    param(
+        [parameter (
+            Mandatory,
+            HelpMessage = "Package (or part) name to search"
+        )]
+        [string]$search
+    )
+
+    $command = "winget search --name ${search}"
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
+
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("Nom")) {
+        $fl++
+    }
+
+    # $NomStart = $lines[$fl].IndexOf("Nom")
+    $idStart = $lines[$fl].IndexOf("ID")
+    $versionStart = $lines[$fl].IndexOf("Version")
+    $sourceStart = $lines[$fl].IndexOf("Source")
+
+    $SearchList = @()
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+        $line = $lines[$i]
+        if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+            $name = $line.Substring(0, $idStart).TrimEnd()
+            $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+            $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+            $software = [installSoftware]::new()
+            $software.Name = $name;
+            $software.Id = $id;
+            $software.Version = $version
+            $software.Source = $source;
+            $SearchList += $software
+        }
+    }
+
+    $SearchList
 }
 
 function setPosition {
@@ -193,4 +243,5 @@ function getUIInfos {
     Write-Host $Host.UI.RawUI.WindowSize.Width
     Write-Host "Height: " -ForegroundColor Gray -NoNewline
     Write-Host $Host.UI.RawUI.WindowSize.Height 
+    Write-Host "☑️✔️"
 }
