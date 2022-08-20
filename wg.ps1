@@ -149,42 +149,44 @@ function wgConfig {
     )
 }
 
-function wgUpgradable {
-    $command = "winget upgrade"
-    $upgradeResult = Invoke-Expression $command | Out-String
-    $lines = $upgradeResult.Split([Environment]::NewLine)
-    # $lines
-    $fl = 0
-    while (-not $lines[$fl].StartsWith("Nom")) {
-        $fl++
-    }
+# function wgUpgradable {
+#     $command = "winget upgrade"
+#     $upgradeResult = Invoke-Expression $command | Out-String
+#     $lines = $upgradeResult.Split([Environment]::NewLine)
+#     # $lines
+#     $fl = 0
+#     while (-not $lines[$fl].StartsWith("Nom")) {
+#         $fl++
+#     }
 
-    $idStart = $lines[$fl].IndexOf("ID")
-    $versionStart = $lines[$fl].IndexOf("Version")
-    $availableStart = $lines[$fl].IndexOf("Disponible")
-    $sourceStart = $lines[$fl].IndexOf("Source")
+#     $idStart = $lines[$fl].IndexOf("ID")
+#     $versionStart = $lines[$fl].IndexOf("Version")
+#     $availableStart = $lines[$fl].IndexOf("Disponible")
+#     $sourceStart = $lines[$fl].IndexOf("Source")
 
-    $upgradeList = @()
-    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-        $line = $lines[$i]
-        if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-            $name = $line.Substring(0, $idStart).TrimEnd()
-            $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-            $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-            $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-            $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-            $software = [upgradeSoftware]::new()
-            $software.Name = $name;
-            $software.Id = $id;
-            $software.Version = $version
-            $software.AvailableVersion = $available
-            $software.Source = $source
-            $upgradeList += $software
-        }
-    }
+#     $upgradeList = @()
+#     For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+#         $line = $lines[$i]
+#         if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+#             $name = $line.Substring(0, $idStart).TrimEnd()
+#             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+#             $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+#             $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+#             $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+#             $software = [upgradeSoftware]::new()
+#             $software.Name = $name;
+#             $software.Id = $id;
+#             $software.Version = $version
+#             $software.AvailableVersion = $available
+#             $software.Source = $source
+#             $upgradeList += $software
+#         }
+#     }
 
-    $upgradeList
-}
+#     $upgradeList
+# }
+
+
 
 function getColumnsHeaders {
     param(
@@ -228,72 +230,47 @@ function getColumnsHeaders {
     $result
 }
 
-# function wgList {
-#     param(
-#         [parameter (
-#             Mandatory,
-#             HelpMessage = "Package (or part) name to search"
-#         )]
-#         [string]$search,
-#         # Store Filter
-#         [Parameter(
-#             HelpMessage = "store to filter on"
-#         )]
-#         [string]
-#         $Store    
-#     )
+function wgUpgradable {
 
-#     $command = "winget search --name ${search}"
+    $command = "winget upgrade"
 
-#     if ($Store -ne "") {
-#         $command = $command + " --source " + $Store
-#     }
-#     else {
-#         Write-Host "no filter on store"
-#     }
-
-#     # Write-Host $command
+    # Write-Host $command
     
-#     $SearchResult = Invoke-Expression $command | Out-String
-#     $lines = $SearchResult.Split([Environment]::NewLine)
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
 
-#     $fl = 0
-#     while (-not $lines[$fl].StartsWith("Nom")) {
-#         $fl++
-#     }
-#     getColumnsHeaders -columsLine $lines[$fl]
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("Nom")) {
+        $fl++
+    }
+    $Global:columns = getColumnsHeaders -columsLine $lines[$fl]
 
-#     $idStart = $lines[$fl].IndexOf("ID")
-#     $versionStart = $lines[$fl].IndexOf("Version")
-#     if ($store -eq "") {
-#         $sourceStart = $lines[$fl].IndexOf("Source")
-#     }
-#     $SearchList = @()
-#     For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-#         $line = $lines[$i]
-#         if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-#             $name = $line.Substring(0, $idStart).TrimEnd()
-#             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-            
-#             if ($Store -eq "") {
-#                 $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-#                 $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-#             }
-#             else {
-#                 $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
-#                 $source = $store
-#             }
-#             $software = [installSoftware]::new()
-#             $software.Name = $name;
-#             $software.Id = $id;
-#             $software.Version = $version
-#             $software.Source = $source;
-#             $SearchList += $software
-#         }
-#     }
+    $idStart = $lines[$fl].IndexOf("ID")
+    $versionStart = $lines[$fl].IndexOf("Version")
+    $availableStart = $lines[$fl].IndexOf("Disponible")
+    $sourceStart = $lines[$fl].IndexOf("Source")
 
-#     $SearchList
-# }
+    $upgradeList = @()
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+        $line = $lines[$i]
+        if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+            $name = $line.Substring(0, $idStart).TrimEnd()
+            $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+            $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+            $software = [upgradeSoftware]::new()
+            $software.Name = $name;
+            $software.Id = $id;
+            $software.Version = $version
+            $software.AvailableVersion = $available
+            $software.Source = $source
+            $upgradeList += $software
+        }
+    }
+
+    $upgradeList
+}
 
 function wgList {
     param(
@@ -712,6 +689,174 @@ function wgSearchList {
                     drawFooter
                     drawItems
                 }
+            }
+        }
+    } until (
+        $over -gt 0
+    )
+    
+    
+    $result
+}
+
+function wgUpgradeList {
+
+    function drawTitle {
+        $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, "…")
+        setPosition -X 0 -y 0
+        Write-Host $bloc -NoNewline
+        setPosition -x 2 -y 0
+        Write-Host "Select Packqages to Upgrade" -NoNewline
+        $right = "[↑/↓ ⋮ Choice] [Space ⋮ Check/Uncheck]"
+        $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
+        setPosition -X $X -Y 0
+        Write-Host $right -NoNewline
+    }
+
+    function drawColumnNames {
+        $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
+        setPosition -X 0 -Y 1
+        Write-Host $bloc @ColorTitle -NoNewline
+        foreach ($col in $columns) {
+            $X = $col.Position + 1
+            setPosition -X $X -Y 1 
+            Write-Host $col.name @ColorTitle -NoNewline
+        }
+    }
+
+    function drawFooter {
+        $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, "…")
+        $Y = $Host.UI.RawUI.WindowSize.Height - 1
+        setPosition -X 0 -y $Y
+        Write-Host $bloc -NoNewline
+        $right = "[? ⋮ Options] [Enter ⋮ Install] [Esc ⋮ Abort]"
+        $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
+        setPosition -X $X -Y $Y 
+        Write-Host $right -NoNewline
+    }
+
+    function drawItems {
+        $currentLine = 0
+        do {
+            if ($currentLine -eq $line) {
+                $Colors = $ColorInverse
+            }
+            else {
+                <# Action when all if and elseif conditions are false #>
+                $Colors = $ColorNormal
+            }
+            $Y = 2 + $currentLine
+            setPosition -X 0 -Y $Y
+            $bloc = "".PadLeft($W, " ")
+            Write-Host $bloc @Colors -NoNewline
+            
+            setPosition -X 0 -Y $Y
+            if ($menuItems[$currentLine + $startLine].Selected) {
+                Write-Host '✔️﫠' @Colors -NoNewline 
+                # Write-Host '' @Colors -NoNewline 
+            }
+            else {
+                Write-Host ' ' @Colors -NoNewline
+            }
+
+            $X = 2
+            setPosition -X $X -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
+            $col = $columns[0]
+            $X = $X + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.ID @Colors -NoNewline
+            $col = $columns[1]
+            $X = $X + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Version @Colors -NoNewline
+            $col = $columns[2]
+            $X = $X + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.AvailableVersion @Colors -NoNewline
+            $col = $columns[3]
+            $X = $X + $col.Len
+            setPosition -X $X  -Y $Y
+            Write-Host $menuItems[$currentLine + $startLine].Package.Source @Colors -NoNewline
+
+            $currentLine += 1
+        } while (($currentLine -lt $H - 1) -and ($currentLine + $startLine -lt $menuItems.Length))
+    }
+
+    $line = 0
+    $startLine = 0
+    $over = 0
+    Clear-Host
+    displayStatus -Status 'Getting packages List'
+    $list = wgUpgradable
+    
+    ClearStatus
+    $menuItems = @()
+    foreach ($item in $list) {
+        $menuitem = [listUpdateItem]::new()
+        $menuitem.Package = $item
+        $menuitem.Selected = $false
+        $menuItems += $menuitem
+    }
+    $result = @()
+    $W = $Host.UI.RawUI.WindowSize.Width
+    $H = $Host.UI.RawUI.WindowSize.Height - 2
+    # drawFrame -X 0 -Y 0 -W $W -H $H -COLOR Blue
+    drawTitle
+    drawColumnNames
+    drawFooter
+    do {
+        drawItems
+        $key = Wait-KeyPress
+        switch ($key.key) {
+            DownArrow {            
+                if ($line -eq $H - 2) {
+                    if (($line + $startLine) -lt $menuItems.Length - 1) {
+                        $startLine += 1  
+                    }
+                }
+                else {
+                    $line += 1
+                }
+            }
+            UpArrow { 
+                $line -= 1 
+                if ($line -lt 0) {
+                    if ($startLine -gt 0) {
+                        $startLine -= 1
+                    }
+                    $line = 0
+                }
+            }
+            SpaceBar {
+                if ($menuItems[$line + $startLine].Selected -eq $false) {
+                    $menuItems[$line + $startLine].Selected = $true
+                }
+                else {
+                    $menuItems[$line + $startLine].Selected = $false
+                } 
+            }
+            Enter {
+                $over = 1
+                foreach ($item in $menuItems) {
+                    if ($item.Selected) {
+                        $result += $item.Package
+                    }
+                }
+            }
+            Escape {
+                $over = 2
+            }
+            OemComma {
+                showOptions
+                drawTitle
+                drawColumnNames
+                drawFooter
+                drawItems
+                
+            }
+            Default {
+                
             }
         }
     } until (
