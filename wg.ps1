@@ -41,6 +41,25 @@ class column {
 }
 
 $Global:columns = @()
+$Global:source = ""
+
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+$configPath = Join-Path -Path $scriptPath -ChildPath "params.json"
+if (Test-Path -Path $configPath -PathType Leaf) {
+    $config = Get-Content -Raw -Path $configPath | ConvertFrom-Json
+}
+else {
+    $sConfig = '{
+        "source": "winget",
+        "nresult": "10"
+    }
+    '
+    $config = $sConfig | ConvertFrom-Json
+    $config | ConvertTo-Json | Out-File $configPath
+}
+$config
+ 
 
 $ColorNormal = @{
     BackgroundColor = "Black"
@@ -55,6 +74,11 @@ $ColorInverse = @{
 $ColorTitle = @{
     BackgroundColor = "Gray"
     ForegroundColor = "Black"
+}
+
+$ColorInput = @{
+    BackgroundColor = "Blue"
+    ForegroundColor = "Yellow"
 }
 
 $Single = [Frame]::new()
@@ -87,23 +111,43 @@ function spacer {
 function Wait-KeyPress {
     param
     (
-        [string]
-        $Message = 'Press Arrow-Down to continue',
-
         [ConsoleKey]
         $Key = [ConsoleKey]::DownArrow
     )
     
-    # emit your custom message
-    # Write-Host -Object $Message -ForegroundColor Yellow -BackgroundColor Black
-    
-    # use a blocking call because we *want* to wait
-
     $keyInfo = [Console]::ReadKey($false)
     
     $keyInfo
 }
 
+function makeFiller {
+    param(
+        # Width of the filler
+        [Parameter(
+            HelpMessage = "Width of the filler (default is screen width)"
+        )]
+        [Int16]
+        $Width,
+        # Filler character
+        [Parameter(
+            HelpMessage = "Character to use to fill"
+        )]
+        [string]
+        $Fill
+    )
+    if ($width -eq 0) {
+        $Width = $Host.UI.RawUI.WindowSize.Width
+    }
+}
+
+function wgConfig {
+    param(
+        # List parameters
+        [Parameter(AttributeValues)]
+        [ParameterType]
+        $ParameterName
+    )
+}
 
 function wgUpgradable {
     $command = "winget upgrade"
@@ -128,11 +172,13 @@ function wgUpgradable {
             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
             $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
             $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
             $software = [upgradeSoftware]::new()
             $software.Name = $name;
             $software.Id = $id;
             $software.Version = $version
-            $software.AvailableVersion = $available;
+            $software.AvailableVersion = $available
+            $software.Source = $source
             $upgradeList += $software
         }
     }
@@ -321,10 +367,7 @@ function setPosition {
         [int]$X,
         [int]$Y
     )
-    $cursorPos = $host.UI.RawUI.CursorPosition
-    $cursorPos.Y = $Y
-    $cursorPos.X = $X
-    $host.UI.RawUI.CursorPosition = $cursorPos
+    $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates $X, $Y
 }
 
 function drawFrame {
@@ -397,6 +440,8 @@ function drawFrame {
     Write-Host $Frame.BR -ForegroundColor $COLOR
 }
 
+
+
 function testFrame {
     Clear-Host
     $maxHeight = $Host.UI.RawUI.WindowSize.Height - 2
@@ -405,7 +450,7 @@ function testFrame {
     drawFrame 10 10 40 10 Blue
     drawFrame 35 15 50 25 Red -DoubleLine -Clear
     setPosition 0 0
-    Wait-KeyPress "" Enter
+    Wait-KeyPress Enter
     Clear-Host
 }
 
@@ -529,7 +574,25 @@ function testMenu {
     $result
 }
 
-function wgSearch {
+function showOptions {
+    $W = $Host.UI.RawUI.WindowSize.Width
+    $H = $Host.UI.RawUI.WindowSize.Height
+    $WW = [Math]::Round($W * .9)
+    $WH = [Math]::Round($H * .8)
+    $X = [Math]::Round(($W - $WW) / 2)
+    $Y = [Math]::Round(($H - $WH) / 2)
+    $coord = @{
+        W = $WW
+        h = $WH
+        X = $X
+        Y = $Y
+    }
+    drawFrame @coord -COLOR Blue -Clear
+
+    Wait-KeyPress
+}
+
+function wgSearchList {
     [CmdletBinding()]
     param (
         # Package to search
@@ -598,17 +661,18 @@ function wgSearch {
             
             setPosition -X 0 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
-                Write-Host '✔️' @Colors -NoNewline 
+                Write-Host '✔️﫠' @Colors -NoNewline 
+                # Write-Host '' @Colors -NoNewline 
             }
             else {
                 Write-Host ' ' @Colors -NoNewline
             }
 
-            
-            setPosition -X 1 -Y $Y
+            $X = 2
+            setPosition -X $X -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
             $col = $columns[0]
-            $X = 1 + $col.Len
+            $X = $X + $col.Len
             setPosition -X $X  -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.ID @Colors -NoNewline
             $col = $columns[1]
@@ -621,7 +685,7 @@ function wgSearch {
             Write-Host $menuItems[$currentLine + $startLine].Package.Source @Colors -NoNewline
 
             $currentLine += 1
-        } while ($currentLine -lt $H - 1)
+        } while (($currentLine -lt $H - 1) -and ($currentLine + $startLine -lt $menuItems.Length))
     }
 
     $line = 0
@@ -688,7 +752,41 @@ function wgSearch {
             Escape {
                 $over = 2
             }
-            Default {}
+            OemComma {
+                showOptions
+                drawTitle
+                drawColumnNames
+                drawFooter
+                drawItems
+                
+            }
+            Default {
+                if ($key.KeyChar -eq "/") {
+                    [console]::beep(2000, 100)
+                    $Y = $Host.UI.RawUI.WindowSize.Height - 1
+                    setPosition -X 2 -y $Y
+                    Write-Host "[Search]:" -NoNewline @ColorInput
+                    $Search = Read-Host
+                    $line = 0
+                    $startLine = 0
+                    $over = 0
+                    Clear-Host
+                    displayStatus -Status 'Getting packages List'
+                    $list = wgList -search $Search -Store $Store
+                    ClearStatus
+                    $menuItems = @()
+                    foreach ($item in $list) {
+                        $menuitem = [listSearchItem]::new()
+                        $menuitem.Package = $item
+                        $menuitem.Selected = $false
+                        $menuItems += $menuitem
+                    }
+                    drawTitle
+                    drawColumnNames
+                    drawFooter
+                    drawItems
+                }
+            }
         }
     } until (
         $over -gt 0
@@ -706,11 +804,5 @@ function getUIInfos {
     Write-Host "☑️✔️"
 }
 
-function testSplatting {
-    # $Colors = @{ForegroundColor = "black"; BackgroundColor = "white" }
-    Write-Host @ColorNormal "Test Normal"
-    Write-Host @ColorInverse "Test Inverse"
-}
-
 # getColumnsHeaders -columsLine "Nom                                                      ID                                       Version      Source   "
-wgSearch -Search Photo
+# wgSearch -Search Photo
