@@ -42,6 +42,7 @@ class column {
 
 $Global:columns = @()
 $Global:source = ""
+$Global:toInstall = @()
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
@@ -487,8 +488,93 @@ function showOptions {
         Y = $Y
     }
     drawFrame @coord -COLOR Blue -Clear
+    function drawItems {
+        $currentLine = 0
+        do {
+            if ($currentLine -eq $line) {
+                $Colors = $ColorInverse
+            }
+            else {
+                <# Action when all if and elseif conditions are false #>
+                $Colors = $ColorNormal
+            }
+            $XX = $X + 1
+            $YY = $Y + 2 + $currentLine
+            setPosition -X $XX -Y $YY
+            $bloc = "".PadLeft($WW - 2, " ")
+            Write-Host $bloc @Colors -NoNewline
+            
+            setPosition -X $XX -Y $YY
+            if ($Global:toInstall[$currentLine + $startLine].Selected) {
+                Write-Host '✔️' @Colors -NoNewline 
+            }
+            else {
+                Write-Host ' ' @Colors -NoNewline
+            }
 
-    $key = Wait-KeyPress
+            $XX = $X + 2
+            setPosition -X $XX -Y $YY
+            Write-Host $Global:toInstall[$currentLine + $startLine].Package.Name @Colors -NoNewline
+            $col = $columns[0]
+            $XX = $XX + $col.Len
+            setPosition -X $XX  -Y $YY
+            Write-Host $Global:toInstall[$currentLine + $startLine].Package.ID @Colors -NoNewline
+            $col = $columns[1]
+            $XX = $XX + $col.Len
+            setPosition -X $XX  -Y $YY
+            Write-Host $Global:toInstall[$currentLine + $startLine].Package.Version @Colors -NoNewline
+            
+            $currentLine += 1
+        } while (($currentLine -lt $WH - 1) -and ($currentLine + $startLine -lt $Global:toInstall.Length))
+    }
+
+    $line = 0
+    $startLine = 0
+    $over = 0
+
+    do {
+        drawItems
+        $key = Wait-KeyPress
+        switch ($key.key) {
+            DownArrow {            
+                if ($line -eq $H - 2) {
+                    if (($line + $startLine) -lt $Global:toInstall.Length - 1) {
+                        $startLine += 1  
+                    }
+                }
+                else {
+                    $line += 1
+                }
+            }
+            UpArrow { 
+                $line -= 1 
+                if ($line -lt 0) {
+                    if ($startLine -gt 0) {
+                        $startLine -= 1
+                    }
+                    $line = 0
+                }
+            }
+            SpaceBar {
+                if ($Global:toInstall[$line + $startLine].Selected -eq $false) {
+                    $Global:toInstall[$line + $startLine].Selected = $true
+                }
+                else {
+                    $Global:toInstall[$line + $startLine].Selected = $false
+                    
+                } 
+            }
+            Enter {
+                $over = 1
+            }
+            Escape {
+                $over = 2
+            }
+           
+        }
+    } until (
+        $over -gt 0
+    )
 
     clearFrame @coord
 }
@@ -510,6 +596,29 @@ function wgSearchList {
         [String]
         $Store
     )
+
+    function installPackages {
+        param(
+            # Parameter help description
+            [System.Object]
+            $list
+        )
+        # $list | ForEach-Object { wginstall -id $_.id }
+        $W = $Host.UI.RawUI.WindowSize.Width
+        $H = $Host.UI.RawUI.WindowSize.Height
+        $WW = [Math]::Round($W * .9)
+        $WH = [Math]::Round($H * .6)
+        $X = [Math]::Round(($W - $WW) / 2)
+        $Y = [Math]::Round(($H - $WH) / 2)
+        $coord = @{
+            W = $WW
+            h = $WH
+            X = $X
+            Y = $Y
+        }
+        drawFrame @coord -COLOR Blue -Clear
+        $key = Wait-KeyPress
+    }
 
     function drawTitle {
         $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, "…")
@@ -539,7 +648,7 @@ function wgSearchList {
         $Y = $Host.UI.RawUI.WindowSize.Height - 1
         setPosition -X 0 -y $Y
         Write-Host $bloc -NoNewline
-        $right = "[? ⋮ Options] [/ ⋮ Search] [Enter ⋮ Install] [Esc ⋮ Abort]"
+        $right = "[? ⋮ Summary] [/ ⋮ Search] [Enter ⋮ Install] [Esc ⋮ Abort]"
         $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
         setPosition -X $X -Y $Y 
         Write-Host $right -NoNewline
@@ -562,8 +671,7 @@ function wgSearchList {
             
             setPosition -X 0 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
-                Write-Host '✔️﫠' @Colors -NoNewline 
-                # Write-Host '' @Colors -NoNewline 
+                Write-Host '✔️' @Colors -NoNewline 
             }
             else {
                 Write-Host ' ' @Colors -NoNewline
@@ -588,7 +696,7 @@ function wgSearchList {
             $currentLine += 1
         } while (($currentLine -lt $H - 1) -and ($currentLine + $startLine -lt $menuItems.Length))
     }
-
+    $Global:toInstall = @()
     $line = 0
     $startLine = 0
     $over = 0
@@ -637,24 +745,37 @@ function wgSearchList {
             SpaceBar {
                 if ($menuItems[$line + $startLine].Selected -eq $false) {
                     $menuItems[$line + $startLine].Selected = $true
+                    $Global:toInstall += @{
+                        Selected = $true
+                        Package  = $menuItems[$line + $startLine].Package
+                    }
                 }
                 else {
                     $menuItems[$line + $startLine].Selected = $false
+                    
                 } 
             }
             Enter {
                 $over = 1
+                foreach ($item in $Global:toInstall) {
+                    if ($item.Selected) {
+                        $result += $item.Package
+                    }
+                }
+                installPackages -list $result
+            }
+            Escape {
+                $over = 2
                 foreach ($item in $menuItems) {
                     if ($item.Selected) {
                         $result += $item.Package
                     }
                 }
-            }
-            Escape {
-                $over = 2
+                $result
             }
             OemComma {
                 showOptions
+                Clear-Host
                 drawTitle
                 drawColumnNames
                 drawFooter
@@ -693,8 +814,9 @@ function wgSearchList {
         $over -gt 0
     )
     
-    Clear-Host
     $result
+    # Clear-Host
+    
 }
 
 function wgUpgradeList {
@@ -750,8 +872,7 @@ function wgUpgradeList {
             
             setPosition -X 0 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
-                Write-Host '✔️﫠' @Colors -NoNewline 
-                # Write-Host '' @Colors -NoNewline 
+                Write-Host '✔️' @Colors -NoNewline 
             }
             else {
                 Write-Host ' ' @Colors -NoNewline
@@ -799,7 +920,6 @@ function wgUpgradeList {
     $result = @()
     $W = $Host.UI.RawUI.WindowSize.Width
     $H = $Host.UI.RawUI.WindowSize.Height - 2
-    # drawFrame -X 0 -Y 0 -W $W -H $H -COLOR Blue
     drawTitle
     drawColumnNames
     drawFooter
@@ -884,12 +1004,8 @@ function wgInstall {
         $command = $command + " --silent "
     }
 
-    # Write-Host $command
-    
     $SearchResult = Invoke-Expression $command | Out-String
     $lines = $SearchResult.Split([Environment]::NewLine)
-
-    $lines
 }
 
 function wgRemove {
@@ -903,8 +1019,6 @@ function wgRemove {
     )
     $command = "winget uninstall --id ${ID}"
 
-    # Write-Host $command
-    
     $SearchResult = Invoke-Expression $command | Out-String
     $lines = $SearchResult.Split([Environment]::NewLine)
 
