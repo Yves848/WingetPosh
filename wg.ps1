@@ -58,8 +58,6 @@ else {
     $config = $sConfig | ConvertFrom-Json
     $config | ConvertTo-Json | Out-File $configPath
 }
-$config
- 
 
 $ColorNormal = @{
     BackgroundColor = "Black"
@@ -695,7 +693,7 @@ function wgSearchList {
         $over -gt 0
     )
     
-    
+    Clear-Host
     $result
 }
 
@@ -863,6 +861,7 @@ function wgUpgradeList {
         $over -gt 0
     )
     
+    Clear-Host
     
     $result
 }
@@ -874,6 +873,14 @@ function getUIInfos {
     Write-Host $Host.UI.RawUI.WindowSize.Height 
     Write-Host "☑️✔️"
 }
+
+# if (-not (Get-Module -ListAvailable -Name WriteAscii)) {
+#     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+#     Set-PSRepository -Name 'PSGallery' -SourceLocation "https://www.powershellgallery.com/api/v2" -InstallationPolicy Trusted
+#     Install-Module -Name Write-Host -Force    
+# } 
+
+# Import-Module WriteAscii
 
 # getColumnsHeaders -columsLine "Nom                                                      ID                                       Version      Source   "
 # wgSearch -Search Photo
