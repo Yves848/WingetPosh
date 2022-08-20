@@ -440,18 +440,40 @@ function drawFrame {
     Write-Host $Frame.BR -ForegroundColor $COLOR
 }
 
-
-
-function testFrame {
-    Clear-Host
-    $maxHeight = $Host.UI.RawUI.WindowSize.Height - 2
-    $maxWidth = $Host.UI.RawUI.WindowSize.Width
-    drawFrame 0 0 $maxWidth $maxHeight DarkGreen
-    drawFrame 10 10 40 10 Blue
-    drawFrame 35 15 50 25 Red -DoubleLine -Clear
-    setPosition 0 0
-    Wait-KeyPress Enter
-    Clear-Host
+function clearFrame {
+    param (
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Left Position (X)'
+        )]
+        [int]$X,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Top Position (Y)'
+        )]
+        [int]$Y,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Window Width (W)'
+        )]
+        [int]$W,
+        [parameter(
+            Mandatory,
+            HelpMessage = 'Window Height (H)'
+        )]
+        [int]$H,
+        [System.ConsoleColor]$COLOR = "Black"
+    )
+    setPosition $X $Y
+    
+    $blank = "".PadLeft($W, " ") 
+    Write-Host $blank -ForegroundColor $COLOR -NoNewline
+    
+    for ($i = 1; $i -le $H; $i++) {
+        $Y2 = $Y + $i
+        setPosition $X $Y2
+        Write-Host $blank    
+    }
 }
 
 function displayStatus {
@@ -476,104 +498,6 @@ function ClearStatus {
     Write-Host $bloc -BackgroundColor black -NoNewline
 }
 
-function testMenu {
-    function drawItems {
-        $currentLine = 0
-        do {
-            if ($currentLine -eq $line) {
-                $Colors = $ColorInverse
-            }
-            else {
-                <# Action when all if and elseif conditions are false #>
-                $Colors = $ColorNormal
-            }
-            $Y = 4 + $currentLine
-            setPosition -X 4 -Y $Y
-            $bloc = "".PadLeft(67, " ")
-            Write-Host $bloc @Colors 
-            
-            setPosition -X 4 -Y $Y
-            if ($menuItems[$currentLine + $startLine].Selected) {
-                Write-Host '✔️' @Colors 
-            }
-            else {
-                Write-Host ' ' @Colors 
-            }
-            setPosition -X 7 -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors  
-            $currentLine += 1
-        } while ($currentLine -lt 19)
-    }
-
-    $line = 0
-    $startLine = 0
-    $over = 0
-    Clear-Host
-    displayStatus -Status 'Getting packages List'
-    $list = wgList -search "test"
-    ClearStatus
-    $menuItems = @()
-    foreach ($item in $list) {
-        $menuitem = [listSearchItem]::new()
-        $menuitem.Package = $item
-        $menuitem.Selected = $false
-        $menuItems += $menuitem
-    }
-    $result = @()
-    drawFrame -X 3 -Y 3 -W 70 -H 20 -COLOR Blue
-
-    do {
-        drawItems
-        $key = Wait-KeyPress
-        switch ($key.key) {
-            DownArrow {            
-                if ($line -eq 18) {
-                    if (($line + $startLine) -lt $menuItems.Length - 1) {
-                        $startLine += 1  
-                    }
-                }
-                else {
-                    $line += 1
-                }
-            }
-            UpArrow { 
-                $line -= 1 
-                if ($line -lt 0) {
-                    if ($startLine -gt 0) {
-                        $startLine -= 1
-                    }
-                    $line = 0
-                }
-            }
-            SpaceBar {
-                if ($menuItems[$line + $startLine].Selected -eq $false) {
-                    $menuItems[$line + $startLine].Selected = $true
-                }
-                else {
-                    $menuItems[$line + $startLine].Selected = $false
-                } 
-            }
-            Enter {
-                $over = 1
-                foreach ($item in $menuItems) {
-                    if ($item.Selected) {
-                        $result += $item.Package
-                    }
-                }
-            }
-            Escape {
-                $over = 2
-            }
-            Default {}
-        }
-    } until (
-        $over -gt 0
-    )
-    
-    
-    $result
-}
-
 function showOptions {
     $W = $Host.UI.RawUI.WindowSize.Width
     $H = $Host.UI.RawUI.WindowSize.Height
@@ -589,7 +513,9 @@ function showOptions {
     }
     drawFrame @coord -COLOR Blue -Clear
 
-    Wait-KeyPress
+    $key = Wait-KeyPress
+
+    clearFrame @coord
 }
 
 function wgSearchList {
@@ -616,7 +542,7 @@ function wgSearchList {
         Write-Host $bloc -NoNewline
         setPosition -x 2 -y 0
         Write-Host "Select Packqages to Install" -NoNewline
-        $right = "[↑/↓ ⋮ Choice]"
+        $right = "[↑/↓ ⋮ Choice] [Space ⋮ Check/Uncheck]"
         $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
         setPosition -X $X -Y 0
         Write-Host $right -NoNewline
@@ -638,7 +564,7 @@ function wgSearchList {
         $Y = $Host.UI.RawUI.WindowSize.Height - 1
         setPosition -X 0 -y $Y
         Write-Host $bloc -NoNewline
-        $right = "[Space ⋮ Check/Uncheck] [Enter ⋮ Install] [Esc ⋮ Abort]"
+        $right = "[? ⋮ Options] [/ ⋮ Search] [Enter ⋮ Install] [Esc ⋮ Abort]"
         $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
         setPosition -X $X -Y $Y 
         Write-Host $right -NoNewline
