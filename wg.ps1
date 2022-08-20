@@ -866,6 +866,51 @@ function wgUpgradeList {
     $result
 }
 
+function wgInstall {
+    param(
+        # Parameter help description
+        [Parameter(
+            Mandatory
+        )]
+        [string]
+        $ID,
+        # Parameter help description
+        [switch]
+        $silent
+    )
+    $command = "winget install --id ${ID}"
+
+    if ($silent.IsPresent) {
+        $command = $command + " --silent "
+    }
+
+    # Write-Host $command
+    
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
+
+    $lines
+}
+
+function wgRemove {
+    param(
+        # Parameter help description
+        [Parameter(
+            Mandatory
+        )]
+        [string]
+        $ID
+    )
+    $command = "winget uninstall --id ${ID}"
+
+    # Write-Host $command
+    
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
+
+    $lines
+}
+
 function getUIInfos {
     Write-Host "Width: " -ForegroundColor Gray -NoNewline
     Write-Host $Host.UI.RawUI.WindowSize.Width
