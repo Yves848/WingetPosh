@@ -488,6 +488,12 @@ function showOptions {
         Y = $Y
     }
     drawFrame @coord -COLOR Blue -Clear
+
+    function drawTitle {
+        $X1 = $X + 3 
+        setPosition -X $X1 + 3 -Y $Y
+        Write-Host "| Selected Packages |" -ForegroundColor Blue -NoNewline
+    }
     function drawItems {
         $currentLine = 0
         do {
@@ -531,7 +537,7 @@ function showOptions {
     $line = 0
     $startLine = 0
     $over = 0
-
+    drawTitle
     do {
         drawItems
         $key = Wait-KeyPress
