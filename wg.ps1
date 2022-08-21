@@ -42,7 +42,7 @@ class column {
 
 $Global:columns = @()
 $Global:source = ""
-$Global:toInstall = @()
+[System.Collections.ArrayList]$Global:toInstall = @()
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
@@ -494,6 +494,15 @@ function showOptions {
         setPosition -X $X1 + 3 -Y $Y
         Write-Host "| Selected Packages |" -ForegroundColor Blue -NoNewline
     }
+
+    function drawFooter {
+        $bloc = "[↑/↓ ⋮ Select] [Del ⋮ Remove] [Space ⋮ Check/Uncheck]"
+        $Y1 = $Y + $WH
+        $X1 = ($X + $WW) - $bloc.Length - 2
+        setPosition -X $X1 -Y $Y1
+        Write-Host $bloc -NoNewline -ForegroundColor Blue
+    }
+
     function drawItems {
         $currentLine = 0
         do {
@@ -531,13 +540,14 @@ function showOptions {
             Write-Host $Global:toInstall[$currentLine + $startLine].Package.Version @Colors -NoNewline
             
             $currentLine += 1
-        } while (($currentLine -lt $WH - 1) -and ($currentLine + $startLine -lt $Global:toInstall.Length))
+        } while (($currentLine -lt $WH - 1) -and ($currentLine + $startLine -lt $Global:toInstall.count))
     }
 
     $line = 0
     $startLine = 0
     $over = 0
     drawTitle
+    drawFooter
     do {
         drawItems
         $key = Wait-KeyPress
@@ -682,7 +692,6 @@ function wgSearchList {
             else {
                 Write-Host ' ' @Colors -NoNewline
             }
-
             $X = 2
             setPosition -X $X -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
@@ -698,11 +707,10 @@ function wgSearchList {
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Source @Colors -NoNewline
-
             $currentLine += 1
         } while (($currentLine -lt $H - 1) -and ($currentLine + $startLine -lt $menuItems.Length))
     }
-    $Global:toInstall = @()
+    $Global:toInstall.Clear()
     $line = 0
     $startLine = 0
     $over = 0
@@ -721,7 +729,6 @@ function wgSearchList {
     $result = @()
     $W = $Host.UI.RawUI.WindowSize.Width
     $H = $Host.UI.RawUI.WindowSize.Height - 2
-    # drawFrame -X 0 -Y 0 -W $W -H $H -COLOR Blue
     drawTitle
     drawColumnNames
     drawFooter
@@ -757,8 +764,14 @@ function wgSearchList {
                     }
                 }
                 else {
+                    $tempID = $menuItems[$line + $startLine].Package.id 
                     $menuItems[$line + $startLine].Selected = $false
-                    
+                    foreach ($item in $Global:toInstall) {
+                        if ($item.Package.Id -eq $tempID) {
+                            $Global:toInstall.remove($item)
+                            break
+                        }
+                    }
                 } 
             }
             Enter {
