@@ -80,6 +80,11 @@ $ColorInput = @{
     ForegroundColor = "Yellow"
 }
 
+$ColorColumn = @{
+    BackgroundColor = "Black"
+    ForegroundColor = "Blue"
+}
+
 $Single = [Frame]::new()
 $Single.UL = "┌"
 $Single.UR = "┐"
@@ -632,8 +637,22 @@ function wgSearchList {
             X = $X
             Y = $Y
         }
-        drawFrame @coord -COLOR Blue -Clear
-        $key = Wait-KeyPress
+        Clear-Host
+        Write-Host "Selected Packages"
+        # $list | ForEach-Object { Write-Host "${_.id} | ${_.Name}" }
+        foreach ($item in $Global:toInstall) {
+            Write-Host @ColorColumn -NoNewline " Name : "
+            Write-Host $item.Package.Name -NoNewline
+            Write-Host @ColorColumn -NoNewline "`t`t Id : "
+            Write-Host $item.package.Id
+        }
+        
+        # drawFrame @coord -COLOR Blue -Clear
+        # $XX = $X + 2
+        # $YY = $Y + 2
+        Write-Host "`n`r to install the selected packages :`r`n"
+        Write-Host "`$list | ForEach-Object {wginstall -id $_.id}"
+        
     }
 
     function drawTitle {
