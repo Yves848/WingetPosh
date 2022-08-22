@@ -362,6 +362,47 @@ function wgUpgradable {
     $upgradeList
 }
 
+function wgList {
+
+    $command = "winget upgrade"
+    
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
+
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("Nom")) {
+        $fl++
+    }
+    $Global:columns = getColumnsHeaders -columsLine $lines[$fl]
+
+    $idStart = $lines[$fl].IndexOf("ID")
+    $versionStart = $lines[$fl].IndexOf("Version")
+    $availableStart = $lines[$fl].IndexOf("Disponible")
+    $sourceStart = $lines[$fl].IndexOf("Source")
+
+    $InstalledList = @()
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+        $line = $lines[$i]
+        if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+            $name = $line.Substring(0, $idStart).TrimEnd()
+            $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+            $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+            if ($source -ne "") {
+                $software = [upgradeSoftware]::new()
+                $software.Name = $name;
+                $software.Id = $id;
+                $software.Version = $version
+                $software.AvailableVersion = $available
+                $software.Source = $source
+                $InstalledList += $software
+            }
+        }
+    }
+    $installedList
+}
+
 function wgSearch {
     param(
         [parameter (
@@ -427,6 +468,8 @@ function wgSearch {
     }
     $SearchList
 }
+
+
 
 function setPosition {
     param (
@@ -1360,11 +1403,16 @@ function wingetPosh {
                 $local:over = 2
             }
         } 
-        
+
         if ($local:over -eq 1) {
             switch ($local:selected) {
                 0 {  
-                    $list = wgSearchList -Search test
+                    $local:searchPackage = [window]::new(10, 8, 80, 5, $true, "White", "Search Package", "Blue")
+                    $local:searchPackage.drawWindow()
+                    setPosition 12 11
+                    Write-Host "Package to search : " -NoNewline
+                    $local:package = Read-Host
+                    $list = wgSearchList -Search $local:Package
                 }
                 2 {
                     $list = wgUpgradeList
@@ -1408,4 +1456,4 @@ function testWindow {
     
 }
 
-wingetPosh
+# wingetPosh
