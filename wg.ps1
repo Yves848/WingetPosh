@@ -1360,6 +1360,7 @@ function wingetPosh {
                 $local:over = 2
             }
         } 
+        
         if ($local:over -eq 1) {
             switch ($local:selected) {
                 0 {  
