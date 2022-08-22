@@ -1319,6 +1319,7 @@ function wingetPosh {
         "List installed packages",
         "List available updates"
     )
+    Clear-Host
     $local:window.drawWindow()
     $local:line = 0
     $local:over = 0
@@ -1364,12 +1365,17 @@ function wingetPosh {
                 0 {  
                     $list = wgSearchList -Search test
                 }
+                2 {
+                    $list = wgUpgradeList
+                }
                 Default {}
             }
             $local:selected = -1
             $local:over = 0
+            Clear-Host
+            $local:window.drawWindow()
         }
-        $local:window.drawWindow()
+        
         drawLines -menuitems $local:menuItems -X $local:X -y $local:Y -width $local:W -selected $local:line
     }
     until (
