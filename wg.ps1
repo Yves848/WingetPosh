@@ -641,10 +641,12 @@ function wgSearchList {
         Write-Host "Selected Packages"
         # $list | ForEach-Object { Write-Host "${_.id} | ${_.Name}" }
         foreach ($item in $Global:toInstall) {
-            Write-Host @ColorColumn -NoNewline " Name : "
-            Write-Host $item.Package.Name -NoNewline
-            Write-Host @ColorColumn -NoNewline "`t`t Id : "
-            Write-Host $item.package.Id
+            if ($item.selected) {
+                Write-Host @ColorColumn -NoNewline " Name : "
+                Write-Host $item.Package.Name -NoNewline
+                Write-Host @ColorColumn -NoNewline "`t`t Id : "
+                Write-Host $item.package.Id
+            }
         }
         
         # drawFrame @coord -COLOR Blue -Clear
@@ -804,7 +806,7 @@ function wgSearchList {
             }
             Escape {
                 $over = 2
-                foreach ($item in $menuItems) {
+                foreach ($item in $Global:toInstall) {
                     if ($item.Selected) {
                         $result += $item.Package
                     }
@@ -858,6 +860,45 @@ function wgSearchList {
 }
 
 function wgUpgradeList {
+
+    function upgradePackages {
+        param(
+            # Parameter help description
+            [System.Object]
+            $list
+        )
+        # $list | ForEach-Object { wginstall -id $_.id }
+        $W = $Host.UI.RawUI.WindowSize.Width
+        $H = $Host.UI.RawUI.WindowSize.Height
+        $WW = [Math]::Round($W * .9)
+        $WH = [Math]::Round($H * .6)
+        $X = [Math]::Round(($W - $WW) / 2)
+        $Y = [Math]::Round(($H - $WH) / 2)
+        $coord = @{
+            W = $WW
+            h = $WH
+            X = $X
+            Y = $Y
+        }
+        Clear-Host
+        Write-Host "Selected Packages"
+        # $list | ForEach-Object { Write-Host "${_.id} | ${_.Name}" }
+        foreach ($item in $Global:toInstall) {
+            if ($item.selected) {
+                Write-Host @ColorColumn -NoNewline " Name : "
+                Write-Host $item.Package.Name -NoNewline
+                Write-Host @ColorColumn -NoNewline "`t`t Id : "
+                Write-Host $item.package.Id
+            }
+        }
+        
+        # drawFrame @coord -COLOR Blue -Clear
+        # $XX = $X + 2
+        # $YY = $Y + 2
+        Write-Host "`n`r to install the selected packages :`r`n"
+        Write-Host "`$list | ForEach-Object {wgUpgrade -id $_.id}"
+        
+    }
 
     function drawTitle {
         $bloc = "".PadLeft($Host.UI.RawUI.WindowSize.Width, "…")
@@ -946,7 +987,8 @@ function wgUpgradeList {
     Clear-Host
     displayStatus -Status 'Getting packages List'
     $list = wgUpgradable
-    
+
+    $Global:toInstall.Clear()
     ClearStatus
     $menuItems = @()
     foreach ($item in $list) {
@@ -985,26 +1027,46 @@ function wgUpgradeList {
                 }
             }
             SpaceBar {
+                # if ($menuItems[$line + $startLine].Selected -eq $false) {
+                #     $menuItems[$line + $startLine].Selected = $true
+                # }
+                # else {
+                #     $menuItems[$line + $startLine].Selected = $false
+                # }
                 if ($menuItems[$line + $startLine].Selected -eq $false) {
                     $menuItems[$line + $startLine].Selected = $true
+                    $Global:toInstall += @{
+                        Selected = $true
+                        Package  = $menuItems[$line + $startLine].Package
+                    }
                 }
                 else {
+                    $tempID = $menuItems[$line + $startLine].Package.id 
                     $menuItems[$line + $startLine].Selected = $false
-                } 
+                    foreach ($item in $Global:toInstall) {
+                        if ($item.Package.Id -eq $tempID) {
+                            $Global:toInstall.remove($item)
+                            break
+                        }
+                    }
+                }  
             }
             Enter {
                 $over = 1
-                foreach ($item in $menuItems) {
+                foreach ($item in $Global:toInstall) {
                     if ($item.Selected) {
                         $result += $item.Package
                     }
                 }
+
+                upgradePackages -list $result
             }
             Escape {
                 $over = 2
             }
             OemComma {
                 showOptions
+                Clear-Host
                 drawTitle
                 drawColumnNames
                 drawFooter
@@ -1019,7 +1081,7 @@ function wgUpgradeList {
         $over -gt 0
     )
     
-    Clear-Host
+    
     
     $result
 }
@@ -1037,6 +1099,28 @@ function wgInstall {
         $silent
     )
     $command = "winget install --id ${ID}"
+
+    if ($silent.IsPresent) {
+        $command = $command + " --silent "
+    }
+
+    $SearchResult = Invoke-Expression $command | Out-String
+    $lines = $SearchResult.Split([Environment]::NewLine)
+}
+
+function wgUpgrade {
+    param(
+        # Parameter help description
+        [Parameter(
+            Mandatory
+        )]
+        [string]
+        $ID,
+        # Parameter help description
+        [switch]
+        $silent
+    )
+    $command = "winget upgrade --id ${ID}"
 
     if ($silent.IsPresent) {
         $command = $command + " --silent "
@@ -1078,6 +1162,3 @@ function getUIInfos {
 # } 
 
 # Import-Module WriteAscii
-
-# getColumnsHeaders -columsLine "Nom                                                      ID                                       Version      Source   "
-# wgSearch -Search Photo
