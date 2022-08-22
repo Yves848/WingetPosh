@@ -78,6 +78,7 @@ class window {
     [System.ConsoleColor]$frameColor
     [string]$title = ""
     [System.ConsoleColor]$titleColor
+    [string]$footer = ""
 
     window(
         [int]$X,
@@ -146,6 +147,7 @@ class window {
         Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
         Write-Host $this.frameStyle.BR -ForegroundColor $this.frameColor
         $this.drawTitle()
+        $this.drawFooter()
     }
 
     [void] drawTitle() {
@@ -160,6 +162,29 @@ class window {
             setPosition -X $local:X -Y $this.Y
             Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
         }
+    }
+
+    [void] drawFooter() {
+        if ($this.footer -ne "") {
+            $local:x = ($this.W - $this.footer.Length - 2)
+            $local:Y = $this.Y + $this.h
+            setPosition -X $local:X -Y $local:Y
+            Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+            $local:X = $local:X + 2
+            setPosition -X $local:X -Y $local:Y
+            Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
+            $local:X = $local:X + $this.footer.Length
+            setPosition -X $local:X -Y $local:Y
+            Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+        }
+    }
+
+    [void] clearWindow() {
+        $local:blank = "".PadLeft($this.W - 2, " ") 
+        for ($i = 1; $i -lt $this.H; $i++) {
+            setPosition ($this.X + 1) ($this.Y + $i)
+            Write-Host $blank 
+        } 
     }
 }
 
@@ -1243,58 +1268,112 @@ function wgRemove {
 }
 
 function wingetPosh {
-    Clear-Host
-    $Local:W = $Host.UI.RawUI.WindowSize.Width
-    $Local:H = $Host.UI.RawUI.WindowSize.Height
-    $local:WW = [Math]::Round($local:W * .7)
-    $local:WH = [Math]::Round($local:H * .8)
-    $local:X = [Math]::Round(($local:W - $local:WW) / 2)
-    $local:Y = [Math]::Round(($local:H - $local:WH) / 2)
-    $local:coord = @{
-        x     = $local:X
-        y     = $local:Y
-        w     = $local:WW
-        h     = $local:WH
-        color = "Green"
-    }
-    drawFrame @local:coord
-    setPosition -X ($local:X + 2) -Y ($local:Y  )
-    Write-Host "| WinGetPOSH |"
+    # Clear-Host
+    $local:W = [Math]::Round($Host.UI.RawUI.WindowSize.Width * .9)
+    $local:H = [Math]::Round($Host.UI.RawUI.WindowSize.Height * .6)
+    $local:X = [Math]::Round(($Host.UI.RawUI.WindowSize.Width - $local:W) / 2) 
+    $local:Y = [Math]::Round(($Host.UI.RawUI.WindowSize.Height - $local:H) / 2)
+    $local:window = [window]::new(
+        $local:X,
+        $local:Y,
+        $local:W,
+        $local:H,
+        $false,
+        "Blue",
+        "WinGet POSH",
+        "Red"
+    ) 
+    $local:window.footer = "[↑/↓ ⋮ Select] [Enter ⋮ Select] [Esc ⋮ Quit]"
 
-    do { 
-        $key = Wait-KeyPress
-        switch ($key.key) {
-            DownArrow {            
-                if ($line -eq $H - 2) {
-                    if (($line + $startLine) -lt $menuItems.Length - 1) {
-                        $startLine += 1  
-                    }
-                }
-                else {
-                    $line += 1
+    function drawLines {
+        param(
+            [array]$menuItems,
+            [int]$X,
+            [int]$Y,
+            [int]$width,
+            [int]$selected
+        )
+        $local:i = 0
+        while ($local:i -lt $menuItems.Length) {
+            setPosition -X ($X + 1) -Y ($Y + 2 + ($local:i * 3))
+            if ($local:i -eq $selected) {
+                $local:color = @{
+                    ForeGroundColor = "Blue"
+                    backgroundColor = "Yellow"
                 }
             }
+            else {
+                $local:color = @{
+                    BackgroundColor = "Black"
+                    ForegroundColor = "White"
+                }
+            }
+            $local:item = $menuItems[$local:i].PadLeft($width - 2)
+            Write-Host $local:item @local:color -NoNewline
+            $local:i++
+        }
+    }
+
+    $local:menuItems = @(
+        "Search for packages",
+        "List installed packages",
+        "List available updates"
+    )
+    $local:window.drawWindow()
+    $local:line = 0
+    $local:over = 0
+    $local:selected = -1
+    drawLines -menuitems $local:menuItems -X $local:X -y $local:Y -width $local:W -selected $local:line
+
+    do { 
+        $local:key = Wait-KeyPress
+        switch ($local:key.key) {
+            DownArrow {            
+                if ($local:line -lt $local:menuItems.Length - 1) {
+                    
+                    $local:Line += 1  
+                }
+            
+                else {
+                    $local:line = 0
+                }
+                
+            }
             UpArrow { 
-                $line -= 1 
-                if ($line -lt 0) {
-                    if ($startLine -gt 0) {
-                        $startLine -= 1
-                    }
-                    $line = 0
+                if ($local:line -ge 1) {
+                    
+                    $local:Line -= 1  
+                }
+            
+                else {
+                    $local:line = $local:menuItems.Length - 1
                 }
             }
             SpaceBar {
             }
             Enter {
                 $local:over = 1
+                $local:selected = $local:line
             }
             Escape {
                 $local:over = 2
             }
         } 
+        if ($local:over -eq 1) {
+            switch ($local:selected) {
+                0 {  
+                    $list = wgSearchList -Search test
+                }
+                Default {}
+            }
+            $local:selected = -1
+            $local:over = 0
+        }
+        $local:window.drawWindow()
+        drawLines -menuitems $local:menuItems -X $local:X -y $local:Y -width $local:W -selected $local:line
     }
     until (
-        $local:over -gt 0
+        $local:over -eq 2
     )
     
 }
@@ -1319,5 +1398,7 @@ function testWindow {
         "Red"
     ) 
     $local:window.drawWindow()
+    
 }
 
+wingetPosh
