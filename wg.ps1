@@ -32,12 +32,135 @@ class Frame {
     [char]$BL
     [char]$BR
     [char]$BOTTOM
+
+    Frame (
+        [bool]$Double
+    ) {
+        if ($Double) {
+            $this.UL = "╔"
+            $this.UR = "╗"
+            $this.TOP = "═"
+            $this.LEFT = "║"
+            $this.RIGHT = "║"
+            $this.BL = "╚"
+            $this.BR = "╝"
+            $this.BOTTOM = "═"
+        }
+        else {
+            $this.UL = "┌"
+            $this.UR = "┐"
+            $this.TOP = "─"
+            $this.LEFT = "│"
+            $this.RIGHT = "│"
+            $this.BL = "└"
+            $this.BR = "┘"
+            $this.BOTTOM = "─"
+        }
+    }
 }
+
+$Single = [Frame]::new($false)
+$Double = [Frame]::new($true)
 
 class column {
     [string]$Name
     [Int16]$Position
     [Int16]$Len
+}
+
+
+class window {
+    [int]$X
+    [int]$Y
+    [int]$W
+    [int]$H
+    [Frame]$frameStyle
+    [System.ConsoleColor]$frameColor
+    [string]$title = ""
+    [System.ConsoleColor]$titleColor
+
+    window(
+        [int]$X,
+        [int]$y,
+        [int]$w,
+        [int]$h,
+        [bool]$Double,
+        [System.ConsoleColor]$color = "White"
+    ) {
+        $this.X = $X
+        $this.Y = $y
+        $this.W = $W
+        $this.H = $H
+        $this.frameStyle = [Frame]::new($Double)
+        $this.frameColor = $color
+    }
+
+    window(
+        [int]$X,
+        [int]$y,
+        [int]$w,
+        [int]$h,
+        [bool]$Double,
+        [System.ConsoleColor]$color = "White",
+        [string]$title = "",
+        [System.ConsoleColor]$titlecolor = "Blue"
+    ) {
+        $this.X = $X
+        $this.Y = $y
+        $this.W = $W
+        $this.H = $H
+        $this.frameStyle = [Frame]::new($Double)
+        $this.frameColor = $color
+        $this.title = $title
+        $this.titleColor = $titlecolor
+    }
+
+    [void] drawWindow() {
+        setPosition $this.X $this.Y
+        
+
+        $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.TOP)
+        $blank = "".PadLeft($this.W - 2, " ") 
+        Write-Host $this.frameStyle.UL -NoNewline -ForegroundColor $this.frameColor
+        Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
+        Write-Host $this.frameStyle.UR -ForegroundColor $this.frameColor
+
+        for ($i = 1; $i -lt $this.H; $i++) {
+            $Y2 = $this.Y + $i
+            $X2 = $this.X + $this.W - 1
+            setPosition $this.X $Y2
+            Write-Host $this.frameStyle.LEFT -ForegroundColor $this.frameColor
+            
+            $X3 = $this.X + 1
+            setPosition $X3 $Y2
+            Write-Host $blank 
+            
+            setPosition $X2 $Y2
+            Write-Host $this.frameStyle.RIGHT -ForegroundColor $this.frameColor
+        }
+
+        $Y2 = $this.Y + $this.H
+        setPosition $this.X $Y2
+        $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM)
+        Write-Host $this.frameStyle.BL -NoNewline -ForegroundColor $this.frameColor
+        Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
+        Write-Host $this.frameStyle.BR -ForegroundColor $this.frameColor
+        $this.drawTitle()
+    }
+
+    [void] drawTitle() {
+        if ($this.title -ne "") {
+            $local:X = $this.x + 2
+            setPosition -X $local:X -Y $this.Y
+            Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+            $local:X = $local:X + 2
+            setPosition -X $local:X -Y $this.Y
+            Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
+            $local:X = $local:X + $this.title.Length
+            setPosition -X $local:X -Y $this.Y
+            Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+        }
+    }
 }
 
 $Global:columns = @()
@@ -85,25 +208,7 @@ $ColorColumn = @{
     ForegroundColor = "Blue"
 }
 
-$Single = [Frame]::new()
-$Single.UL = "┌"
-$Single.UR = "┐"
-$Single.TOP = "─"
-$Single.LEFT = "│"
-$Single.RIGHT = "│"
-$Single.BL = "└"
-$Single.BR = "┘"
-$Single.BOTTOM = "─"
 
-$Double = [Frame]::new()
-$Double.UL = "╔"
-$Double.UR = "╗"
-$Double.TOP = "═"
-$Double.LEFT = "║"
-$Double.RIGHT = "║"
-$Double.BL = "╚"
-$Double.BR = "╝"
-$Double.BOTTOM = "═"
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
 
@@ -153,45 +258,6 @@ function wgConfig {
     )
 }
 
-# function wgUpgradable {
-#     $command = "winget upgrade"
-#     $upgradeResult = Invoke-Expression $command | Out-String
-#     $lines = $upgradeResult.Split([Environment]::NewLine)
-#     # $lines
-#     $fl = 0
-#     while (-not $lines[$fl].StartsWith("Nom")) {
-#         $fl++
-#     }
-
-#     $idStart = $lines[$fl].IndexOf("ID")
-#     $versionStart = $lines[$fl].IndexOf("Version")
-#     $availableStart = $lines[$fl].IndexOf("Disponible")
-#     $sourceStart = $lines[$fl].IndexOf("Source")
-
-#     $upgradeList = @()
-#     For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-#         $line = $lines[$i]
-#         if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-#             $name = $line.Substring(0, $idStart).TrimEnd()
-#             $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-#             $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-#             $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-#             $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-#             $software = [upgradeSoftware]::new()
-#             $software.Name = $name;
-#             $software.Id = $id;
-#             $software.Version = $version
-#             $software.AvailableVersion = $available
-#             $software.Source = $source
-#             $upgradeList += $software
-#         }
-#     }
-
-#     $upgradeList
-# }
-
-
-
 function getColumnsHeaders {
     param(
         [parameter (
@@ -229,16 +295,12 @@ function getColumnsHeaders {
         $result += $acolumn
         $i++
     }
-
-
     $result
 }
 
 function wgUpgradable {
 
     $command = "winget upgrade"
-
-    # Write-Host $command
     
     $SearchResult = Invoke-Expression $command | Out-String
     $lines = $SearchResult.Split([Environment]::NewLine)
@@ -272,11 +334,10 @@ function wgUpgradable {
             $upgradeList += $software
         }
     }
-
     $upgradeList
 }
 
-function wgList {
+function wgSearch {
     param(
         [parameter (
             Mandatory,
@@ -339,7 +400,6 @@ function wgList {
             $SearchList += $software
         }
     }
-
     $SearchList
 }
 
@@ -492,7 +552,12 @@ function showOptions {
         X = $X
         Y = $Y
     }
-    drawFrame @coord -COLOR Blue -Clear
+
+    function Frame {
+        clearFrame @coord
+        drawFrame @coord -COLOR Blue -Clear
+    }
+    
 
     function drawTitle {
         $X1 = $X + 3 
@@ -551,6 +616,7 @@ function showOptions {
     $line = 0
     $startLine = 0
     $over = 0
+    Frame
     drawTitle
     drawFooter
     do {
@@ -585,6 +651,13 @@ function showOptions {
                     
                 } 
             }
+            Delete {
+                $Global:toInstall.removeAt($line + $startLine)
+                Frame
+                drawTitle
+                drawFooter
+                drawItems
+            }
             Enter {
                 $over = 1
             }
@@ -597,7 +670,21 @@ function showOptions {
         $over -gt 0
     )
 
-    clearFrame @coord
+    # clearFrame @coord
+}
+
+function isItemPresent {
+    param (
+        [string]
+        $aId
+    )
+    $result = $false
+    $local:i = 0
+    while ((-not $result) -and ($local:i -lt $Global:toInstall.count)) {
+        $result = ($Global:toInstall[$local:i].package.id -eq $aid)
+        $local:i ++
+    }
+    $result
 }
 
 function wgSearchList {
@@ -617,6 +704,13 @@ function wgSearchList {
         [String]
         $Store
     )
+
+    function updateItems {
+        foreach ($item in $menuItems) {
+            $local:id = $item.package.id
+            $item.selected = isItemPresent($local:id)            
+        }
+    }
 
     function installPackages {
         param(
@@ -685,7 +779,7 @@ function wgSearchList {
         $Y = $Host.UI.RawUI.WindowSize.Height - 1
         setPosition -X 0 -y $Y
         Write-Host $bloc -NoNewline
-        $right = "[? ⋮ Summary] [/ ⋮ Search] [Enter ⋮ Install] [Esc ⋮ Abort]"
+        $right = "[? ⋮ Summary] [/ ⋮ Search] [Enter ⋮ Confirm] [Esc ⋮ Abort]"
         $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
         setPosition -X $X -Y $Y 
         Write-Host $right -NoNewline
@@ -737,14 +831,14 @@ function wgSearchList {
     $over = 0
     Clear-Host
     displayStatus -Status 'Getting packages List'
-    $list = wgList -search $Search -Store $Store
+    $list = wgSearch -search $Search -Store $Store
     
     ClearStatus
     $menuItems = @()
     foreach ($item in $list) {
         $menuitem = [listSearchItem]::new()
         $menuitem.Package = $item
-        $menuitem.Selected = $false
+        $menuitem.Selected = (isItemPresent -aId $item.id)
         $menuItems += $menuitem
     }
     $result = @()
@@ -815,6 +909,7 @@ function wgSearchList {
             }
             OemComma {
                 showOptions
+                updateItems
                 Clear-Host
                 drawTitle
                 drawColumnNames
@@ -834,13 +929,13 @@ function wgSearchList {
                     $over = 0
                     Clear-Host
                     displayStatus -Status 'Getting packages List'
-                    $list = wgList -search $Search -Store $Store
+                    $list = wgSearch -search $Search -Store $Store
                     ClearStatus
                     $menuItems = @()
                     foreach ($item in $list) {
                         $menuitem = [listSearchItem]::new()
                         $menuitem.Package = $item
-                        $menuitem.Selected = $false
+                        $menuitem.Selected = (isItemPresent -aId $item.id)
                         $menuItems += $menuitem
                     }
                     drawTitle
@@ -928,7 +1023,7 @@ function wgUpgradeList {
         $Y = $Host.UI.RawUI.WindowSize.Height - 1
         setPosition -X 0 -y $Y
         Write-Host $bloc -NoNewline
-        $right = "[? ⋮ Options] [Enter ⋮ Install] [Esc ⋮ Abort]"
+        $right = "[? ⋮ Options] [Enter ⋮ Confirm] [Esc ⋮ Abort]"
         $X = $Host.UI.RawUI.WindowSize.Width - $right.Length - 3
         setPosition -X $X -Y $Y 
         Write-Host $right -NoNewline
@@ -1147,18 +1242,82 @@ function wgRemove {
     $lines
 }
 
+function wingetPosh {
+    Clear-Host
+    $Local:W = $Host.UI.RawUI.WindowSize.Width
+    $Local:H = $Host.UI.RawUI.WindowSize.Height
+    $local:WW = [Math]::Round($local:W * .7)
+    $local:WH = [Math]::Round($local:H * .8)
+    $local:X = [Math]::Round(($local:W - $local:WW) / 2)
+    $local:Y = [Math]::Round(($local:H - $local:WH) / 2)
+    $local:coord = @{
+        x     = $local:X
+        y     = $local:Y
+        w     = $local:WW
+        h     = $local:WH
+        color = "Green"
+    }
+    drawFrame @local:coord
+    setPosition -X ($local:X + 2) -Y ($local:Y  )
+    Write-Host "| WinGetPOSH |"
+
+    do { 
+        $key = Wait-KeyPress
+        switch ($key.key) {
+            DownArrow {            
+                if ($line -eq $H - 2) {
+                    if (($line + $startLine) -lt $menuItems.Length - 1) {
+                        $startLine += 1  
+                    }
+                }
+                else {
+                    $line += 1
+                }
+            }
+            UpArrow { 
+                $line -= 1 
+                if ($line -lt 0) {
+                    if ($startLine -gt 0) {
+                        $startLine -= 1
+                    }
+                    $line = 0
+                }
+            }
+            SpaceBar {
+            }
+            Enter {
+                $local:over = 1
+            }
+            Escape {
+                $local:over = 2
+            }
+        } 
+    }
+    until (
+        $local:over -gt 0
+    )
+    
+}
+
 function getUIInfos {
     Write-Host "Width: " -ForegroundColor Gray -NoNewline
     Write-Host $Host.UI.RawUI.WindowSize.Width
     Write-Host "Height: " -ForegroundColor Gray -NoNewline
     Write-Host $Host.UI.RawUI.WindowSize.Height 
-    Write-Host "☑️✔️"
+    Write-Host "✔️"
 }
 
-# if (-not (Get-Module -ListAvailable -Name WriteAscii)) {
-#     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-#     Set-PSRepository -Name 'PSGallery' -SourceLocation "https://www.powershellgallery.com/api/v2" -InstallationPolicy Trusted
-#     Install-Module -Name Write-Host -Force    
-# } 
+function testWindow {
+    $local:window = [window]::new(
+        10,
+        2,
+        40,
+        20,
+        $false,
+        "Blue",
+        "Title",
+        "Red"
+    ) 
+    $local:window.drawWindow()
+}
 
-# Import-Module WriteAscii
