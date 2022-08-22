@@ -11,4 +11,4 @@ https://adamtheautomator.com/powershell-gui/
 Save-Script -Name Wimwitch -Path Wimwitch -force
 
 PSGalery API Key
-oy2jx7auobop3aawb7yqhsacjoffv6wedmvxsgsgofjphi
+oy2jx7auobop3aawb7yqhsacjoffv6wedmvxsgsgofjphi  
