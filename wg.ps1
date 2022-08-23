@@ -626,7 +626,6 @@ function showOptions {
         drawFrame @coord -COLOR Blue -Clear
     }
     
-
     function drawTitle {
         $X1 = $X + 3 
         setPosition -X $X1 + 3 -Y $Y
