@@ -1275,7 +1275,7 @@ function wgUpgrade {
         # Parameter help description
         [Parameter(
             Mandatory
-        )]
+        )] 
         [string]
         $ID,
         # Parameter help description
