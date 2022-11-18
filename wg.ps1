@@ -32,6 +32,8 @@ class Frame {
     [char]$BL
     [char]$BR
     [char]$BOTTOM
+    [char]$LEFTSPLIT
+    [char]$RIGHTSPLIT
 
     Frame (
         [bool]$Double
@@ -45,6 +47,7 @@ class Frame {
             $this.BL = "╚"
             $this.BR = "╝"
             $this.BOTTOM = "═"
+            $this.LEFTSPLIT = "⊫"
         }
         else {
             $this.UL = "┌"
@@ -325,7 +328,7 @@ function getColumnsHeaders {
 
 function wgUpgradable {
 
-    $command = "winget upgrade"
+    $command = "winget upgrade --include-unknown"
     
     $SearchResult = Invoke-Expression $command | Out-String
     $lines = $SearchResult.Split([Environment]::NewLine)
@@ -364,7 +367,7 @@ function wgUpgradable {
 
 function wgList {
 
-    $command = "winget upgrade"
+    $command = "winget list"
     
     $SearchResult = Invoke-Expression $command | Out-String
     $lines = $SearchResult.Split([Environment]::NewLine)
