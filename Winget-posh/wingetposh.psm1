@@ -22,8 +22,7 @@ class column {
 function getColumnsHeaders {
   param(
     [parameter (
-      Mandatory,
-      HelpMessage = "Package (or part) name to search"
+      Mandatory
     )]
     [string]$columsLine   
   )
@@ -127,12 +126,7 @@ function wgSearch {
   if ($Store -ne "") {
     $command = $command + " --source " + $Store
   }
-  else {
-    # Write-Host "no filter on store"
-  }
 
-  # Write-Host $command
-  
   $SearchResult = Invoke-Expression $command | Out-String
   $lines = $SearchResult.Split([Environment]::NewLine)
 
@@ -237,4 +231,31 @@ function Get-WGSearch {
   wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
 }
 
-Export-ModuleMember Get-WGList, Get-WGSearch, Get-WGUpgrade
+function Set-WGInstall{
+  [CmdletBinding()]
+  param (
+      [Parameter(ValueFromPipeline)]
+      $inObj
+  )
+
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+  $id = $inObj.id
+  $command = "winget install '$id'"
+  Invoke-Expression $command
+}
+
+function Set-WGRemove{
+  [CmdletBinding()]
+  param (
+      [Parameter(ValueFromPipeline)]
+      $inObj
+  )
+
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+  $id = $inObj.id
+  $command = "winget uninstall '$id'"
+  Invoke-Expression $command
+}
+
+
+Export-ModuleMember Get-WGList, Get-WGSearch, Get-WGUpgrade, Set-WGInstall, Set-WGRemove
