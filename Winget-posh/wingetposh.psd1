@@ -33,7 +33,7 @@ Copyright = '(c) yvesg. All rights reserved.'
 Description = 'Helpers functions for Winget'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.0.0'
+# PowerShellVersion = '7.2'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -51,7 +51,7 @@ PowerShellVersion = '7.0.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
+RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
