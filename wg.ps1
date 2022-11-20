@@ -758,7 +758,6 @@ function isItemPresent {
 }
 
 function wgSearchList {
-    [CmdletBinding()]
     param (
         # Package to search
         [Parameter(
