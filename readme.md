@@ -57,3 +57,44 @@ Of course, we can use this object collection to extract some usefull data .....
   Get-WGUpdate
 ```
 ![image3](images/img3.png)
+
+***
+
+## Search and install a package
+
+``` Powershell
+  Get-WGSearch "notepad++" | Select-Object -Property Id | Set-WGInstall
+```
+or
+``` Powershell
+  $id = Get-WGSearch "notepad++" | Select-Object -Property Id
+  winget install $id
+```
+or
+``` Powershell
+  $pkg = Get-WGSearch "notepad++"
+  winget install $pkg.id
+```
+
+***
+
+## Select and update an installed package
+``` Powershell
+  Get-WGUpgrade | Select-Object -Property id | set-WGUpgrade
+```
+or
+``` Powershell
+  $id = Get-WGUpgrade | Select-Object -Property id
+  winget update $id
+```
+or
+``` Powershell
+  $pkg = Get-WGUpgrade
+  winget update $pkg.id
+```
+
+***
+
+## Select and uninstall an installed package
+``` Powershell
+```
