@@ -18,26 +18,36 @@ For now, it't only tested with Windows Terminal runnning the latest (7.2.6) Powe
 The availablle functions are :
 - Get-WGList
 - Get-WGSearch
-- Get-WGUpgrade
+- Get-WGUpdate
 - Set-WGInstall
 - Set-WGRemove
   
   
 ### Examples
 ``` Powershell
-Get-WGList
+  Get-WGList
 ```
-Get the following screen with all the installed packages
+![image1](images/img1.png)
 
-Select-WingetList
-Search-WingetPackage
-Select-WingetPackageUpdate
-Install-WingetPackage
-Remove-WingetPackage
+This function allows multiselection.
+When at least one package is selected, when the function is exitted with "Return", an Object list is returned.
 
-Select-WGList
-Search-WGPackage
-Select-WGPackageUpdate
-Install-WGPackage
-Remove-WGPackage
+![](images/img4.png)
+When Hit return .....
+![](images/img5.png)
 
+Of course, we can use this object collection to extract some usefull data .....
+![](images/img6.png)
+
+
+***
+
+``` Powershell
+  Get-WGSearch
+```
+![image2](images/img2.png)
+
+``` Powershell
+  Get-WGUpdate
+```
+![image3](images/img3.png)
