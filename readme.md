@@ -33,7 +33,7 @@ The availablle functions are :
 ``` Powershell
   Get-WGList
 ```
-![image1](images/img1.png)
+![image1](https://github.com/Yves848/WingetPosh/blob/master/images/img1.png?raw=true)
 
 This function allows multiselection.
 When at least one package is selected, when the function is exitted with "Return", an Object list is returned.
@@ -97,4 +97,18 @@ or
 
 ## Select and uninstall an installed package
 ``` Powershell
+  Get-WGList | Select-Object -Property id | Set-WGRemove
+```
+
+or
+
+``` Powershell
+ $id = Get-WGList | Select-Object -Property id
+ winget uninstall $id
+```
+
+or
+``` Powershell
+  $pkg = Get-WGList
+  winget uninstall $pkg.id
 ```
