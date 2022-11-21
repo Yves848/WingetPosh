@@ -11,20 +11,20 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 A small set of functions to help using winget.
 
 It's TUI (Terminal User Interface) entirely written in Powershell.
+It has one dependenciy : Microsoft.PowerShell.ConsoleGuiTools
 
 For now, it't only tested with Windows Terminal runnning the latest (7.2.6) Powershell Core
 
-The 2 main functions are :
-- wgSearchList
-- wgUpgradeList
-
-They both return a list of objects that contain (among other informations) the id's of the selected packages
-
-example :
-
+The availablle functions are :
+- Get-WGList
+- Get-WGSearch
+- Get-WGUpgrade
+- Set-WGInstall
+- Set-WGRemove
+  
+  
+### Examples
 ``` Powershell
-$list = wgSearchList -Search notepad++
+Get-WGList
 ```
-This will bring the following screen :
-![wgSearchList](./img1.png)
-
+Get the following screen with all the installed packages

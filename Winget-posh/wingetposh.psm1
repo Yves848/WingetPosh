@@ -58,7 +58,7 @@ function getColumnsHeaders {
   $result
 }
 
-function wgList {
+function _wgList {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $command = "winget list"
   
@@ -104,7 +104,7 @@ function check_ocgv {
     }
 }
 
-function wgSearch {
+function _wgSearch {
   param(
     [parameter (
       Mandatory,
@@ -205,7 +205,7 @@ function wgUpgradable {
 
 function Get-WGList {
   check_ocgv
-  wgList | Out-ConsoleGridView -Title 'Installed Packages'
+  _wgList | Out-ConsoleGridView -Title 'Installed Packages'
 }
 
 function Get-WGUpgrade {
@@ -228,7 +228,7 @@ function Get-WGSearch {
     $Store    
   )
   check_ocgv
-  wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
+  _wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
 }
 
 function Set-WGInstall{
@@ -254,6 +254,19 @@ function Set-WGRemove{
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $id = $inObj.id
   $command = "winget uninstall '$id'"
+  Invoke-Expression $command
+}
+
+function set-WGUpgrade {
+  [CmdletBinding()]
+  param (
+      [Parameter(ValueFromPipeline)]
+      $inObj
+  )
+
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+  $id = $inObj.id
+  $command = "winget upgrade '$id'"
   Invoke-Expression $command
 }
 

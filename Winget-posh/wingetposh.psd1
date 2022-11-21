@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.2.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,7 +33,7 @@ Copyright = '(c) yvesg. All rights reserved.'
 Description = 'Helpers functions for Winget'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = '7.2'
+PowerShellVersion = '7.2'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -51,7 +51,7 @@ Description = 'Helpers functions for Winget'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @()
+RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -69,7 +69,7 @@ RequiredModules = @()
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Get-WGList', 'Get-WGSearch', 'Get-WGUpgrade','Set-WGInstall', 'Set-WGRemove')
+FunctionsToExport = @('Get-WGList', 'Get-WGSearch', 'Get-WGUpgrade','Set-WGInstall', 'Set-WGRemove', 'Set-WGUpgrade')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

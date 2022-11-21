@@ -1,6 +1,3 @@
-if(-not (Get-Module Microsoft.PowerShell.ConsoleGuiTools -ListAvailable)){
-  Install-Module Microsoft.PowerShell.ConsoleGuiTools -Scope CurrentUser -Force
-  }
-  else {
-    Write-Host "Already installed"
-  }
+NugetPackageRoot  = $tempModulePath
+$tempModulePath = Microsoft.PowerShell.Management\Join-Path -Path $script:TempPath `
+            -ChildPath "$(Microsoft.PowerShell.Utility\Get-Random)\$moduleName"
