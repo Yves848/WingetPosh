@@ -43,7 +43,7 @@ Of course, we can use this object collection to extract some usefull data .....
 ***
 
 ``` Powershell
-  Get-WGSearch
+  Get-WGSearch cpu-z
 ```
 ![image2](images/img2.png)
 
