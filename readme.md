@@ -8,6 +8,12 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ```
 ***
 
+![Video](https://img.youtube.com/vi/1qxrRrgJVVw/0.jpg)
+
+## Demo
+https://www.youtube.com/watch?v=1qxrRrgJVVw&ab_channel=YGO
+
+
 A small set of functions to help using winget.
 
 It's TUI (Terminal User Interface) entirely written in Powershell.
