@@ -174,7 +174,7 @@ function wgUpgradable {
 
   $fl = 0
   while (-not $lines[$fl].StartsWith("Nom")) {
-      $fl++
+    $fl++
   }
 
   $idStart = $lines[$fl].IndexOf("ID")
@@ -184,21 +184,21 @@ function wgUpgradable {
 
   $upgradeList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-      $line = $lines[$i]
-      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-          $name = $line.Substring(0, $idStart).TrimEnd()
-          $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-          $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-          $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-          $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-          $software = [upgradeSoftware]::new()
-          $software.Name = $name;
-          $software.Id = $id;
-          $software.Version = $version
-          $software.AvailableVersion = $available
-          $software.Source = $source
-          $upgradeList += $software
-      }
+    $line = $lines[$i]
+    if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+      $name = $line.Substring(0, $idStart).TrimEnd()
+      $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+      $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+      $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+      $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+      $software = [upgradeSoftware]::new()
+      $software.Name = $name;
+      $software.Id = $id;
+      $software.Version = $version
+      $software.AvailableVersion = $available
+      $software.Source = $source
+      $upgradeList += $software
+    }
   }
   $upgradeList
 }
@@ -209,8 +209,20 @@ function Show-WGList {
 }
 
 function Show-WGUpdatables {
+  # Parameter help description
+  param(
+  [Switch]
+  $Multiple
+  )
   # check_ocgv
-  wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'
+  if (-not $Multiple) {
+  $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages' -OutputMode Single
+  }
+  else {
+    $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'# Action when all if and elseif conditions are false #>
+  }
+  # Write-Host $list
+  return $list
 }
 
 function Search-WGPackage {
@@ -231,11 +243,11 @@ function Search-WGPackage {
   _wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
 }
 
-function Install-WGPackage{
+function Install-WGPackage {
   [CmdletBinding()]
   param (
-      [Parameter(ValueFromPipeline)]
-      $inObj
+    [Parameter(ValueFromPipeline)]
+    [upgradeSoftware[]] $inObj
   )
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
@@ -244,11 +256,11 @@ function Install-WGPackage{
   Invoke-Expression $command
 }
 
-function Uninstall-WGPackage{
+function Uninstall-WGPackage {
   [CmdletBinding()]
   param (
-      [Parameter(ValueFromPipeline)]
-      $inObj
+    [Parameter(ValueFromPipeline)]
+    $inObj
   )
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
@@ -260,14 +272,48 @@ function Uninstall-WGPackage{
 function Update-WGPackage {
   [CmdletBinding()]
   param (
-      [Parameter(ValueFromPipeline)]
-      $inObj
+    [Parameter(ValueFromPipeline)]
+    [upgradeSoftware[]] $inObj,
+    [Parameter()]
+    [Switch]$Interactive
   )
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $id = $inObj.id
-  $command = "winget upgrade '$id'"
-  Invoke-Expression $command
+  if ($PSBoundParameters.ContainsKey('inObj')) {
+    if ($PSBoundParameters.ContainsKey('Interactive')) {
+      Write-Error "-Interactive switch cannot be used with pipeline variable"
+      return
+    }
+  }
+
+ 
+  if ($Interactive) {
+    $pkg = Show-WGUpdatables -Multiple | Select-Object -Property id,Name
+    if (-not $pkg) {
+      return
+    }
+    $ids = $pkg
+  }
+  else {
+    $ids = $inObj
+  }
+
+  Write-Host $ids
+  
+  $ids | ForEach-Object {
+    $id = $_.id;
+    $name = $_.name
+    if (-not [string]::IsNullOrEmpty($id)) {
+      Write-Host "Updating : " -NoNewline
+      Write-Host "$name ($id)" -ForegroundColor DarkCyan
+      $command = "winget upgrade '$id'"
+      # Invoke-Expression $command
+    }
+    else {
+      Write-Warning "Cannot update unknown package"
+    }
+  }
+  
 }
 
 

@@ -22,11 +22,12 @@ It has one dependenciy : Microsoft.PowerShell.ConsoleGuiTools
 For now, it't only tested with Windows Terminal runnning the latest (7.2.6) Powershell Core
 
 The availablle functions are :
-- Get-WGList
-- Get-WGSearch
-- Get-WGUpdate
-- Set-WGInstall
-- Set-WGRemove
+- Show-WGList
+- Search-WGPackage
+- Show-WGUpdatables
+- Update-WGPackage
+- Install-WGPackage
+- Uninstall-WGPackage
   
   
 ### Examples

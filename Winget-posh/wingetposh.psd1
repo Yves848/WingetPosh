@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.1'
+ModuleVersion = '0.3.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Get-WGList', 'Get-WGSearch', 'Get-WGUpgrade','Set-WGInstall', 'Set-WGRemove', 'Set-WGUpgrade')
+FunctionsToExport = @('Show-WGList', 'Search-WGPackage', 'Show-WGUpdatables','Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
