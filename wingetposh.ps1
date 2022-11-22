@@ -132,13 +132,16 @@ function _wgSearch {
   $lines = $SearchResult.Split([Environment]::NewLine)
 
   $fl = 0
-  while (-not $lines[$fl].StartsWith("Nom")) {
+  while (-not $lines[$fl].StartsWith("----")) {
     $fl++
   }
-  $idStart = $lines[$fl].IndexOf("ID")
-  $versionStart = $lines[$fl].IndexOf("Version")
+
+  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
+
+  $idStart = $columns[1].Position
+  $versionStart = $columns[2].Position
   if ($store -eq "") {
-    $sourceStart = $lines[$fl].IndexOf("Source")
+    $sourceStart = $columns[3].Position
   }
   $SearchList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
@@ -387,4 +390,4 @@ function Update-WGPackage {
 
 
 #Export-ModuleMember Get-WGList, Get-WGSearch, Get-WGUpgrade, Set-WGInstall, Set-WGRemove
-_wgList
+_wgSearch cpu-z
