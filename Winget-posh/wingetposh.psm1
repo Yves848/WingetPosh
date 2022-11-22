@@ -180,7 +180,7 @@ function wgUpgradable {
   while (-not $lines[$fl].StartsWith("----")) {
     $fl++
   }
-
+  if ($fl -lt $lines.Length) {
   $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
   
   $idStart = $Columns[1].Position
