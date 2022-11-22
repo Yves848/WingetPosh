@@ -110,5 +110,5 @@ or
 or
 ``` Powershell
   $pkg = Get-WGList
-  winget uninstall $pkg.id
+  winget $pkg.id
 ```
