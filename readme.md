@@ -23,11 +23,11 @@ For now, it't only tested with Windows Terminal runnning the latest (7.2.6) Powe
 
 The availablle functions are :
 - Show-WGList
-- Search-WGPackage
+- Search-WGPackage "name (or part) of the package"
 - Show-WGUpdatables
-- Update-WGPackage
+- Update-WGPackage [-Interactive]
 - Install-WGPackage
-- Uninstall-WGPackage
+- Uninstall-WGPackage [-Interactive]
   
   
 ### Examples
@@ -39,12 +39,12 @@ The availablle functions are :
 This function allows multiselection.
 When at least one package is selected, when the function is exitted with "Return", an Object list is returned.
 
-![](images/img4.png)
+![](https://github.com/Yves848/WingetPosh/blob/master/images/img4.png?raw=true)
 When Hit return .....
-![](images/img5.png)
+![](https://github.com/Yves848/WingetPosh/blob/master/images/img5.png?raw=true)
 
 Of course, we can use this object collection to extract some usefull data .....
-![](images/img6.png)
+![](https://github.com/Yves848/WingetPosh/blob/master/images/img6.png?raw=true)
 
 
 ***
@@ -52,12 +52,12 @@ Of course, we can use this object collection to extract some usefull data .....
 ``` Powershell
   Get-WGSearch cpu-z
 ```
-![image2](images/img2.png)
+![image2](https://github.com/Yves848/WingetPosh/blob/master/images/img2.png?raw=true)
 
 ``` Powershell
   Get-WGUpdate
 ```
-![image3](images/img3.png)
+![image3](https://github.com/Yves848/WingetPosh/blob/master/images/img3.png?raw=true)
 
 ***
 

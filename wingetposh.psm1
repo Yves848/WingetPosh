@@ -390,4 +390,3 @@ function Update-WGPackage {
 
 
 #Export-ModuleMember Get-WGList, Get-WGSearch, Get-WGUpgrade, Set-WGInstall, Set-WGRemove
-_wgList

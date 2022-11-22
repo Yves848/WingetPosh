@@ -66,14 +66,16 @@ function _wgList {
   $lines = $SearchResult.Split([Environment]::NewLine)
 
   $fl = 0
-  while (-not $lines[$fl].StartsWith("Nom")) {
+  while (-not $lines[$fl].StartsWith("----")) {
     $fl++
   }
+
+  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
   
-  $idStart = $lines[$fl].IndexOf("ID")
-  $versionStart = $lines[$fl].IndexOf("Version")
-  $availableStart = $lines[$fl].IndexOf("Disponible")
-  $sourceStart = $lines[$fl].IndexOf("Source")
+  $idStart = $Columns[1].Position
+  $versionStart = $Columns[2].Position
+  #$availableStart = $lines[$fl].IndexOf("Disponible")
+  $sourceStart = $columns[3].Position
 
   $InstalledList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
@@ -81,15 +83,14 @@ function _wgList {
     if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
       $name = $line.Substring(0, $idStart).TrimEnd()
       $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-      $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-      $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+      $version = $line.Substring($versionStart, $SourceStart - $versionStart).TrimEnd()
+      #$available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
       $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
       if ($source -ne "") {
-        $software = [upgradeSoftware]::new()
+        $software = [installSoftware]::new()
         $software.Name = $name;
         $software.Id = $id;
         $software.Version = $version
-        $software.AvailableVersion = $available
         $software.Source = $source
         $InstalledList += $software
       }
@@ -131,13 +132,16 @@ function _wgSearch {
   $lines = $SearchResult.Split([Environment]::NewLine)
 
   $fl = 0
-  while (-not $lines[$fl].StartsWith("Nom")) {
+  while (-not $lines[$fl].StartsWith("----")) {
     $fl++
   }
-  $idStart = $lines[$fl].IndexOf("ID")
-  $versionStart = $lines[$fl].IndexOf("Version")
+
+  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
+
+  $idStart = $columns[1].Position
+  $versionStart = $columns[2].Position
   if ($store -eq "") {
-    $sourceStart = $lines[$fl].IndexOf("Source")
+    $sourceStart = $columns[3].Position
   }
   $SearchList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
@@ -173,44 +177,80 @@ function wgUpgradable {
   $lines = $SearchResult.Split([Environment]::NewLine)
 
   $fl = 0
-  while (-not $lines[$fl].StartsWith("Nom")) {
-      $fl++
+  while (-not $lines[$fl].StartsWith("----")) {
+    $fl++
   }
 
-  $idStart = $lines[$fl].IndexOf("ID")
-  $versionStart = $lines[$fl].IndexOf("Version")
-  $availableStart = $lines[$fl].IndexOf("Disponible")
-  $sourceStart = $lines[$fl].IndexOf("Source")
+  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
+  
+  $idStart = $Columns[1].Position
+  $versionStart = $Columns[2].Position
+  $availableStart = $columns[3].Position
+  $sourceStart = $columns[4].Position
 
   $upgradeList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-      $line = $lines[$i]
-      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-          $name = $line.Substring(0, $idStart).TrimEnd()
-          $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-          $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-          $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-          $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-          $software = [upgradeSoftware]::new()
-          $software.Name = $name;
-          $software.Id = $id;
-          $software.Version = $version
-          $software.AvailableVersion = $available
-          $software.Source = $source
-          $upgradeList += $software
-      }
+    $line = $lines[$i]
+    if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+      $name = $line.Substring(0, $idStart).TrimEnd()
+      $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+      $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+      $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+      $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+      $software = [upgradeSoftware]::new()
+      $software.Name = $name;
+      $software.Id = $id;
+      $software.Version = $version
+      $software.AvailableVersion = $available
+      $software.Source = $source
+      $upgradeList += $software
+    }
   }
   $upgradeList
 }
 
+<#
+.SYNOPSIS
+  Displays a list of installed packages
+.DESCRIPTION
+  Show-WGList displays a grid view of all the packages installed on the system.  
+  Each line is selectable.  Accepting the selection with Enter returns an array of objects.
+  Pressing Escape quits the grid with no furher action.  
+.EXAMPLE
+  Show-WGList | Select-Object -Property Id | Uninstall-WGPackage
+  In this example, the selected package in the grid will be uninstalled from the computer.
+#>
 function Show-WGList {
+  param(
+    [switch]$Single
+  )
   # check_ocgv
-  _wgList | Out-ConsoleGridView -Title 'Installed Packages'
+  if ($single)
+  {
+    $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages' -OutputMode Single
+  }
+  else {
+    $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages'  
+  }
+  return $list
+  
 }
 
 function Show-WGUpdatables {
+  # Parameter help description
+  param(
+  [Switch]
+  $Multiple
+  )
   # check_ocgv
-  wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'
+  if (-not $Multiple) {
+  $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages' -OutputMode Single
+  }
+  else {
+    $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'
+  }
+  # Write-Host $list
+  return $list
 }
 
 function Search-WGPackage {
@@ -231,11 +271,11 @@ function Search-WGPackage {
   _wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
 }
 
-function Install-WGPackage{
+function Install-WGPackage {
   [CmdletBinding()]
   param (
-      [Parameter(ValueFromPipeline)]
-      $inObj
+    [Parameter(ValueFromPipeline)]
+    [upgradeSoftware[]] $inObj
   )
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
@@ -244,30 +284,108 @@ function Install-WGPackage{
   Invoke-Expression $command
 }
 
-function Uninstall-WGPackage{
+function Uninstall-WGPackage {
   [CmdletBinding()]
   param (
-      [Parameter(ValueFromPipeline)]
-      $inObj
+    [Parameter(ValueFromPipeline)]
+    $inObj,
+    [Parameter()]
+    [Switch]$Interactive
   )
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $id = $inObj.id
-  $command = "winget uninstall '$id'"
-  Invoke-Expression $command
+
+  if ($PSBoundParameters.ContainsKey('inObj')) {
+    if ($PSBoundParameters.ContainsKey('Interactive')) {
+      Write-Error "-Interactive switch cannot be used with pipeline variable"
+      return
+    }
+  }
+
+  if ($Interactive) {
+    $pkg = Show-WGList -Single | Select-Object -Property id,Name
+    if (-not $pkg) {
+      return
+    }
+    $ids = $pkg
+  }
+  else {
+    $ids = $inObj
+  }
+
+
+  $ids | ForEach-Object {
+    $id = $_.id;
+    $name = $_.name
+    if (-not [string]::IsNullOrEmpty($id)) {
+      Write-Host "Uninstalling : " -NoNewline
+      Write-Host "$name ($id)" -ForegroundColor DarkCyan
+      $command = "winget uninstall '$id' --Force"
+      #Write-Host $command
+      Invoke-Expression $command
+    }
+    else {
+      Write-Warning "Cannot uninstall unknown package"
+    }
+  }
+
+
+
+  # $id = $inObj.id
+  # $command = "winget uninstall '$id'"
+  # Invoke-Expression $command
 }
 
 function Update-WGPackage {
   [CmdletBinding()]
   param (
-      [Parameter(ValueFromPipeline)]
-      $inObj
+    [Parameter(ValueFromPipeline)]
+    [upgradeSoftware] $inObj,
+    [Parameter()]
+    [Switch]$Interactive,
+    [Switch]$Force
   )
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $id = $inObj.id
-  $command = "winget upgrade '$id'"
-  Invoke-Expression $command
+  if ($PSBoundParameters.ContainsKey('inObj')) {
+    if ($PSBoundParameters.ContainsKey('Interactive')) {
+      Write-Error "-Interactive switch cannot be used with pipeline variable"
+      return
+    }
+  }
+ 
+  if ($Interactive) {
+    $pkg = Show-WGUpdatables -Multiple | Select-Object -Property id,Name
+    if (-not $pkg) {
+      return
+    }
+    $ids = $pkg
+  }
+  else {
+    $ids = $inObj
+  }
+
+  # Write-Host $ids
+  $forceinstall = ""
+  if ($Force) {
+    $forceinstall = "--accept-package-agreements"  
+  }
+  
+  $ids | ForEach-Object {
+    $id = $_.id;
+    $name = $_.name
+    if (-not [string]::IsNullOrEmpty($id)) {
+      Write-Host "Updating : " -NoNewline
+      Write-Host "$name ($id)" -ForegroundColor DarkCyan
+      $command = "winget upgrade '$id' $forceinstall"
+      # Write-Host $command
+      Invoke-Expression $command
+    }
+    else {
+      Write-Warning "Cannot update unknown package"
+    }
+  }
+  
 }
 
 
