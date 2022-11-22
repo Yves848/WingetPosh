@@ -98,11 +98,11 @@ function _wgList {
   $installedList
 }
 
-function check_ocgv {
-  if(-not (Get-Module Microsoft.PowerShell.ConsoleGuiTools -ListAvailable)){
-    Install-Module Microsoft.PowerShell.ConsoleGuiTools -Scope CurrentUser -Force
-    }
-}
+# function check_ocgv {
+#   if(-not (Get-Module Microsoft.PowerShell.ConsoleGuiTools -ListAvailable)){
+#     Install-Module Microsoft.PowerShell.ConsoleGuiTools -Scope CurrentUser -Force
+#     }
+# }
 
 function _wgSearch {
   param(
@@ -203,17 +203,17 @@ function wgUpgradable {
   $upgradeList
 }
 
-function Get-WGList {
-  check_ocgv
+function Show-WGList {
+  # check_ocgv
   _wgList | Out-ConsoleGridView -Title 'Installed Packages'
 }
 
-function Get-WGUpgrade {
-  check_ocgv
+function Show-WGUpdatables {
+  # check_ocgv
   wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'
 }
 
-function Get-WGSearch {
+function Search-WGPackage {
   param(
     [parameter (
       Mandatory,
@@ -227,11 +227,11 @@ function Get-WGSearch {
     [string]
     $Store    
   )
-  check_ocgv
+  # check_ocgv
   _wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
 }
 
-function Set-WGInstall{
+function Install-WGPackage{
   [CmdletBinding()]
   param (
       [Parameter(ValueFromPipeline)]
@@ -244,7 +244,7 @@ function Set-WGInstall{
   Invoke-Expression $command
 }
 
-function Set-WGRemove{
+function Uninstall-WGPackage{
   [CmdletBinding()]
   param (
       [Parameter(ValueFromPipeline)]
@@ -257,7 +257,7 @@ function Set-WGRemove{
   Invoke-Expression $command
 }
 
-function set-WGUpgrade {
+function Update-WGPackage {
   [CmdletBinding()]
   param (
       [Parameter(ValueFromPipeline)]
