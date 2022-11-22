@@ -373,10 +373,10 @@ function wgList {
     $lines = $SearchResult.Split([Environment]::NewLine)
 
     $fl = 0
-    while (-not $lines[$fl].StartsWith("Nom")) {
+    while (-not $lines[$fl].StartsWith("----")) {
         $fl++
     }
-    $Global:columns = getColumnsHeaders -columsLine $lines[$fl]
+    $Global:columns = getColumnsHeaders -columsLine $lines[$fl-2]
 
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")

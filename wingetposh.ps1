@@ -39,7 +39,7 @@ function getColumnsHeaders {
   $i = 0
   while ($i -lt $Cols.Length) {
     $pos = $columsLine.IndexOf($Cols[$i])
-    if ($i -eq $Cols.Length) {
+    if ($i -eq $Cols.Length-1) {
       #Last Column
       $len = $columsLine.Length - $pos
     }
@@ -174,14 +174,16 @@ function wgUpgradable {
   $lines = $SearchResult.Split([Environment]::NewLine)
 
   $fl = 0
-  while (-not $lines[$fl].StartsWith("Nom")) {
+  while (-not $lines[$fl].StartsWith("----")) {
     $fl++
   }
 
-  $idStart = $lines[$fl].IndexOf("ID")
-  $versionStart = $lines[$fl].IndexOf("Version")
-  $availableStart = $lines[$fl].IndexOf("Disponible")
-  $sourceStart = $lines[$fl].IndexOf("Source")
+  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
+  
+  $idStart = $Columns[1].Position
+  $versionStart = $Columns[2].Position
+  $availableStart = $columns[3].Position
+  $sourceStart = $columns[4].Position
 
   $upgradeList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
@@ -220,15 +222,15 @@ function Show-WGList {
     [switch]$Single
   )
   # check_ocgv
-  if ($single)
-  {
-    $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages' -OutputMode Single
-  }
-  else {
-    $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages'  
-  }
-  return $list
-  
+  # if ($single)
+  # {
+  #   $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages' -OutputMode Single
+  # }
+  # else {
+  #   $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages'  
+  # }
+  # return $list
+  _wgList | Out-ConsoleGridView -Title 'Installed Packages' -OutputMode Single
 }
 
 function Show-WGUpdatables {
