@@ -318,11 +318,11 @@ function Uninstall-WGPackage {
     $id = $_.id;
     $name = $_.name
     if (-not [string]::IsNullOrEmpty($id)) {
-      Write-Host "Uninstlling : " -NoNewline
+      Write-Host "Uninstalling : " -NoNewline
       Write-Host "$name ($id)" -ForegroundColor DarkCyan
-      $command = "winget uninstall '$id' -Force"
-      # Write-Host $command
-      # Invoke-Expression $command
+      $command = "winget uninstall '$id' --Force"
+      #Write-Host $command
+      Invoke-Expression $command
     }
     else {
       Write-Warning "Cannot uninstall unknown package"
