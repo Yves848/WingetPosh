@@ -75,7 +75,7 @@ The -Install parameter will launch the installation of the selected package.
   Search-WGPackage -Interactive -Install
 ```
 
-![image7](images/img7.png)
+![image7](https://github.com/Yves848/WingetPosh/blob/master/images/img7.png?raw=true)
 
 ``` Powershell
   Search-WGPackage "notepad++" | Select-Object -Property Id | Install-WGPackage
