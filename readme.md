@@ -74,7 +74,9 @@ The -Install parameter will launch the installation of the selected package.
 ``` Powershell
   Search-WGPackage -Interactive -Install
 ```
+### Demo
 
+https://youtu.be/drcwiWtFcTw
 
 ![image7](https://github.com/Yves848/WingetPosh/blob/master/images/img7.png?raw=true)
 
