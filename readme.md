@@ -23,7 +23,7 @@ For now, it't only tested with Windows Terminal runnning the latest (7.2.6) Powe
 
 The availablle functions are :
 - Show-WGList
-- Search-WGPackage "name (or part) of the package"
+- Search-WGPackage "name (or part) of the package" [-Interactive] [-Install]
 - Show-WGUpdatables
 - Update-WGPackage [-Interactive]
 - Install-WGPackage
@@ -67,6 +67,16 @@ Of course, we can use this object collection to extract some usefull data .....
 ***
 
 ## Search and install a package
+
+When passing -Interactive (or even no search parameter), the function will prompt for a search term.
+The -Install parameter will launch the installation of the selected package.
+
+``` Powershell
+  Search-WGPackage -Interactive -Install
+```
+
+
+![image7](https://github.com/Yves848/WingetPosh/blob/master/images/img7.png?raw=true)
 
 ``` Powershell
   Search-WGPackage "notepad++" | Select-Object -Property Id | Install-WGPackage
