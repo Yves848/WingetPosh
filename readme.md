@@ -8,7 +8,7 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ```
 ***
 
-![Video](https://img.youtube.com/vi/1qxrRrgJVVw/0.jpg)
+![Video](https://img.youtube.com/vi/FlkUoe1Qplc/0.jpg)
 
 ## Demo
 https://youtu.be/FlkUoe1Qplc
@@ -30,9 +30,14 @@ The availablle functions are :
 - Uninstall-WGPackage [-Interactive]
   
   
+## Installation
+``` Powershell
+  Install-Module -Name wingetposh -Scope CurrentUser
+```
+
 ### Examples
 ``` Powershell
-  Get-WGList
+  Show-WGList
 ```
 ![image1](https://github.com/Yves848/WingetPosh/blob/master/images/img1.png?raw=true)
 
@@ -50,12 +55,12 @@ Of course, we can use this object collection to extract some usefull data .....
 ***
 
 ``` Powershell
-  Get-WGSearch cpu-z
+  Search-WGPackage cpu-z
 ```
 ![image2](https://github.com/Yves848/WingetPosh/blob/master/images/img2.png?raw=true)
 
 ``` Powershell
-  Get-WGUpdate
+  Show-WGUpdatables
 ```
 ![image3](https://github.com/Yves848/WingetPosh/blob/master/images/img3.png?raw=true)
 
@@ -64,16 +69,16 @@ Of course, we can use this object collection to extract some usefull data .....
 ## Search and install a package
 
 ``` Powershell
-  Get-WGSearch "notepad++" | Select-Object -Property Id | Set-WGInstall
+  Search-WGPackage "notepad++" | Select-Object -Property Id | Install-WGPackage
 ```
 or
 ``` Powershell
-  $id = Get-WGSearch "notepad++" | Select-Object -Property Id
+  $id = Search-WGPackage "notepad++" | Select-Object -Property Id
   winget install $id
 ```
 or
 ``` Powershell
-  $pkg = Get-WGSearch "notepad++"
+  $pkg = Search-WGPackage "notepad++"
   winget install $pkg.id
 ```
 
@@ -81,35 +86,45 @@ or
 
 ## Select and update an installed package
 ``` Powershell
-  Get-WGUpgrade | Select-Object -Property id | set-WGUpgrade
+  Show-WGUpdatables | Select-Object -Property id | Update-WGPackage
 ```
 or
 ``` Powershell
-  $id = Get-WGUpgrade | Select-Object -Property id
+  $id = Show-WGUpdatables | Select-Object -Property id
   winget update $id
 ```
 or
 ``` Powershell
-  $pkg = Get-WGUpgrade
+  $pkg = Show-WGUpdatables
   winget update $pkg.id
 ```
+or
+ 
+``` Powershell
+  Update-WGPackage -Interactive
+``` 
 
 ***
 
 ## Select and uninstall an installed package
 ``` Powershell
-  Get-WGList | Select-Object -Property id | Set-WGRemove
+  Show-WGList -Single | Select-Object -Property id | Remove-WGPackage
 ```
 
 or
 
 ``` Powershell
- $id = Get-WGList | Select-Object -Property id
+ $id = Show-WGList -Single | Select-Object -Property id
  winget uninstall $id
 ```
 
 or
 ``` Powershell
-  $pkg = Get-WGList
+  $pkg = Show-WGList -Single
   winget $pkg.id
+```
+
+or 
+``` Powershell
+  Remove-WGPackage -Interactive
 ```

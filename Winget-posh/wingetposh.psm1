@@ -177,10 +177,12 @@ function wgUpgradable {
   $lines = $SearchResult.Split([Environment]::NewLine)
 
   $fl = 0
-  while (-not $lines[$fl].StartsWith("----")) {
+  while ($fl -lt $lines.Length -and -not $lines[$fl].StartsWith("----")) {
     $fl++
   }
+
   if ($fl -lt $lines.Length) {
+
   $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
   
   $idStart = $Columns[1].Position
@@ -207,6 +209,7 @@ function wgUpgradable {
     }
   }
   $upgradeList
+}
 }
 
 <#

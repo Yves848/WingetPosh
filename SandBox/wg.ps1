@@ -142,7 +142,6 @@ class window {
             setPosition $X2 $Y2
             Write-Host $this.frameStyle.RIGHT -ForegroundColor $this.frameColor
         }
-
         $Y2 = $this.Y + $this.H
         setPosition $this.X $Y2
         $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM)
@@ -1328,7 +1327,7 @@ function wingetPosh {
         "Red"
     ) 
     $local:window.footer = "[↑/↓ ⋮ Select] [Enter ⋮ Select] [Esc ⋮ Quit]"
-
+    [System.Console]::CursorVisible = $false
     function drawLines {
         param(
             [array]$menuItems,
