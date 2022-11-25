@@ -10,7 +10,8 @@ class installSoftware {
   [string]$Name
   [string]$id
   [string]$Version
-  [string]$Source
+  [string]$AvailableVersion
+  [String]$Source
 }
 
 class column {
@@ -230,7 +231,7 @@ function getColumnsHeaders {
 
 function _wgList {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $command = "winget list"
+  $command = "winget list --source winget"
   
   $SearchResult = Invoke-Expression $command | Out-String
   $lines = $SearchResult.Split([Environment]::NewLine)
@@ -244,8 +245,8 @@ function _wgList {
   
   $idStart = $Columns[1].Position
   $versionStart = $Columns[2].Position
-  #$availableStart = $lines[$fl].IndexOf("Disponible")
-  $sourceStart = $columns[3].Position
+  $availableStart =$columns[3].Position
+  #$sourceStart = $columns[4].Position
 
   $InstalledList = @()
   For ($i = $fl + 1; $i -le $lines.Length; $i++) {
@@ -253,15 +254,16 @@ function _wgList {
     if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
       $name = $line.Substring(0, $idStart).TrimEnd()
       $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-      $version = $line.Substring($versionStart, $SourceStart - $versionStart).TrimEnd()
-      #$available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-      $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+      $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+      $available = $line.Substring($availableStart, $line.Length - $availableStart).TrimEnd()
+      #$source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
       if ($source -ne "") {
-        $software = [installSoftware]::new()
+        $software = [upgradeSoftware]::new()
         $software.Name = $name;
         $software.Id = $id;
         $software.Version = $version
-        $software.Source = $source
+        $software.AvailableVersion = $available
+        $software.Source = "Winget"
         $InstalledList += $software
       }
     }
@@ -292,7 +294,7 @@ function _wgSearch {
 
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
 
-  $command = "winget search --name ${search}"
+  $command = "winget search --name ${search} --source winget"
 
   if ($Store -ne "") {
     $command = $command + " --source " + $Store
@@ -319,15 +321,8 @@ function _wgSearch {
     if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
       $name = $line.Substring(0, $idStart).TrimEnd()
       $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-          
-      if ($Store -eq "") {
-        $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-      }
-      else {
-        $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
-        $source = $store
-      }
+      $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
+      $source = "Winget"
       $software = [installSoftware]::new()
       $software.Name = $name;
       $software.Id = $id;

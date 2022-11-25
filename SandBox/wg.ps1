@@ -82,7 +82,7 @@ class window {
     [string]$title = ""
     [System.ConsoleColor]$titleColor
     [string]$footer = ""
-
+  
     window(
         [int]$X,
         [int]$y,
@@ -97,8 +97,9 @@ class window {
         $this.H = $H
         $this.frameStyle = [Frame]::new($Double)
         $this.frameColor = $color
+      
     }
-
+  
     window(
         [int]$X,
         [int]$y,
@@ -118,32 +119,57 @@ class window {
         $this.title = $title
         $this.titleColor = $titlecolor
     }
+  
+    [void] setPosition(
+        [int]$X,
+        [int]$Y
+    ) {
+        [System.Console]::SetCursorPosition($X, $Y)
+    }
 
+    [void] Write (
+        [string]$line
+    ){
+        [System.Console]::Write($line)
+    }
+
+    [void] Write (
+        [String]$line,
+        [System.ConsoleColor]$fg,
+        [System.ConsoleColor]$bg
+    ) {
+        [System.console]::BackgroundColor = $bg
+        [System.console]::ForegroundColor = $fg
+        $this.Write($line)
+    }
+  
     [void] drawWindow() {
-        setPosition $this.X $this.Y
-        
-
+        [System.Console]::CursorVisible = $false
+        $this.setPosition($this.X, $this.Y)
+      
+  
         $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.TOP)
         $blank = "".PadLeft($this.W - 2, " ") 
         Write-Host $this.frameStyle.UL -NoNewline -ForegroundColor $this.frameColor
         Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
         Write-Host $this.frameStyle.UR -ForegroundColor $this.frameColor
-
+  
         for ($i = 1; $i -lt $this.H; $i++) {
             $Y2 = $this.Y + $i
             $X2 = $this.X + $this.W - 1
-            setPosition $this.X $Y2
+            $this.setPosition($this.X, $Y2)
             Write-Host $this.frameStyle.LEFT -ForegroundColor $this.frameColor
-            
+          
             $X3 = $this.X + 1
-            setPosition $X3 $Y2
+            $this.setPosition($X3, $Y2)
             Write-Host $blank 
-            
-            setPosition $X2 $Y2
+          
+            $this.setPosition($X2, $Y2)
             Write-Host $this.frameStyle.RIGHT -ForegroundColor $this.frameColor
         }
+  
         $Y2 = $this.Y + $this.H
-        setPosition $this.X $Y2
+        $this.setPosition( $this.X, $Y2)
         $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM)
         Write-Host $this.frameStyle.BL -NoNewline -ForegroundColor $this.frameColor
         Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
@@ -151,40 +177,40 @@ class window {
         $this.drawTitle()
         $this.drawFooter()
     }
-
+  
     [void] drawTitle() {
         if ($this.title -ne "") {
             $local:X = $this.x + 2
-            setPosition -X $local:X -Y $this.Y
-            Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+            $this.setPosition($local:X, $this.Y)
+            $this.write("| ",$this.frameColor,"Black")
             $local:X = $local:X + 2
-            setPosition -X $local:X -Y $this.Y
-            Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
+            $this.setPosition($local:X, $this.Y)
+            $this.write($this.title,$this.titleColor,"Black")
             $local:X = $local:X + $this.title.Length
-            setPosition -X $local:X -Y $this.Y
-            Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+            $this.setPosition($local:X, $this.Y)
+            $this.write(" |",$this.frameColor,"Black")
         }
     }
-
+  
     [void] drawFooter() {
         if ($this.footer -ne "") {
-            $local:x = ($this.W - $this.footer.Length - 2)
+            $local:x = ($this.W - ($this.footer.Length + 6))
             $local:Y = $this.Y + $this.h
-            setPosition -X $local:X -Y $local:Y
+            $this.setPosition($local:X, $local:Y)
             Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
             $local:X = $local:X + 2
-            setPosition -X $local:X -Y $local:Y
+            $this.setPosition($local:X, $local:Y)
             Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
             $local:X = $local:X + $this.footer.Length
-            setPosition -X $local:X -Y $local:Y
+            $this.setPosition($local:X, $local:Y)
             Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
         }
     }
-
+  
     [void] clearWindow() {
         $local:blank = "".PadLeft($this.W - 2, " ") 
         for ($i = 1; $i -lt $this.H; $i++) {
-            setPosition ($this.X + 1) ($this.Y + $i)
+            $this.setPosition(($this.X + 1), ($this.Y + $i))
             Write-Host $blank 
         } 
     }
@@ -375,7 +401,7 @@ function wgList {
     while (-not $lines[$fl].StartsWith("----")) {
         $fl++
     }
-    $Global:columns = getColumnsHeaders -columsLine $lines[$fl-2]
+    $Global:columns = getColumnsHeaders -columsLine $lines[$fl - 2]
 
     $idStart = $lines[$fl].IndexOf("ID")
     $versionStart = $lines[$fl].IndexOf("Version")
@@ -470,8 +496,6 @@ function wgSearch {
     }
     $SearchList
 }
-
-
 
 function setPosition {
     param (
@@ -665,7 +689,6 @@ function showOptions {
             else {
                 Write-Host ' ' @Colors -NoNewline
             }
-
             $XX = $X + 2
             setPosition -X $XX -Y $YY
             Write-Host $Global:toInstall[$currentLine + $startLine].Package.Name @Colors -NoNewline
@@ -865,28 +888,31 @@ function wgSearchList {
             }
             $Y = 2 + $currentLine
             setPosition -X 0 -Y $Y
-            $bloc = "".PadLeft($W, " ")
-            Write-Host $bloc @Colors -NoNewline
+            # $bloc = "".PadLeft($W, " ")
+            # Write-Host $bloc @Colors -NoNewline
             
             setPosition -X 0 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
                 Write-Host '✔️' @Colors -NoNewline 
             }
             else {
-                Write-Host ' ' @Colors -NoNewline
+                Write-Host '  ' @Colors -NoNewline
             }
             $X = 2
             setPosition -X $X -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
             $col = $columns[0]
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name.PadRight($col.len, " ") @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.ID @Colors -NoNewline
             $col = $columns[1]
+            Write-Host $menuItems[$currentLine + $startLine].Package.ID.PadRight($col.len, " ") @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Version @Colors -NoNewline
             $col = $columns[2]
+            Write-Host $menuItems[$currentLine + $startLine].Package.Version.PadRight($col.len, " ") @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Source @Colors -NoNewline
@@ -1043,7 +1069,7 @@ function wgUpgradeList {
             X = $X
             Y = $Y
         }
-        Clear-Host
+        #Clear-Host
         Write-Host "Selected Packages"
         # $list | ForEach-Object { Write-Host "${_.id} | ${_.Name}" }
         foreach ($item in $Global:toInstall) {
@@ -1110,32 +1136,36 @@ function wgUpgradeList {
             $Y = 2 + $currentLine
             setPosition -X 0 -Y $Y
             $bloc = "".PadLeft($W, " ")
-            Write-Host $bloc @Colors -NoNewline
+            #Write-Host $bloc @Colors -NoNewline
             
             setPosition -X 0 -Y $Y
             if ($menuItems[$currentLine + $startLine].Selected) {
                 Write-Host '✔️' @Colors -NoNewline 
             }
             else {
-                Write-Host ' ' @Colors -NoNewline
+                Write-Host '  ' @Colors -NoNewline
             }
 
             $X = 2
             setPosition -X $X -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Name @Colors -NoNewline
             $col = $columns[0]
+            Write-Host $menuItems[$currentLine + $startLine].Package.Name.PadRight($col.len, " ") @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.ID @Colors -NoNewline
             $col = $columns[1]
+            Write-Host $menuItems[$currentLine + $startLine].Package.ID.PadRight($col.len, " ")  @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.Version @Colors -NoNewline
             $col = $columns[2]
+            Write-Host $menuItems[$currentLine + $startLine].Package.Version.PadRight($col.len, " ") @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
-            Write-Host $menuItems[$currentLine + $startLine].Package.AvailableVersion @Colors -NoNewline
             $col = $columns[3]
+            Write-Host $menuItems[$currentLine + $startLine].Package.AvailableVersion.PadRight($col.len, " ") @Colors -NoNewline
+            
             $X = $X + $col.Len
             setPosition -X $X  -Y $Y
             Write-Host $menuItems[$currentLine + $startLine].Package.Source @Colors -NoNewline
@@ -1453,7 +1483,7 @@ function testWindow {
         "Red"
     ) 
     $local:window.drawWindow()
-    
+    [System.Console]::ReadKey()
 }
 
 # wingetPosh
