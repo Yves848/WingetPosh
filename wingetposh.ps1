@@ -270,7 +270,7 @@ function _wgList {
           $software.Name = $name;
           $software.Id = $id;
           $software.Version = $version
-          $software.Source = "Winget"
+          $software.Source = $source
           $InstalledList += $software
         }
       }
