@@ -10,7 +10,6 @@ class installSoftware {
   [string]$Name
   [string]$id
   [string]$Version
-  [string]$AvailableVersion
   [String]$Source
 }
 
