@@ -10,7 +10,6 @@ class installSoftware {
   [string]$Name
   [string]$id
   [string]$Version
-  [string]$AvailableVersion
   [String]$Source
 }
 
@@ -231,7 +230,7 @@ function getColumnsHeaders {
 
 function _wgList {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $command = "winget list --source winget"
+  $command = "winget list"
   
   $SearchResult = Invoke-Expression $command | Out-String
   $lines = $SearchResult.Split([Environment]::NewLine)
@@ -242,29 +241,59 @@ function _wgList {
   }
 
   $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
-  
+
   $idStart = $Columns[1].Position
   $versionStart = $Columns[2].Position
-  $availableStart =$columns[3].Position
-  #$sourceStart = $columns[4].Position
+ 
+
+ 
+  if ($columns.Length -eq 5) {
+    $availableStart =$columns[3].Position
+    $sourceStart = $columns[4].Position
+  }
+  else {
+    $sourceStart = $columns[3].Position
+  }
 
   $InstalledList = @()
-  For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-    $line = $lines[$i]
-    if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-      $name = $line.Substring(0, $idStart).TrimEnd()
-      $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-      $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-      $available = $line.Substring($availableStart, $line.Length - $availableStart).TrimEnd()
-      #$source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-      if ($source -ne "") {
-        $software = [upgradeSoftware]::new()
-        $software.Name = $name;
-        $software.Id = $id;
-        $software.Version = $version
-        $software.AvailableVersion = $available
-        $software.Source = "Winget"
-        $InstalledList += $software
+
+  if ($Columns.Length -eq 4) {
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+      $line = $lines[$i]
+      if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
+        $name = $line.Substring(0, $idStart).TrimEnd()
+        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+        $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+        if ($source -ne "") {
+          $software = [InstallSoftware]::new()
+          $software.Name = $name;
+          $software.Id = $id;
+          $software.Version = $version
+          $software.Source = $source
+          $InstalledList += $software
+        }
+      }
+    }
+  }
+  else {
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+      $line = $lines[$i]
+      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+        $name = $line.Substring(0, $idStart).TrimEnd()
+        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+        $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+        $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+        if ($source -ne "") {
+          $software = [UpgradeSoftware]::new()
+          $software.Name = $name;
+          $software.Id = $id;
+          $software.Version = $version
+          $software.AvailableVersion = $available
+          $software.Source = $Source
+          $InstalledList += $software
+        }
       }
     }
   }
