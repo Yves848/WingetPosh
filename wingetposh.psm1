@@ -230,7 +230,7 @@ function getColumnsHeaders {
 
 function _wgList {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $command = "winget list --source winget"
+  $command = "winget list"
   
   $SearchResult = Invoke-Expression $command | Out-String
   $lines = $SearchResult.Split([Environment]::NewLine)
@@ -257,7 +257,7 @@ function _wgList {
       $available = $line.Substring($availableStart, $line.Length - $availableStart).TrimEnd()
       #$source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
       if ($source -ne "") {
-        $software = [upgradeSoftware]::new()
+        $software = [InstallSoftware]::new()
         $software.Name = $name;
         $software.Id = $id;
         $software.Version = $version

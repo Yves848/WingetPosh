@@ -1,18 +1,18 @@
 ﻿WingetGUI
-1.0.0.0
+
 
 winexe
 C#
 .cs
-c:\Users\yvesg\git\WingetPosh\GUI\WingetGUI\obj\Debug\net6.0-windows\
+C:\Users\yvesg\git\WingetPosh\GUI\WingetGUI\obj\Debug\net6.0-windows\
 WingetGUI
 none
 false
 TRACE;DEBUG;NET;NET6_0;NETCOREAPP
-c:\Users\yvesg\git\WingetPosh\GUI\WingetGUI\App.xaml
+C:\Users\yvesg\git\WingetPosh\GUI\WingetGUI\App.xaml
 11407045341
 
-5-606641682
+3-1233169557
 194-2004305220
 MainWindow.xaml;
 
