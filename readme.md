@@ -35,6 +35,9 @@ The availablle functions are :
   Install-Module -Name wingetposh -Scope CurrentUser
 ```
 
+## History
+- 0.5.1 : Fixed the show-WGList bug when there is no updatable packages to show.
+
 ### Examples
 ``` Powershell
   Show-WGList
