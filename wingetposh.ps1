@@ -282,7 +282,7 @@ function _wgList {
       if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
         $name = $line.Substring(0, $idStart).TrimEnd()
         $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-        $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+        $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
         $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
         $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
         if ($source -ne "") {
