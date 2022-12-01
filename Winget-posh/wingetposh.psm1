@@ -32,29 +32,29 @@ class Frame {
   [char]$RIGHTSPLIT
 
   Frame (
-      [bool]$Double
+    [bool]$Double
   ) {
-      if ($Double) {
-          $this.UL = "╔"
-          $this.UR = "╗"
-          $this.TOP = "═"
-          $this.LEFT = "║"
-          $this.RIGHT = "║"
-          $this.BL = "╚"
-          $this.BR = "╝"
-          $this.BOTTOM = "═"
-          $this.LEFTSPLIT = "⊫"
-      }
-      else {
-          $this.UL = "┌"
-          $this.UR = "┐"
-          $this.TOP = "─"
-          $this.LEFT = "│"
-          $this.RIGHT = "│"
-          $this.BL = "└"
-          $this.BR = "┘"
-          $this.BOTTOM = "─"
-      }
+    if ($Double) {
+      $this.UL = "╔"
+      $this.UR = "╗"
+      $this.TOP = "═"
+      $this.LEFT = "║"
+      $this.RIGHT = "║"
+      $this.BL = "╚"
+      $this.BR = "╝"
+      $this.BOTTOM = "═"
+      $this.LEFTSPLIT = "⊫"
+    }
+    else {
+      $this.UL = "┌"
+      $this.UR = "┐"
+      $this.TOP = "─"
+      $this.LEFT = "│"
+      $this.RIGHT = "│"
+      $this.BL = "└"
+      $this.BR = "┘"
+      $this.BOTTOM = "─"
+    }
   }
 }
 
@@ -73,119 +73,119 @@ class window {
   [string]$footer = ""
 
   window(
-      [int]$X,
-      [int]$y,
-      [int]$w,
-      [int]$h,
-      [bool]$Double,
-      [System.ConsoleColor]$color = "White"
+    [int]$X,
+    [int]$y,
+    [int]$w,
+    [int]$h,
+    [bool]$Double,
+    [System.ConsoleColor]$color = "White"
   ) {
-      $this.X = $X
-      $this.Y = $y
-      $this.W = $W
-      $this.H = $H
-      $this.frameStyle = [Frame]::new($Double)
-      $this.frameColor = $color
+    $this.X = $X
+    $this.Y = $y
+    $this.W = $W
+    $this.H = $H
+    $this.frameStyle = [Frame]::new($Double)
+    $this.frameColor = $color
     
   }
 
   window(
-      [int]$X,
-      [int]$y,
-      [int]$w,
-      [int]$h,
-      [bool]$Double,
-      [System.ConsoleColor]$color = "White",
-      [string]$title = "",
-      [System.ConsoleColor]$titlecolor = "Blue"
+    [int]$X,
+    [int]$y,
+    [int]$w,
+    [int]$h,
+    [bool]$Double,
+    [System.ConsoleColor]$color = "White",
+    [string]$title = "",
+    [System.ConsoleColor]$titlecolor = "Blue"
   ) {
-      $this.X = $X
-      $this.Y = $y
-      $this.W = $W
-      $this.H = $H
-      $this.frameStyle = [Frame]::new($Double)
-      $this.frameColor = $color
-      $this.title = $title
-      $this.titleColor = $titlecolor
+    $this.X = $X
+    $this.Y = $y
+    $this.W = $W
+    $this.H = $H
+    $this.frameStyle = [Frame]::new($Double)
+    $this.frameColor = $color
+    $this.title = $title
+    $this.titleColor = $titlecolor
   }
 
   [void] setPosition(
-      [int]$X,
-      [int]$Y
+    [int]$X,
+    [int]$Y
   ) {
-      [System.Console]::SetCursorPosition($X,$Y)
+    [System.Console]::SetCursorPosition($X, $Y)
   }
 
   [void] drawWindow() {
-      [System.Console]::CursorVisible = $false
-      $this.setPosition($this.X,$this.Y)
+    [System.Console]::CursorVisible = $false
+    $this.setPosition($this.X, $this.Y)
     
 
-      $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.TOP)
-      $blank = "".PadLeft($this.W - 2, " ") 
-      Write-Host $this.frameStyle.UL -NoNewline -ForegroundColor $this.frameColor
-      Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-      Write-Host $this.frameStyle.UR -ForegroundColor $this.frameColor
+    $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.TOP)
+    $blank = "".PadLeft($this.W - 2, " ") 
+    Write-Host $this.frameStyle.UL -NoNewline -ForegroundColor $this.frameColor
+    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
+    Write-Host $this.frameStyle.UR -ForegroundColor $this.frameColor
 
-      for ($i = 1; $i -lt $this.H; $i++) {
-          $Y2 = $this.Y + $i
-          $X2 = $this.X + $this.W - 1
-          $this.setPosition($this.X, $Y2)
-          Write-Host $this.frameStyle.LEFT -ForegroundColor $this.frameColor
+    for ($i = 1; $i -lt $this.H; $i++) {
+      $Y2 = $this.Y + $i
+      $X2 = $this.X + $this.W - 1
+      $this.setPosition($this.X, $Y2)
+      Write-Host $this.frameStyle.LEFT -ForegroundColor $this.frameColor
         
-          $X3 = $this.X + 1
-          $this.setPosition($X3, $Y2)
-          Write-Host $blank 
+      $X3 = $this.X + 1
+      $this.setPosition($X3, $Y2)
+      Write-Host $blank 
         
-          $this.setPosition($X2, $Y2)
-          Write-Host $this.frameStyle.RIGHT -ForegroundColor $this.frameColor
-      }
+      $this.setPosition($X2, $Y2)
+      Write-Host $this.frameStyle.RIGHT -ForegroundColor $this.frameColor
+    }
 
-      $Y2 = $this.Y + $this.H
-      $this.setPosition( $this.X, $Y2)
-      $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM)
-      Write-Host $this.frameStyle.BL -NoNewline -ForegroundColor $this.frameColor
-      Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-      Write-Host $this.frameStyle.BR -ForegroundColor $this.frameColor
-      $this.drawTitle()
-      $this.drawFooter()
+    $Y2 = $this.Y + $this.H
+    $this.setPosition( $this.X, $Y2)
+    $bloc1 = "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM)
+    Write-Host $this.frameStyle.BL -NoNewline -ForegroundColor $this.frameColor
+    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
+    Write-Host $this.frameStyle.BR -ForegroundColor $this.frameColor
+    $this.drawTitle()
+    $this.drawFooter()
   }
 
   [void] drawTitle() {
-      if ($this.title -ne "") {
-          $local:X = $this.x + 2
-          $this.setPosition($local:X, $this.Y)
-          Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
-          $local:X = $local:X + 2
-          $this.setPosition($local:X,$this.Y)
-          Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
-          $local:X = $local:X + $this.title.Length
-          $this.setPosition($local:X, $this.Y)
-          Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
-      }
+    if ($this.title -ne "") {
+      $local:X = $this.x + 2
+      $this.setPosition($local:X, $this.Y)
+      Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+      $local:X = $local:X + 2
+      $this.setPosition($local:X, $this.Y)
+      Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
+      $local:X = $local:X + $this.title.Length
+      $this.setPosition($local:X, $this.Y)
+      Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+    }
   }
 
   [void] drawFooter() {
-      if ($this.footer -ne "") {
-        $local:x = ($this.W - ($this.footer.Length + 6))
-          $local:Y = $this.Y + $this.h
-          $this.setPosition($local:X, $local:Y)
-          Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
-          $local:X = $local:X + 2
-          $this.setPosition($local:X, $local:Y)
-          Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
-          $local:X = $local:X + $this.footer.Length
-          $this.setPosition($local:X, $local:Y)
-          Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
-      }
+    if ($this.footer -ne "") {
+      $local:x = ($this.W - ($this.footer.Length + 6))
+      $local:Y = $this.Y + $this.h
+      $this.setPosition($local:X, $local:Y)
+      Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+      $local:X = $local:X + 2
+      $this.setPosition($local:X, $local:Y)
+      Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
+      $local:X = $local:X + $this.footer.Length
+      $this.setPosition($local:X, $local:Y)
+      Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+    }
   }
 
   [void] clearWindow() {
-      $local:blank = "".PadLeft($this.W - 2, " ") 
-      for ($i = 1; $i -lt $this.H; $i++) {
-          $this.setPosition(($this.X + 1), ($this.Y + $i))
-          Write-Host $blank 
-      } 
+    $local:blank = "".PadLeft($this.W - 2, " ") 
+    for ($i = 1; $i -lt $this.H; $i++) {
+      $this.setPosition(($this.X + 1), ($this.Y + $i))
+      Write-Host $blank 
+    } 
   }
 }
 
@@ -240,7 +240,7 @@ function _wgList {
     $fl++
   }
 
-  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
+  $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
 
   $idStart = $Columns[1].Position
   $versionStart = $Columns[2].Position
@@ -248,7 +248,7 @@ function _wgList {
 
  
   if ($columns.Length -eq 5) {
-    $availableStart =$columns[3].Position
+    $availableStart = $columns[3].Position
     $sourceStart = $columns[4].Position
   }
   else {
@@ -330,37 +330,42 @@ function _wgSearch {
   }
 
   $SearchResult = Invoke-Expression $command | Out-String
-  $lines = $SearchResult.Split([Environment]::NewLine)
-
-  $fl = 0
-  while (-not $lines[$fl].StartsWith("----")) {
-    $fl++
-  }
-
-  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
-
-  $idStart = $columns[1].Position
-  $versionStart = $columns[2].Position
-  if ($store -eq "") {
-    $sourceStart = $columns[3].Position
-  }
   $SearchList = @()
-  For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-    $line = $lines[$i]
-    if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-      $name = $line.Substring(0, $idStart).TrimEnd()
-      $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-      $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
-      $source = "Winget"
-      $software = [installSoftware]::new()
-      $software.Name = $name;
-      $software.Id = $id;
-      $software.Version = $version
-      $software.Source = $source;
-      $SearchList += $software
+  if ($SearchResult.Contains('----')) {
+    $lines = $SearchResult.Split([Environment]::NewLine)
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("----")) {
+      $fl++
     }
+
+    $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
+
+    $idStart = $columns[1].Position
+    $versionStart = $columns[2].Position
+    if ($store -eq "") {
+      $sourceStart = $columns[3].Position
+    }
+    
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+      $line = $lines[$i]
+      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+        $name = $line.Substring(0, $idStart).TrimEnd()
+        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+        $version = $line.Substring($versionStart, $line.Length - $versionStart).TrimEnd()
+        $source = "Winget"
+        $software = [installSoftware]::new()
+        $software.Name = $name;
+        $software.Id = $id;
+        $software.Version = $version
+        $software.Source = $source;
+        $SearchList += $software
+      }
+    }
+    $SearchList
   }
-  $SearchList
+  else {
+    $SearchList
+  }
 }
 
 function wgUpgradable {
@@ -377,33 +382,33 @@ function wgUpgradable {
 
   if ($fl -lt $lines.Length) {
 
-  $columns =  getColumnsHeaders -columsLine $lines[$fl-1]
+    $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
   
-  $idStart = $Columns[1].Position
-  $versionStart = $Columns[2].Position
-  $availableStart = $columns[3].Position
-  $sourceStart = $columns[4].Position
+    $idStart = $Columns[1].Position
+    $versionStart = $Columns[2].Position
+    $availableStart = $columns[3].Position
+    $sourceStart = $columns[4].Position
 
-  $upgradeList = @()
-  For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-    $line = $lines[$i]
-    if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-      $name = $line.Substring(0, $idStart).TrimEnd()
-      $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-      $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-      $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-      $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-      $software = [upgradeSoftware]::new()
-      $software.Name = $name;
-      $software.Id = $id;
-      $software.Version = $version
-      $software.AvailableVersion = $available
-      $software.Source = $source
-      $upgradeList += $software
+    $upgradeList = @()
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+      $line = $lines[$i]
+      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+        $name = $line.Substring(0, $idStart).TrimEnd()
+        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+        $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+        $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+        $software = [upgradeSoftware]::new()
+        $software.Name = $name;
+        $software.Id = $id;
+        $software.Version = $version
+        $software.AvailableVersion = $available
+        $software.Source = $source
+        $upgradeList += $software
+      }
     }
+    $upgradeList
   }
-  $upgradeList
-}
 }
 
 <#
@@ -422,26 +427,24 @@ function Show-WGList {
     [switch]$Single
   )
   # check_ocgv
-  if ($single)
-  {
+  if ($single) {
     $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages' -OutputMode Single
   }
   else {
     $list = _wgList | Out-ConsoleGridView -Title 'Installed Packages'  
   }
   return $list
-  
 }
 
 function Show-WGUpdatables {
   # Parameter help description
   param(
-  [Switch]
-  $Multiple
+    [Switch]
+    $Multiple
   )
   # check_ocgv
   if (-not $Multiple) {
-  $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages' -OutputMode Single
+    $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages' -OutputMode Single
   }
   else {
     $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'
@@ -462,54 +465,66 @@ function Search-WGPackage {
     )]
     [string]
     $Store,
-    [Switch]$Interactive,
     [Switch]$Install    
   )
   # check_ocgv
-  if ($Interactive -or [string]::IsNullOrEmpty($search))
-  {
-    [System.Console]::Clear()
-    $search = getSearchTerms
-    [System.Console]::Clear()
-  }
-
-  $packages = _wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" -OutputMode Single
-  if ($Install) {
-    $packages | Select-Object -Property id | Install-WGPackage
-  } else {
-    return $packages
+  
+  [System.Console]::Clear()
+  $search = getSearchTerms
+  [System.Console]::Clear()
+  if (-not [string]::IsNullOrEmpty($search)) {
+    $packages = _wgSearch $search $Store | Out-ConsoleGridView -Title "Search Package" 
+    if ($packages.length -gt 0) {
+      if ($Install) {
+        $packages | Select-Object -Property id | Install-WGPackage
+      }
+      else {
+        return $packages
+      }
+    }
+    else {
+      Write-Host "No package found for $search"
+    }
   }
 }
 
 function getSearchTerms {
   $WinWidth = [System.Console]::WindowWidth
-    $X = 0
-    $Y = [System.Console]::WindowHeight -6
-    $WinHeigt = 4
+  $X = 0
+  $Y = [System.Console]::WindowHeight - 6
+  $WinHeigt = 4
 
-    $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
-  $win.title = "Search"
+  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
+  $win.title = "WinGetPosh Search"
   $Win.titleColor = "Green"
   $win.footer = "[Enter] : Accept [Ctrl-C] : Abort"
   $win.drawWindow();
-  $win.setPosition($X+2, $Y+2);
+  $win.setPosition($X + 2, $Y + 2);
   [System.Console]::Write('Package : ')
   [system.console]::CursorVisible = $true
   $pack = [System.Console]::ReadLine()
-  return $pack
+  return $pack.Trim()
 }
 
 function Install-WGPackage {
   [CmdletBinding()]
   param (
     [Parameter(ValueFromPipeline)]
-    [upgradeSoftware[]] $inObj
+    [PSCustomObject[]] $inObj
   )
 
-  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $id = $inObj.id
-  $command = "winget install '$id'"
-  Invoke-Expression $command
+  BEGIN {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+  }
+
+  PROCESS {
+    $id = $inObj.id
+    $command = "winget install '$id'"
+    # Write-Host $command
+    Invoke-Expression $command
+  }
+  
+  
 }
 
 function Uninstall-WGPackage {
@@ -531,7 +546,7 @@ function Uninstall-WGPackage {
   }
 
   if ($Interactive) {
-    $pkg = Show-WGList -Single | Select-Object -Property id,Name
+    $pkg = Show-WGList | Select-Object -Property id, Name
     if (-not $pkg) {
       return
     }
@@ -541,7 +556,6 @@ function Uninstall-WGPackage {
     $ids = $inObj
   }
 
-
   $ids | ForEach-Object {
     $id = $_.id;
     $name = $_.name
@@ -549,19 +563,12 @@ function Uninstall-WGPackage {
       Write-Host "Uninstalling : " -NoNewline
       Write-Host "$name ($id)" -ForegroundColor DarkCyan
       $command = "winget uninstall '$id' --Force"
-      #Write-Host $command
       Invoke-Expression $command
     }
     else {
       Write-Warning "Cannot uninstall unknown package"
     }
   }
-
-
-
-  # $id = $inObj.id
-  # $command = "winget uninstall '$id'"
-  # Invoke-Expression $command
 }
 
 function Update-WGPackage {
@@ -582,8 +589,8 @@ function Update-WGPackage {
     }
   }
  
-  if ($Interactive) {
-    $pkg = Show-WGUpdatables -Multiple | Select-Object -Property id,Name
+  if ($null -eq $inObj) {
+    $pkg = Show-WGUpdatables -Multiple | Select-Object -Property id, Name
     if (-not $pkg) {
       return
     }
@@ -615,6 +622,3 @@ function Update-WGPackage {
   }
   
 }
-
-
-#Export-ModuleMember Get-WGList, Get-WGSearch, Get-WGUpgrade, Set-WGInstall, Set-WGRemove

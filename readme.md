@@ -161,5 +161,5 @@ or
 ***
 ## Update packages interactively
 ``` Powershell
-  update-WGPachage
+  update-WGPackage
 ```

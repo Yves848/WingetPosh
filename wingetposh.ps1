@@ -622,6 +622,3 @@ function Update-WGPackage {
   }
   
 }
-
-
-Update-WGPackage
