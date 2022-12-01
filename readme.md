@@ -8,8 +8,6 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ```
 ***
 
-![Video](https://img.youtube.com/vi/FlkUoe1Qplc/0.jpg)
-
 ## Demo
 https://youtu.be/A45vW0GuduM
 
