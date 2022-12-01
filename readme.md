@@ -89,7 +89,7 @@ The -Install parameter will launch the installation of the selected package.
 
 https://youtu.be/drcwiWtFcTw
 
-![image7](https://github.com/Yves848/WingetPosh/blob/master/images/img7.png?raw=true)
+![image8](https://github.com/Yves848/WingetPosh/blob/master/images/img8.png?raw=true)
 
 ``` Powershell
   Search-WGPackage | Select-Object -Property Id | Install-WGPackage
