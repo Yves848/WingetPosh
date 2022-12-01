@@ -79,7 +79,7 @@ Of course, we can use this object collection to extract some usefull data .....
 ```Powershell
   Update-WGPackage
 ```
-![image9](https://github.com/Yves848/WingetPosh/blob/master/images/img9.png?raw=true)
+![image9](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img9.png)
 
 ***
 
@@ -95,7 +95,7 @@ The -Install parameter will launch the installation of the selected package.
 
 https://youtu.be/drcwiWtFcTw
 
-![image8](https://github.com/Yves848/WingetPosh/blob/master/images/img8.png?raw=true)
+![image8](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img8.png)
 
 ``` Powershell
   Search-WGPackage | Select-Object -Property Id | Install-WGPackage
