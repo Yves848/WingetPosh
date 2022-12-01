@@ -132,7 +132,7 @@ or
 
 ## Select and uninstall an installed package
 ``` Powershell
-  Show-WGList -Single | Select-Object -Property id | Remove-WGPackage
+  Show-WGList -Single | Select-Object -Property id | Uninstall-WGPackage
 ```
 
 or
