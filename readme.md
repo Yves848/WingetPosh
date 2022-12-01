@@ -43,6 +43,7 @@ The availablle functions are :
 - Removed the search parameter from search-WGPackage.
 - Allowing multiple selection in uninstall-WGPackage.
 - Removing crash brug when no package is found in search-WGPackage.
+- Removing the "-Interactive" switch to updage-WGPackage.  If no Object is passed through the pipeline, it will automatically display an interactive grid
 - Update readme.md
 
 ### Examples
@@ -74,6 +75,11 @@ Of course, we can use this object collection to extract some usefull data .....
   Show-WGUpdatables
 ```
 ![image3](https://github.com/Yves848/WingetPosh/blob/master/images/img3.png?raw=true)
+
+```Powershell
+  Update-WGPackage
+```
+![image9](https://github.com/Yves848/WingetPosh/blob/master/images/img9.png?raw=true)
 
 ***
 
@@ -150,4 +156,10 @@ or
 or 
 ``` Powershell
   Uninstall-WGPackage -Interactive
+```
+
+***
+## Update packages interactively
+``` Powershell
+  update-WGPachage
 ```

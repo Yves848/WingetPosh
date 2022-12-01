@@ -589,7 +589,7 @@ function Update-WGPackage {
     }
   }
  
-  if ($Interactive) {
+  if ($null -eq $inObj) {
     $pkg = Show-WGUpdatables -Multiple | Select-Object -Property id, Name
     if (-not $pkg) {
       return
@@ -624,4 +624,4 @@ function Update-WGPackage {
 }
 
 
-#Export-ModuleMember Get-WGList, Get-WGSearch, Get-WGUpgrade, Set-WGInstall, Set-WGRemove
+Update-WGPackage
