@@ -36,7 +36,14 @@ The availablle functions are :
 ```
 
 ## History
-- 0.5.1 : Fixed the show-WGList bug when there is no updatable packages to show.
+### 0.5.1 : 
+- Fixed the show-WGList bug when there is no updatable packages to show.
+### 0.5.2 : 
+- Removed the "-Interactive" switch to search-WGPackage.       
+- Removed the search parameter from search-WGPackage.
+- Allowing multiple selection in uninstall-WGPackage.
+- Removing crash brug when no package is found in search-WGPackage.
+- Update readme.md
 
 ### Examples
 ``` Powershell
@@ -58,8 +65,9 @@ Of course, we can use this object collection to extract some usefull data .....
 ***
 
 ``` Powershell
-  Search-WGPackage cpu-z
+  Search-WGPackage
 ```
+![image8](https://github.com/Yves848/WingetPosh/blob/master/images/img8.png?raw=true)
 ![image2](https://github.com/Yves848/WingetPosh/blob/master/images/img2.png?raw=true)
 
 ``` Powershell
@@ -75,7 +83,7 @@ When passing -Interactive (or even no search parameter), the function will promp
 The -Install parameter will launch the installation of the selected package.
 
 ``` Powershell
-  Search-WGPackage -Interactive -Install
+  Search-WGPackage -Install
 ```
 ### Demo
 
@@ -84,16 +92,16 @@ https://youtu.be/drcwiWtFcTw
 ![image7](https://github.com/Yves848/WingetPosh/blob/master/images/img7.png?raw=true)
 
 ``` Powershell
-  Search-WGPackage "notepad++" | Select-Object -Property Id | Install-WGPackage
+  Search-WGPackage | Select-Object -Property Id | Install-WGPackage
 ```
 or
 ``` Powershell
-  $id = Search-WGPackage "notepad++" | Select-Object -Property Id
+  $id = Search-WGPackage | Select-Object -Property Id
   winget install $id
 ```
 or
 ``` Powershell
-  $pkg = Search-WGPackage "notepad++"
+  $pkg = Search-WGPackage 
   winget install $pkg.id
 ```
 
