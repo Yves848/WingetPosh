@@ -23,7 +23,7 @@ The availablle functions are :
 - Show-WGList
 - Search-WGPackage "name (or part) of the package" [-Interactive] [-Install]
 - Show-WGUpdatables
-- Update-WGPackage [-Interactive]
+- Update-WGPackage
 - Install-WGPackage
 - Uninstall-WGPackage [-Interactive]
   
