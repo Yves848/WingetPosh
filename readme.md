@@ -149,5 +149,5 @@ or
 
 or 
 ``` Powershell
-  Remove-WGPackage -Interactive
+  Uninstall-WGPackage -Interactive
 ```
