@@ -11,7 +11,7 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ![Video](https://img.youtube.com/vi/FlkUoe1Qplc/0.jpg)
 
 ## Demo
-https://youtu.be/FlkUoe1Qplc
+https://youtu.be/A45vW0GuduM
 
 
 A small set of functions to help using winget.
@@ -91,9 +91,6 @@ The -Install parameter will launch the installation of the selected package.
 ``` Powershell
   Search-WGPackage -Install
 ```
-### Demo
-
-https://youtu.be/drcwiWtFcTw
 
 ![image8](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img8.png)
 
