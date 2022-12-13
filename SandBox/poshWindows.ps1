@@ -24,8 +24,9 @@ class Frame {
   }
 }
 
-class Window {
-  
+class Window {  
+  [int]$X
+  [int]$Y
 
 
 }
