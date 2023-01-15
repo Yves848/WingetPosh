@@ -47,6 +47,9 @@ The availablle functions are :
 ### 0.5.4 : 
 - Addind a license file.
 
+### 0.5.5 : 
+- Adding license acceptance when installing module
+
 ### Examples
 ``` Powershell
   Show-WGList
