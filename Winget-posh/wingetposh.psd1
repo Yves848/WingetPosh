@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.2'
+ModuleVersion = '0.5.5'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -87,7 +87,10 @@ AliasesToExport = @()
 # ModuleList = @()
 
 # List of all files packaged with this module
-FileList = @('license.txt')
+FileList = @(
+    'wingetposh.psd1'
+    'wingetposh.psm1'
+)
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
@@ -98,7 +101,7 @@ PrivateData = @{
         Tags = @('winget','helper','powershell', 'TUI')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/Yves848/WingetPosh/blob/master/licence.txt'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/Yves848/WingetPosh'
@@ -107,13 +110,26 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = '0.5.1 : 
+        - Fixed the show-WGList bug when there is no updatable packages to show.
+        0.5.2 : 
+        - Removed the "-Interactive" switch to search-WGPackage.       
+        - Removed the search parameter from search-WGPackage.
+        - Allowing multiple selection in uninstall-WGPackage.
+        - Removing crash brug when no package is found in search-WGPackage.
+        - Removing the "-Interactive" switch to updage-WGPackage.  If no Object is passed through the pipeline, it will automatically display an interactive grid
+        - Update readme.md
+        
+        0.5.4 : 
+        - Addind a license file.
 
+        0.5.5 : 
+        - Adding licence acceptance.'
         # Prerelease string of this module
         # Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        # RequireLicenseAcceptance = $false
+        RequireLicenseAcceptance = $true
 
         # External dependent modules of this module
         # ExternalModuleDependencies = @()

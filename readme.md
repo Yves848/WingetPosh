@@ -44,6 +44,9 @@ The availablle functions are :
 - Removing the "-Interactive" switch to updage-WGPackage.  If no Object is passed through the pipeline, it will automatically display an interactive grid
 - Update readme.md
 
+### 0.5.4 : 
+- Addind a license file.
+
 ### Examples
 ``` Powershell
   Show-WGList
