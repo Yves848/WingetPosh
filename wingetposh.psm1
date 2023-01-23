@@ -1,4 +1,4 @@
-class upgradeSoftware {
+﻿class upgradeSoftware {
   [string]$Name
   [string]$Id
   [string]$Version
@@ -436,6 +436,12 @@ function Show-WGList {
   return $list
 }
 
+function Get-WGList {
+  # check_ocgv
+  $list = _wgList
+  return $list
+}
+
 function Show-WGUpdatables {
   # Parameter help description
   param(
@@ -449,6 +455,12 @@ function Show-WGUpdatables {
   else {
     $list = wgUpgradable | Out-ConsoleGridView -Title 'Upgradable Packages'
   }
+  # Write-Host $list
+  return $list
+}
+
+function Get-WGUpdatables {
+  $list = wgUpgradable 
   # Write-Host $list
   return $list
 }

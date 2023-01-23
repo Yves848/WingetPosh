@@ -1,4 +1,4 @@
-class Frame {
+﻿class Frame {
   [hashtable]$el
 
   Frame (
@@ -19,6 +19,7 @@ class Frame {
     }
     else {
       $this.el = @{"UL" = "┌"; "UR" = "┐"; "TOP" = "─"; "LEFT" = "│"; "RIGHT" = "│"; "BL" = "└"; "BR" = "┘"; "BOTTOM" = "─" }
+      #$this.el = @{"UL" = "+"; "UR" = "+"; "TOP" = "-"; "LEFT" = "|"; "RIGHT" = "|"; "BL" = "+"; "BR" = "+"; "BOTTOM" = "-" }
     }
   }
 }

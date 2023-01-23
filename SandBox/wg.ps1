@@ -1,4 +1,4 @@
-class upgradeSoftware {
+﻿class upgradeSoftware {
     [string]$Name
     [string]$Id
     [string]$Version
@@ -1486,4 +1486,3 @@ function testWindow {
     [System.Console]::ReadKey()
 }
 
-# wingetPosh
