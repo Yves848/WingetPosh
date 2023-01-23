@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.5'
+ModuleVersion = '0.5.6'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Show-WGList', 'Search-WGPackage', 'Show-WGUpdatables','Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage')
+FunctionsToExport = @('Show-WGList', 'Search-WGPackage', 'Show-WGUpdatables','Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList','Get-WGUpdatables')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -124,7 +124,10 @@ PrivateData = @{
         - Addind a license file.
 
         0.5.5 : 
-        - Adding licence acceptance.'
+        - Adding licence acceptance.
+        
+        0.5.6 : 
+        - Adding headless functions : Get-WGList and Get-WGUpdatables'
         # Prerelease string of this module
         # Prerelease = ''
 
