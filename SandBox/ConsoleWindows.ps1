@@ -165,22 +165,23 @@ class window {
 
     [void] drawFooter() {
         if ($this.footer -ne "") {
-            $local:x = ($this.W - ($this.footer.Length + 6))
+            $local:x = $this.x + 2
             $local:Y = $this.Y + $this.h
             $this.setPosition($local:X, $local:Y)
-            Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
-            $local:X = $local:X + 2
-            $this.setPosition($local:X, $local:Y)
-            Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
-            $local:X = $local:X + $this.footer.Length
-            $this.setPosition($local:X, $local:Y)
-            Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+            # Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+            # $local:X = $local:X + 2
+            # $this.setPosition($local:X, $local:Y)
+            # Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
+            # $local:X = $local:X + $this.footer.Length
+            # $this.setPosition($local:X, $local:Y)
+            # Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+            [console]::write($this.footer)
         }
     }
 
     [void] drawPagination() {
         $sPages = ('Page {0}/{1}' -f ($this.page, $this.nbPages))
-        [System.Console]::setcursorposition($this.X + 2, $this.Y + $this.H)
+        [System.Console]::setcursorposition($this.W - ($sPages.Length + 6), $this.Y + $this.H)
         [console]::write($sPages)
     }
 
@@ -191,6 +192,14 @@ class window {
             Write-Host $blank 
         } 
     }
+}
+
+$columns = [ordered]@{
+    "Name"             = @(0, 33)
+    "Id"               = @(1, 33)
+    "Version"          = @(2, 12)
+    "AvailableVersion" = @(3, 12)
+    "Source"           = @(4, 7)
 }
 
 function getSearchTerms {
@@ -329,7 +338,8 @@ function addCheckbox(
 ) {
     if ($checked) {
         "[X] $($text)"
-    } else {
+    }
+    else {
         "[ ] $($text)"
     }
     
@@ -368,14 +378,31 @@ function color {
     "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
 
-function Show-WGList {
-    $columns = [ordered]@{
-        "Name" = @(0,33)
-        "Id" = @(1,33)
-        "Version" = @(2,13)
-        "AvailableVersion" = @(3,13)
-        "Source" = @(4,5)
+function makelines {
+    param (
+        $list,
+        $checked
+    ) 
+    if ($checked) {
+        [string]$line = "✓"
     }
+    else {
+        [string]$line = " "
+    }
+    $w = $host.UI.RawUI.WindowSize.Width
+    foreach ($key in $columns.keys) {
+        [string]$col = $list.$key
+        $percent = $columns[$key][1]
+        $l = [math]::floor($w / 100 * $percent)
+        if ($col.Length -gt $l) {
+            $col = $col.Substring(0, $l)
+        }
+        $line = $line, $col.PadRight($l, " ") -join " "
+    }
+    $line
+}
+
+function Show-WGList {
     $WinWidth = [System.Console]::WindowWidth
     $X = 0
     $Y = 0
@@ -383,13 +410,13 @@ function Show-WGList {
     $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
     $win.title = "Package List"
     $Win.titleColor = "Green"
-    $win.footer = "[Enter] : Accept [Esc] : Quit"
+    $win.footer = "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit"
     $win.drawWindow();
     $nbLines = $Win.h - 2
     $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     [System.Console]::write('Getting the list.......')
-    $list = _wgList
+    $list = _wgList | Where-Object {$_.source -eq "winget"}
     $skip = 0
     $nbPages = [math]::Ceiling($list.count / $nbLines)
     $win.nbpages = $nbPages
@@ -401,28 +428,23 @@ function Show-WGList {
         $win.drawPagination()
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
         $row = 0
-        $partlist = $list | `
-            Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines -Skip $skip `
-        | Format-Table -HideTableHeaders  `
-        | Out-String -Stream `
-        | ForEach-Object {
-            if (([string]$_.trim()) -ne "") {
-                $index = (($page - 1)*$nbLines)+$row
-                $checked = $list[$index].Selected
-                $line = $(addCheckbox $_ $checked)
-                if ($row -eq $selected) {
-                    $line = $(color $line "black" "white")
-                } else {
+        $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
+            $index = (($page - 1) * $nbLines) + $row
+            $checked = $list[$index].Selected
+            #$line = $(addCheckbox $_ $checked)
+            $line = makelines $list[$index] $checked
+            if ($row -eq $selected) {
+                $(color $line "black" "white")
+            }
+            else {
                 if ($row % 2 -eq 0) {
-                    $line = $(color $line "white" "darkblue")
+                    $(color $line "darkgrey")
                 }
                 else {
-                    $line = $(color $line "white" "darkcyan")
+                    $(color $line "white")
                 }
             }
-                $line
-                $row ++
-            }
+            $row++
         }
         $sText = $partlist | Out-String
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
@@ -463,20 +485,19 @@ function Show-WGList {
                     }
                 }
                 if ($key.VirtualKeyCode -eq 32) {
-                    $index = (($page - 1)*$nbLines)+$selected
+                    $index = (($page - 1) * $nbLines) + $selected
                     $checked = $list[$index].Selected
                     $list[$index].Selected = -not $checked
 
                 }
                 break
             }
-            Start-Sleep -Milliseconds 10
+            Start-Sleep -Milliseconds 20
         }    
     }
     [System.Console]::CursorVisible = $true
 
 }
 
-
-# Show-WGList
-_wglist
+Show-WGList
+#_wgList
