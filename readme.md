@@ -79,15 +79,6 @@ When Hit return .....
 Of course, we can use this object collection to extract some usefull data .....
 ![](https://github.com/Yves848/WingetPosh/blob/master/images/img6.png?raw=true)
 
-### 0.5.6
-- adding headless functions Get-WGList and Get-WGUpdatables
-***
-
-``` Powershell
-  Search-WGPackage
-```
-![image8](https://github.com/Yves848/WingetPosh/blob/master/images/img8.png?raw=true)
-![image2](https://github.com/Yves848/WingetPosh/blob/master/images/img2.png?raw=true)
 
 ``` Powershell
   Show-WGUpdatables
