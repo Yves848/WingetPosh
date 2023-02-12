@@ -125,12 +125,9 @@ class window {
     [void] drawWindow() {
         [System.Console]::CursorVisible = $false
         $this.setPosition($this.X, $this.Y)
-      
-
         $bloc1 = "".PadLeft($this.W , $this.frameStyle.TOP)
         $blank = "".PadLeft($this.W , " ") 
         Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-
         for ($i = 1; $i -lt $this.H; $i++) {
             $Y2 = $this.Y + $i
             #$X2 = $this.X + $this.W - 1
@@ -140,7 +137,6 @@ class window {
             $this.setPosition($X3, $Y2)
             Write-Host $blank 
         }
-
         $Y2 = $this.Y + $this.H
         $this.setPosition( $this.X, $Y2)
         $bloc1 = "".PadLeft($this.W , $this.frameStyle.BOTTOM)
@@ -168,13 +164,6 @@ class window {
             $local:x = $this.x + 2
             $local:Y = $this.Y + $this.h
             $this.setPosition($local:X, $local:Y)
-            # Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
-            # $local:X = $local:X + 2
-            # $this.setPosition($local:X, $local:Y)
-            # Write-Host $this.footer -NoNewline -ForegroundColor $this.titleColor
-            # $local:X = $local:X + $this.footer.Length
-            # $this.setPosition($local:X, $local:Y)
-            # Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
             [console]::write($this.footer)
         }
     }
@@ -211,7 +200,7 @@ function getSearchTerms {
     $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
     $win.title = "Search"
     $Win.titleColor = "Green"
-    $win.footer = "[Enter] : Accept [Ctrl-C] : Abort"
+    $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Ctrl-C]" "red") : Abort"
     $win.drawWindow();
     $win.setPosition($X + 2, $Y + 2);
     [System.Console]::Write('Package : ')
@@ -258,92 +247,6 @@ function getColumnsHeaders {
     }
     $result
 }
-  
-function _wgList {
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-    $command = "winget list"
-    
-    $SearchResult = Invoke-Expression $command | Out-String -Width $Host.UI.RawUI.WindowSize.Width
-    [string[]]$lines = $SearchResult -Split [Environment]::NewLine
-  
-    $fl = 0
-    while (-not $lines[$fl].StartsWith("----")) {
-        $fl++
-    }
-  
-    $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
-  
-    $idStart = $Columns[1].Position
-    $versionStart = $Columns[2].Position
-   
-  
-   
-    if ($columns.Length -eq 5) {
-        $availableStart = $columns[3].Position
-        $sourceStart = $columns[4].Position
-    }
-    else {
-        $sourceStart = $columns[3].Position
-    }
-  
-    $InstalledList = @()
-  
-    if ($Columns.Length -eq 4) {
-        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-            $line = $lines[$i]
-            if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
-                $name = $line.Substring(0, $idStart).TrimEnd()
-                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-                $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-                if ($source -ne "") {
-                    $software = [InstallSoftware]::new()
-                    $software.Name = $name;
-                    $software.Id = $id;
-                    $software.Version = $version
-                    $software.Source = $source
-                    $InstalledList += $software
-                }
-            }
-        }
-    }
-    else {
-        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-            $line = $lines[$i]
-            if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-                $name = $line.Substring(0, $idStart).TrimEnd()
-                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-                $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-                $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-                if ($source -ne "") {
-                    $software = [UpgradeSoftware]::new()
-                    $software.Name = $name;
-                    $software.Id = $id;
-                    $software.Version = $version
-                    $software.AvailableVersion = $available
-                    $software.Source = $Source
-                    $software.Selected = $false
-                    $InstalledList += $software
-                }
-            }
-        }
-    }
-    return $installedList
-}
-
-function addCheckbox(
-    $text,
-    $checked
-) {
-    if ($checked) {
-        "[X] $($text)"
-    }
-    else {
-        "[ ] $($text)"
-    }
-    
-}
 
 function color {
     param (
@@ -378,7 +281,7 @@ function color {
     "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
 
-function invoke-Winget {
+function Invoke-Winget {
     param (
         [string]$cmd
     )
@@ -407,7 +310,7 @@ function invoke-Winget {
         $sourceStart = $columns[3].Position
     }
   
-    $InstalledList = @()
+    $PackageList = @()
   
     if ($Columns.Length -eq 4) {
         For ($i = $fl + 1; $i -le $lines.Length; $i++) {
@@ -424,7 +327,7 @@ function invoke-Winget {
                     $software.Version = $version
                     $software.Source = $source
                     $software.Selected = $false
-                    $InstalledList += $software
+                    $PackageList += $software
                 }
             }
         }
@@ -446,12 +349,12 @@ function invoke-Winget {
                     $software.AvailableVersion = $available
                     $software.Source = $Source
                     $software.Selected = $false
-                    $InstalledList += $software
+                    $PackageList += $software
                 }
             }
         }
     }
-    return $installedList 
+    return $PackageList 
 }
 
 function makelines {
@@ -478,105 +381,7 @@ function makelines {
     $line
 }
 
-function wgUpgradable {
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-    $command = "winget upgrade --include-unknown"
-    
-    $SearchResult = Invoke-Expression $command | Out-String -Width $Host.UI.RawUI.WindowSize.Width
-    [string[]]$lines = $SearchResult -Split [Environment]::NewLine
-  
-    $fl = 0
-    while (-not $lines[$fl].StartsWith("----")) {
-        $fl++
-    }
-  
-    $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
-  
-    $idStart = $Columns[1].Position
-    $versionStart = $Columns[2].Position
-   
-  
-   
-    if ($columns.Length -eq 5) {
-        $availableStart = $columns[3].Position
-        $sourceStart = $columns[4].Position
-    }
-    else {
-        $sourceStart = $columns[3].Position
-    }
-  
-    $InstalledList = @()
-  
-    if ($Columns.Length -eq 4) {
-        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-            $line = $lines[$i]
-            if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
-                $name = $line.Substring(0, $idStart).TrimEnd()
-                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-                $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-                if ($source -ne "") {
-                    $software = [InstallSoftware]::new()
-                    $software.Name = $name;
-                    $software.Id = $id;
-                    $software.Version = $version
-                    $software.Source = $source
-                    $InstalledList += $software
-                }
-            }
-        }
-    }
-    else {
-        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-            $line = $lines[$i]
-            if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-                $name = $line.Substring(0, $idStart).TrimEnd()
-                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-                $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-                $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-                if ($source -ne "") {
-                    $software = [UpgradeSoftware]::new()
-                    $software.Name = $name;
-                    $software.Id = $id;
-                    $software.Version = $version
-                    $software.AvailableVersion = $available
-                    $software.Source = $Source
-                    $software.Selected = $false
-                    $InstalledList += $software
-                }
-            }
-        }
-    }
-    return $installedList
-  }
-
-function Show-WGList {
-    # $sb = {_wgList | Where-Object { $_.source -eq "winget" }}
-    $sb = {invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }}
-    displayGrid "Installed Packeges" $sb
-}
-
-function  Show-WGUpdatables {
-    $sb = {invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }}
-    displayGrid "Upgradable Packages" $sb
-}
-
-function Install-WGPackage {
-    #$term = getSearchTerms
-    $term = "neovim"
-    if ($term.Trim() -ne "") {
-        #$cmd = "winget search --name $term"
-        $sb = {invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" }}
-        displayGrid "Install Packages" $sb
-    }
-}
-
-function displayGrid {
-    param (
-        $title,
-        [scriptblock]$cmd
-    )
+function displayGrid($title, [scriptblock]$cmd, [ref]$data) {   
     $Host.UI.RawUI.FlushInputBuffer()
     $WinWidth = [System.Console]::WindowWidth
     $X = 0
@@ -591,7 +396,6 @@ function displayGrid {
     $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     [System.Console]::write('Getting the list.......')
-    #$list = _wgList | Where-Object { $_.source -eq "winget" }
     $list = Invoke-Command -ScriptBlock $cmd
     $skip = 0
     $nbPages = [math]::Ceiling($list.count / $nbLines)
@@ -669,8 +473,8 @@ function displayGrid {
                 }
                 if ($key.VirtualKeyCode -eq 13) {
                     Clear-Host
+                    $data.value = $list | Where-Object { $_.Selected }
                     $stop = $true
-                    $list | Where-Object { $_.Selected } | Format-List *
                 }
                 break
             }
@@ -678,7 +482,41 @@ function displayGrid {
         }    
     }
     [System.Console]::CursorVisible = $true
+    
+}
 
+function Show-WGList {
+    # $sb = {_wgList | Where-Object { $_.source -eq "winget" }}
+    $sb = {invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }}
+    displayGrid "Installed Packages" $sb
+}
+
+function  Show-WGUpdatables {
+    $sb = {invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }}
+    displayGrid "Upgradable Packages" $sb
+}
+
+function Install-WGPackage {
+    param (
+        [switch]$install 
+    )
+    $term = getSearchTerms
+    if ($term.Trim() -ne "") {
+        $term = '"', $term, '"' -join ''
+        $sb = {invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" }}
+        #displayGrid "Install Packages" $sb
+        [upgradeSoftware[]]$data = @()
+        displayGrid -title "Install Package" -cmd $sb -data ([ref]$data)
+        $data
+    }
+}
+
+function Get-WGList {
+    invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
+}
+
+function Get-WGUpdatables {
+    invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
 }
 
 Install-wgPackage
