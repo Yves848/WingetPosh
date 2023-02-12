@@ -382,7 +382,7 @@ function makelines {
 }
 
 function displayGrid($title, [scriptblock]$cmd, [ref]$data) {   
-    $Host.UI.RawUI.FlushInputBuffer()
+    $global:Host.UI.RawUI.FlushInputBuffer()
     $WinWidth = [System.Console]::WindowWidth
     $X = 0
     $Y = 0
@@ -393,7 +393,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
     $win.footer = $Single.LEFT, "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
     $win.drawWindow();
     $nbLines = $Win.h - 2
-    $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
+    $blanks = ' '.PadRight($global:Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     [System.Console]::write('Getting the list.......')
     $list = Invoke-Command -ScriptBlock $cmd
@@ -428,9 +428,9 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
         $nbDisplay = $partlist.Length
         $sText = $partlist | Out-String
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        $blanks
+        [system.console]::write($blanks)
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        $sText
+        [system.console]::write($sText)
         while (-not $stop) {
             if ($global:Host.UI.RawUI.KeyAvailable) { 
                 [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
@@ -446,7 +446,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
                 }
                 if ($key.VirtualKeyCode -eq 40) {
                     # key Down
-                    if ($selected -lt $nbDisplay -1) {
+                    if ($selected -lt $nbDisplay - 1) {
                         $selected ++
                     }
                 }
@@ -485,29 +485,76 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
     
 }
 
+
 function Show-WGList {
-    # $sb = {_wgList | Where-Object { $_.source -eq "winget" }}
-    $sb = {invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }}
-    displayGrid "Installed Packages" $sb
+    begin {
+        $sb = { invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
+        [upgradeSoftware[]]$data = @()
+    }
+    process {
+        displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
+    }
+    end {
+        return $data
+    } 
 }
 
 function  Show-WGUpdatables {
-    $sb = {invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }}
-    displayGrid "Upgradable Packages" $sb
+    begin {
+        $sb = { invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
+        [upgradeSoftware[]]$data = @()
+    }
+    process {
+        displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
+    }
+    end {
+        return $data
+    }
 }
 
 function Install-WGPackage {
     param (
         [switch]$install 
     )
-    $term = getSearchTerms
-    if ($term.Trim() -ne "") {
-        $term = '"', $term, '"' -join ''
-        $sb = {invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" }}
-        #displayGrid "Install Packages" $sb
+    begin {
+        $term = getSearchTerms
+    }
+    process {
+        if ($term.Trim() -ne "") {
+            $term = '"', $term, '"' -join ''
+            $sb = { invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+            #displayGrid "Install Packages" $sb
+            [upgradeSoftware[]]$data = @()
+            displayGrid -title "Install Package" -cmd $sb -data ([ref]$data)
+            if ($data.length -gt 0) {
+                foreach($package in $data) {
+                    $id = $package.id
+                    invoke-expression "winget install --id $id"
+                }
+            }
+        }
+    }
+    end {
+        return $data
+    }
+}
+
+function Remove-WGPackage {
+    begin {
+        $sb = { invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
         [upgradeSoftware[]]$data = @()
-        displayGrid -title "Install Package" -cmd $sb -data ([ref]$data)
-        $data
+    }
+    process {
+        displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
+        if ($data.length -gt 0) {
+            foreach($package in $data) {
+                $id = $package.id
+                invoke-expression "winget uninstall --id $id"
+            }
+        }
+    }
+    end {
+       return $data 
     }
 }
 
@@ -519,5 +566,4 @@ function Get-WGUpdatables {
     invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
 }
 
-Install-wgPackage
 #_wgList
