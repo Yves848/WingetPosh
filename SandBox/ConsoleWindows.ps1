@@ -74,6 +74,8 @@ class window {
     [string]$title = ""
     [System.ConsoleColor]$titleColor
     [string]$footer = ""
+    [int]$page = 1
+    [int]$nbPages = 1
 
     window(
         [int]$X,
@@ -126,30 +128,22 @@ class window {
 
         $bloc1 = "".PadLeft($this.W , $this.frameStyle.TOP)
         $blank = "".PadLeft($this.W , " ") 
-        #Write-Host $this.frameStyle.UL -NoNewline -ForegroundColor $this.frameColor
         Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-        #Write-Host $this.frameStyle.UR -ForegroundColor $this.frameColor
 
         for ($i = 1; $i -lt $this.H; $i++) {
             $Y2 = $this.Y + $i
             #$X2 = $this.X + $this.W - 1
             $this.setPosition($this.X, $Y2)
-            #Write-Host $this.frameStyle.LEFT -ForegroundColor $this.frameColor
           
             $X3 = $this.X 
             $this.setPosition($X3, $Y2)
             Write-Host $blank 
-          
-            #$this.setPosition($X2, $Y2)
-            #Write-Host $this.frameStyle.RIGHT -ForegroundColor $this.frameColor
         }
 
         $Y2 = $this.Y + $this.H
         $this.setPosition( $this.X, $Y2)
         $bloc1 = "".PadLeft($this.W , $this.frameStyle.BOTTOM)
-        #Write-Host $this.frameStyle.BL -NoNewline -ForegroundColor $this.frameColor
         Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-        #Write-Host $this.frameStyle.BR -ForegroundColor $this.frameColor
         $this.drawTitle()
         $this.drawFooter()
     }
@@ -181,6 +175,12 @@ class window {
             $this.setPosition($local:X, $local:Y)
             Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
         }
+    }
+
+    [void] drawPagination() {
+        $sPages = ('Page {0}/{1}' -f ($this.page, $this.nbPages))
+        [System.Console]::setcursorposition($this.X + 2, $this.Y + $this.H)
+        [console]::write($sPages)
     }
 
     [void] clearWindow() {
@@ -253,8 +253,8 @@ function _wgList {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
     $command = "winget list"
     
-    $SearchResult = Invoke-Expression $command | Out-String
-    $lines = $SearchResult.Split([Environment]::NewLine)
+    $SearchResult = Invoke-Expression $command | Out-String -Width $Host.UI.RawUI.WindowSize.Width
+    [string[]]$lines = $SearchResult -Split [Environment]::NewLine
   
     $fl = 0
     while (-not $lines[$fl].StartsWith("----")) {
@@ -318,26 +318,46 @@ function _wgList {
             }
         }
     }
-    $installedList
+    return $installedList
 }
 
-function displayGrid (
-    [upgradeSoftware[]]$list,
-    [window]$win
+function addCheckbox(
+    $text
 ) {
-    $nbLines = $Win.h - 2
-    $blanks = ''.PadLeft(' ', $Host.UI.RawUI.WindowSize.Width * $nbLines)
-    [System.Console]::setcursorposition($Win.X, $win.Y + 1)
-    [system.console]::write($blanks)
-    $output = $list | Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines | Format-Table -HideTableHeaders |  Out-String
-    [System.Console]::setcursorposition($Win.X, $win.Y + 1)
-    [system.console]::write($output)
-    if ($nbLines -lt $list.Count) {
-        [system.console]::setcursorposition($Win.X + 1, $Win.H)
-        $pages = [System.Math]::Ceiling($list.count / $nblines)
-        [system.console]::Write($pages)
+    "[ ] $($text)"
+}
+
+function color {
+    param (
+        $Text,
+        $ForegroundColor = 'default',
+        $BackgroundColor = 'default'
+    )
+    # Terminal Colors
+    $Colors = @{
+        "default"    = @(40, 50)
+        "black"      = @(30, 0)
+        "lightgrey"  = @(33, 43)
+        "grey"       = @(37, 47)
+        "darkgrey"   = @(90, 100)
+        "red"        = @(91, 101)
+        "darkred"    = @(31, 41)
+        "green"      = @(92, 102)
+        "darkgreen"  = @(32, 42)
+        "yellow"     = @(93, 103)
+        "white"      = @(97, 107)
+        "brightblue" = @(94, 104)
+        "darkblue"   = @(34, 44)
+        "indigo"     = @(35, 45)
+        "cyan"       = @(96, 106)
+        "darkcyan"   = @(36, 46)
     }
-    
+
+    if ( $ForegroundColor -notin $Colors.Keys -or $BackgroundColor -notin $Colors.Keys) {
+        Write-Error "Invalid color choice!" -ErrorAction Stop
+    }
+
+    "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
 
 function Show-WGList {
@@ -348,127 +368,85 @@ function Show-WGList {
     $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
     $win.title = "Package List"
     $Win.titleColor = "Green"
-    $win.footer = "[Enter] : Accept [Ctrl-C] : Abort"
+    $win.footer = "[Enter] : Accept [Esc] : Quit"
     $win.drawWindow();
-
-    $stateData = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-    $stop = $false
-    $stateData.HasData = $False
-    $stateData.Data = "Coucou"
-
-    $runSpace = [runspacefactory]::CreateRunspace()
-    $runSpace.Open()
-    $runSpace.SessionStateProxy.SetVariable('stateData', $stateData)
-
-    $Sb = {
-        while ($true) {
-            
-            Start-Sleep -Seconds 2
-            $list = _wgList | Where-Object { $_.Source -eq "winget" }
-            $stateData.Data = $list | Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines | Format-Table -HideTableHeaders |  Out-String
-            $stateData.HasData = $true
-        }
-    }
-
-    $Session = [powershell]::create()
-    $Session.Runspace = $runSpace
-    $Session.AddScript($Sb) | Out-Null
-    $handle = $Session.BeginInvoke()
-
-    #Clear-Host
-
+    $nbLines = $Win.h - 3
+    $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
+    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    [System.Console]::write('Getting the list.......')
+    $list = _wgList
+    $skip = 0
+    $nbPages = [math]::Ceiling($list.count / $nbLines)
+    $win.nbpages = $nbPages
+    $page = 1
+    $selected = 0
+    [System.Console]::CursorVisible = $false
     while (-not $stop) {
-        [System.Console]::CursorVisible = $false
+        $win.page = $page
+        $win.drawPagination()
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        $nbLines = $Win.h - 2
-        $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * $nbLines)
         [console]::write($blanks)
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        [console]::write($stateData.data)
-        if (-not $stateData.HasData) {
-            Write-Host "Getting the list ......."
+        $row = 0
+        $partlist = $list | `
+            Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines -Skip $skip `
+        | Format-Table -HideTableHeaders  `
+        | Out-String -Stream `
+        | ForEach-Object {
+            if (([string]$_.trim()) -ne "") {
+                $line = $(addCheckbox $_)
+                if ($row -eq $selected) {
+                    $line = $(color $line "black" "white")
+                }
+                $line
+                $row ++
+            }
+                            
         }
-        while (-not $stateData.HasData) {
-            if ($global:Host.UI.RawUI.KeyAvailable) {
-                $key = $($global:host.UI.RawUI.ReadKey()).character
-                if ($key -eq 'q') {
+        $sText = $partlist | Out-String
+        [System.Console]::setcursorposition($win.X, $win.Y + 1)
+        [console]::write($sText)
+        while (-not $stop) {
+            if ($global:Host.UI.RawUI.KeyAvailable) { 
+                [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyUp'))
+                #Write-Host $key.VirtualKeyCode
+                if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
                     $stop = $true
-                    $Session.Stop()
-                    $runSpace.Dispose()
+                }
+                if ($key.VirtualKeyCode -eq 38) {
+                    # key up
+                    $selected --
+
+                }
+                if ($key.VirtualKeyCode -eq 40) {
+                    # key Down
+                    $selected ++
+                }
+                if ($key.VirtualKeyCode -eq 37) {
+                    # key Left
+                    if ($page -gt 1) {
+                        $skip -= $nbLines
+                        $page -= 1
+                        $selected = 0
+                    }
+
+                }
+                if ($key.VirtualKeyCode -eq 39) {
+                    # key Right
+                    if ($page -lt $nbPages) {
+                        $skip += $nbLines
+                        $page += 1
+                        $selected = 0
+                    }
                 }
                 break
             }
             Start-Sleep -Milliseconds 10
         }    
-        $stateData.HasData = $false
     }
+    [System.Console]::CursorVisible = $true
 
 }
-# Create a synchronized hashtable
-$StateData = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
 
-$Stop = $False
-# Add some data to the hashtable (creates new property)
-$StateData.HasData = $False
 
-# Set up our runspace
-$Runspace = [runspacefactory]::CreateRunspace()
-$Runspace.Open()
-# Passing in the hashtable
-$Runspace.SessionStateProxy.SetVariable("StateData",$StateData)
-
-# Capture process data in a runspace
-$Sb = {
-    while($True) {
-        # We pause here for 2 seconds between captures, how do we keep the UI available?
-        Start-Sleep -Seconds 2 
-        $StateData.data = _wgList
-        $StateData.HasData = $True
-    }
-}
-$Session = [PowerShell]::Create()
-$Session.Runspace = $Runspace
-$null = $Session.AddScript($Sb)
-$Handle = $Session.BeginInvoke()
-
-$Stop = $False
-Clear-Host
-while(-not $Stop) {
-    [Console]::CursorVisible = $False
-    # Reset the cursor to the top left corner
-    $host.UI.RawUI.CursorPosition = @{X=0;Y=0}
-    # Draw spaces over the data that is already there (based on the number of 
-    # lines displayed * the width of the window)
-    $blanks = ' '.PadRight(12 * ($host.UI.RawUI.WindowSize.Width))
-    [Console]::Write($blanks)
-    # Reset the cursor again
-    $host.UI.RawUI.CursorPosition = @{X=0;Y=0}
-    # Finally send the output to the screen
-    #[Console]::Write($StateData.Data)
-    
-    if ( -not $StateData.HasData ) {
-        Write-Host "Waiting for data..."
-    }
-    else {
-        $list = $StateData.data | Select-Object -Property Name, Id, Version, AvailableVersion, Source -First 10 | Format-Table -HideTableHeaders |  Out-String
-        Write-Host $list
-    }
-    Write-Host "Press 'q' to quit" -NoNewLine
-    [Console]::CursorVisible = $True
-    while(-not $StateData.HasData) {
-        if($global:Host.UI.RawUI.KeyAvailable) {
-                # THIS BLOCKS!
-                $key = $($global:Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp")).character
-                if ( $key -eq 'q' ) {
-                    $Stop = $True
-                    # Clean up!
-                    $Session.Stop()
-                    $Runspace.Dispose()
-                }
-                break
-        }
-        Start-Sleep -Milliseconds 10
-    }
-    # Reset the "HasData" flag so we can wait for more data
-    #$StateData.HasData = $False
-}
+Show-WGList # Create a synchronized hashtable
