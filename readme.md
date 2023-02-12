@@ -9,23 +9,22 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ***
 
 ## Demo
-https://youtu.be/A45vW0GuduM
+https://youtu.be/nWH5SarJ6wI
 
 
 A small set of functions to help using winget.
 
 It's TUI (Terminal User Interface) entirely written in Powershell.
-It has one dependenciy : Microsoft.PowerShell.ConsoleGuiTools
 
-For now, it't only tested with Windows Terminal runnning the latest (7.2.6) Powershell Core
+No more dependencies.  Works with Powershell 5.1
 
 The availablle functions are :
-- Show-WGList
-- Search-WGPackage "name (or part) of the package" [-Interactive] [-Install]
-- Show-WGUpdatables
-- Update-WGPackage
-- Install-WGPackage
-- Uninstall-WGPackage [-Interactive]
+- Function        Get-WGList                                         0.6.1      wingetposh
+- Function        Install-WGPackage                                  0.6.1      wingetposh
+- Function        Invoke-Winget                                      0.6.1      wingetposh
+- Function        Show-WGList                                        0.6.1      wingetposh
+- Function        Uninstall-WGPackage                                0.6.1      wingetposh
+- Function        Update-WGPackages                                  0.6.1      wingetposh
   
   
 ## Installation
