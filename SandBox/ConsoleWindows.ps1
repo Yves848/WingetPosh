@@ -378,6 +378,82 @@ function color {
     "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
 
+function invoke-Winget {
+    param (
+        [string]$cmd
+    )
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+    
+    $SearchResult = Invoke-Expression $cmd | Out-String -Width $Host.UI.RawUI.WindowSize.Width
+    [string[]]$lines = $SearchResult -Split [Environment]::NewLine
+  
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("----")) {
+        $fl++
+    }
+  
+    $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
+  
+    $idStart = $Columns[1].Position
+    $versionStart = $Columns[2].Position
+   
+  
+   
+    if ($columns.Length -eq 5) {
+        $availableStart = $columns[3].Position
+        $sourceStart = $columns[4].Position
+    }
+    else {
+        $sourceStart = $columns[3].Position
+    }
+  
+    $InstalledList = @()
+  
+    if ($Columns.Length -eq 4) {
+        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+            $line = $lines[$i]
+            if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
+                $name = $line.Substring(0, $idStart).TrimEnd()
+                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+                $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+                if ($source -ne "") {
+                    $software = [upgradeSoftware]::new()
+                    $software.Name = $name;
+                    $software.Id = $id;
+                    $software.Version = $version
+                    $software.Source = $source
+                    $software.Selected = $false
+                    $InstalledList += $software
+                }
+            }
+        }
+    }
+    else {
+        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+            $line = $lines[$i]
+            if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+                $name = $line.Substring(0, $idStart).TrimEnd()
+                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+                $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+                $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+                if ($source -ne "") {
+                    $software = [UpgradeSoftware]::new()
+                    $software.Name = $name;
+                    $software.Id = $id;
+                    $software.Version = $version
+                    $software.AvailableVersion = $available
+                    $software.Source = $Source
+                    $software.Selected = $false
+                    $InstalledList += $software
+                }
+            }
+        }
+    }
+    return $installedList 
+}
+
 function makelines {
     param (
         $list,
@@ -402,21 +478,121 @@ function makelines {
     $line
 }
 
+function wgUpgradable {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+    $command = "winget upgrade --include-unknown"
+    
+    $SearchResult = Invoke-Expression $command | Out-String -Width $Host.UI.RawUI.WindowSize.Width
+    [string[]]$lines = $SearchResult -Split [Environment]::NewLine
+  
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("----")) {
+        $fl++
+    }
+  
+    $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
+  
+    $idStart = $Columns[1].Position
+    $versionStart = $Columns[2].Position
+   
+  
+   
+    if ($columns.Length -eq 5) {
+        $availableStart = $columns[3].Position
+        $sourceStart = $columns[4].Position
+    }
+    else {
+        $sourceStart = $columns[3].Position
+    }
+  
+    $InstalledList = @()
+  
+    if ($Columns.Length -eq 4) {
+        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+            $line = $lines[$i]
+            if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
+                $name = $line.Substring(0, $idStart).TrimEnd()
+                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+                $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+                if ($source -ne "") {
+                    $software = [InstallSoftware]::new()
+                    $software.Name = $name;
+                    $software.Id = $id;
+                    $software.Version = $version
+                    $software.Source = $source
+                    $InstalledList += $software
+                }
+            }
+        }
+    }
+    else {
+        For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+            $line = $lines[$i]
+            if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+                $name = $line.Substring(0, $idStart).TrimEnd()
+                $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+                $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+                $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+                $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+                if ($source -ne "") {
+                    $software = [UpgradeSoftware]::new()
+                    $software.Name = $name;
+                    $software.Id = $id;
+                    $software.Version = $version
+                    $software.AvailableVersion = $available
+                    $software.Source = $Source
+                    $software.Selected = $false
+                    $InstalledList += $software
+                }
+            }
+        }
+    }
+    return $installedList
+  }
+
 function Show-WGList {
+    # $sb = {_wgList | Where-Object { $_.source -eq "winget" }}
+    $sb = {invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }}
+    displayGrid "Installed Packeges" $sb
+}
+
+function  Show-WGUpdatables {
+    $sb = {invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }}
+    displayGrid "Upgradable Packages" $sb
+}
+
+function Install-WGPackage {
+    #$term = getSearchTerms
+    $term = "neovim"
+    if ($term.Trim() -ne "") {
+        #$cmd = "winget search --name $term"
+        $sb = {invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" }}
+        displayGrid "Install Packages" $sb
+    }
+}
+
+function displayGrid {
+    param (
+        $title,
+        [scriptblock]$cmd
+    )
+    $Host.UI.RawUI.FlushInputBuffer()
     $WinWidth = [System.Console]::WindowWidth
     $X = 0
     $Y = 0
     $WinHeigt = [System.Console]::WindowHeight - 2
     $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
-    $win.title = "Package List"
+    $win.title = $title
     $Win.titleColor = "Green"
-    $win.footer = "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit"
+    $win.footer = $Single.LEFT, "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
     $win.drawWindow();
     $nbLines = $Win.h - 2
     $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     [System.Console]::write('Getting the list.......')
-    $list = _wgList | Where-Object {$_.source -eq "winget"}
+    #$list = _wgList | Where-Object { $_.source -eq "winget" }
+    $list = Invoke-Command -ScriptBlock $cmd
     $skip = 0
     $nbPages = [math]::Ceiling($list.count / $nbLines)
     $win.nbpages = $nbPages
@@ -431,7 +607,6 @@ function Show-WGList {
         $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
             $index = (($page - 1) * $nbLines) + $row
             $checked = $list[$index].Selected
-            #$line = $(addCheckbox $_ $checked)
             $line = makelines $list[$index] $checked
             if ($row -eq $selected) {
                 $(color $line "black" "white")
@@ -446,6 +621,7 @@ function Show-WGList {
             }
             $row++
         }
+        $nbDisplay = $partlist.Length
         $sText = $partlist | Out-String
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
         $blanks
@@ -453,19 +629,22 @@ function Show-WGList {
         $sText
         while (-not $stop) {
             if ($global:Host.UI.RawUI.KeyAvailable) { 
-                [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyUp'))
+                [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
                 #Write-Host $key.VirtualKeyCode
                 if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
                     $stop = $true
                 }
                 if ($key.VirtualKeyCode -eq 38) {
                     # key up
-                    $selected --
-
+                    if ($selected -gt 0) {
+                        $selected --
+                    }
                 }
                 if ($key.VirtualKeyCode -eq 40) {
                     # key Down
-                    $selected ++
+                    if ($selected -lt $nbDisplay -1) {
+                        $selected ++
+                    }
                 }
                 if ($key.VirtualKeyCode -eq 37) {
                     # key Left
@@ -474,7 +653,6 @@ function Show-WGList {
                         $page -= 1
                         $selected = 0
                     }
-
                 }
                 if ($key.VirtualKeyCode -eq 39) {
                     # key Right
@@ -488,7 +666,11 @@ function Show-WGList {
                     $index = (($page - 1) * $nbLines) + $selected
                     $checked = $list[$index].Selected
                     $list[$index].Selected = -not $checked
-
+                }
+                if ($key.VirtualKeyCode -eq 13) {
+                    Clear-Host
+                    $stop = $true
+                    $list | Where-Object { $_.Selected } | Format-List *
                 }
                 break
             }
@@ -499,5 +681,5 @@ function Show-WGList {
 
 }
 
-Show-WGList
+Install-wgPackage
 #_wgList
