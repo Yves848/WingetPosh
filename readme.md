@@ -56,7 +56,12 @@ The availablle functions are :
 ### 0.6.0 :
         - Removing "Microsoft.PowerShell.ConsoleGuiTools" dependance to add Powershell 5.1 compatibility
         - Rewriting the TUI in full powershell (some flickering still to fix)
-        - Adding "Invoke-Winget" funtion to add generic call to Winget'
+        - Adding "Invoke-Winget" funtion to add generic call to Winget
+
+### 0.6.1 : 
+        - Fix -Install switch of Install-WGPAckage
+        - Rename Show-WGUpdatables to Update-WGPackages
+        - Add a switch -Update to Update-WGPackages
 
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
