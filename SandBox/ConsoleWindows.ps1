@@ -64,6 +64,7 @@ class column {
 }
 
 
+
 class window {
     [int]$X
     [int]$Y
@@ -368,6 +369,13 @@ function color {
 }
 
 function Show-WGList {
+    $columns = [ordered]@{
+        "Name" = @(0,33)
+        "Id" = @(1,33)
+        "Version" = @(2,13)
+        "AvailableVersion" = @(3,13)
+        "Source" = @(4,5)
+    }
     $WinWidth = [System.Console]::WindowWidth
     $X = 0
     $Y = 0
@@ -377,7 +385,7 @@ function Show-WGList {
     $Win.titleColor = "Green"
     $win.footer = "[Enter] : Accept [Esc] : Quit"
     $win.drawWindow();
-    $nbLines = $Win.h - 3
+    $nbLines = $Win.h - 2
     $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     [System.Console]::write('Getting the list.......')
@@ -404,13 +412,17 @@ function Show-WGList {
                 $line = $(addCheckbox $_ $checked)
                 if ($row -eq $selected) {
                     $line = $(color $line "black" "white")
+                } else {
+                if ($row % 2 -eq 0) {
+                    $line = $(color $line "white" "darkblue")
                 }
-                
-                
+                else {
+                    $line = $(color $line "white" "darkcyan")
+                }
+            }
                 $line
                 $row ++
             }
-                            
         }
         $sText = $partlist | Out-String
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
@@ -466,4 +478,5 @@ function Show-WGList {
 }
 
 
-Show-WGList # Create a synchronized hashtable
+# Show-WGList
+_wglist
