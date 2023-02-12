@@ -5,14 +5,14 @@
     [string]$Version
     [string]$AvailableVersion
     [string]$Source
-  }
+}
   
-  class installSoftware {
+class installSoftware {
     [string]$Name
     [string]$id
     [string]$Version
     [String]$Source
-  }
+}
   
   
 class Frame {
@@ -324,17 +324,16 @@ function _wgList {
 function displayGrid (
     [upgradeSoftware[]]$list,
     [window]$win
-)
-{
+) {
     $nbLines = $Win.h - 2
-    $blanks = ''.PadLeft(' ',$Host.UI.RawUI.WindowSize.Width * $nbLines)
-    [System.Console]::setcursorposition($Win.X,$win.Y+1)
+    $blanks = ''.PadLeft(' ', $Host.UI.RawUI.WindowSize.Width * $nbLines)
+    [System.Console]::setcursorposition($Win.X, $win.Y + 1)
     [system.console]::write($blanks)
-    $output = $list | Select-Object -Property Name,Id,Version,AvailableVersion,Source -First $nbLines | Format-Table -HideTableHeaders |  Out-String
-    [System.Console]::setcursorposition($Win.X,$win.Y+1)
+    $output = $list | Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines | Format-Table -HideTableHeaders |  Out-String
+    [System.Console]::setcursorposition($Win.X, $win.Y + 1)
     [system.console]::write($output)
     if ($nbLines -lt $list.Count) {
-        [system.console]::setcursorposition($Win.X+1, $Win.H)
+        [system.console]::setcursorposition($Win.X + 1, $Win.H)
         $pages = [System.Math]::Ceiling($list.count / $nblines)
         [system.console]::Write($pages)
     }
@@ -342,23 +341,134 @@ function displayGrid (
 }
 
 function Show-WGList {
-    $list = _wgList | Where-Object { $_.Source -eq "winget" }
     $WinWidth = [System.Console]::WindowWidth
     $X = 0
     $Y = 0
     $WinHeigt = [System.Console]::WindowHeight - 2
-  
     $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
     $win.title = "Package List"
     $Win.titleColor = "Green"
     $win.footer = "[Enter] : Accept [Ctrl-C] : Abort"
     $win.drawWindow();
 
+    $stateData = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+    $stop = $false
+    $stateData.HasData = $False
+    $stateData.Data = "Coucou"
 
-    
-    displayGrid $list $win
-    [System.Console]::SetCursorPosition(0,0)
-    $key = $Host.UI.RawUI.ReadKey()
+    $runSpace = [runspacefactory]::CreateRunspace()
+    $runSpace.Open()
+    $runSpace.SessionStateProxy.SetVariable('stateData', $stateData)
+
+    $Sb = {
+        while ($true) {
+            
+            Start-Sleep -Seconds 2
+            $list = _wgList | Where-Object { $_.Source -eq "winget" }
+            $stateData.Data = $list | Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines | Format-Table -HideTableHeaders |  Out-String
+            $stateData.HasData = $true
+        }
+    }
+
+    $Session = [powershell]::create()
+    $Session.Runspace = $runSpace
+    $Session.AddScript($Sb) | Out-Null
+    $handle = $Session.BeginInvoke()
+
+    #Clear-Host
+
+    while (-not $stop) {
+        [System.Console]::CursorVisible = $false
+        [System.Console]::setcursorposition($win.X, $win.Y + 1)
+        $nbLines = $Win.h - 2
+        $blanks = ' '.PadRight($Host.UI.RawUI.WindowSize.Width * $nbLines)
+        [console]::write($blanks)
+        [System.Console]::setcursorposition($win.X, $win.Y + 1)
+        [console]::write($stateData.data)
+        if (-not $stateData.HasData) {
+            Write-Host "Getting the list ......."
+        }
+        while (-not $stateData.HasData) {
+            if ($global:Host.UI.RawUI.KeyAvailable) {
+                $key = $($global:host.UI.RawUI.ReadKey()).character
+                if ($key -eq 'q') {
+                    $stop = $true
+                    $Session.Stop()
+                    $runSpace.Dispose()
+                }
+                break
+            }
+            Start-Sleep -Milliseconds 10
+        }    
+        $stateData.HasData = $false
+    }
+
 }
+# Create a synchronized hashtable
+$StateData = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
 
-Show-WGList
+$Stop = $False
+# Add some data to the hashtable (creates new property)
+$StateData.HasData = $False
+
+# Set up our runspace
+$Runspace = [runspacefactory]::CreateRunspace()
+$Runspace.Open()
+# Passing in the hashtable
+$Runspace.SessionStateProxy.SetVariable("StateData",$StateData)
+
+# Capture process data in a runspace
+$Sb = {
+    while($True) {
+        # We pause here for 2 seconds between captures, how do we keep the UI available?
+        Start-Sleep -Seconds 2 
+        $StateData.data = _wgList
+        $StateData.HasData = $True
+    }
+}
+$Session = [PowerShell]::Create()
+$Session.Runspace = $Runspace
+$null = $Session.AddScript($Sb)
+$Handle = $Session.BeginInvoke()
+
+$Stop = $False
+Clear-Host
+while(-not $Stop) {
+    [Console]::CursorVisible = $False
+    # Reset the cursor to the top left corner
+    $host.UI.RawUI.CursorPosition = @{X=0;Y=0}
+    # Draw spaces over the data that is already there (based on the number of 
+    # lines displayed * the width of the window)
+    $blanks = ' '.PadRight(12 * ($host.UI.RawUI.WindowSize.Width))
+    [Console]::Write($blanks)
+    # Reset the cursor again
+    $host.UI.RawUI.CursorPosition = @{X=0;Y=0}
+    # Finally send the output to the screen
+    #[Console]::Write($StateData.Data)
+    
+    if ( -not $StateData.HasData ) {
+        Write-Host "Waiting for data..."
+    }
+    else {
+        $list = $StateData.data | Select-Object -Property Name, Id, Version, AvailableVersion, Source -First 10 | Format-Table -HideTableHeaders |  Out-String
+        Write-Host $list
+    }
+    Write-Host "Press 'q' to quit" -NoNewLine
+    [Console]::CursorVisible = $True
+    while(-not $StateData.HasData) {
+        if($global:Host.UI.RawUI.KeyAvailable) {
+                # THIS BLOCKS!
+                $key = $($global:Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp")).character
+                if ( $key -eq 'q' ) {
+                    $Stop = $True
+                    # Clean up!
+                    $Session.Stop()
+                    $Runspace.Dispose()
+                }
+                break
+        }
+        Start-Sleep -Milliseconds 10
+    }
+    # Reset the "HasData" flag so we can wait for more data
+    #$StateData.HasData = $False
+}
