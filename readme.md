@@ -107,52 +107,21 @@ The -Install parameter will launch the installation of the selected package(s).
 ***
 
 ## Select and update an installed package
-``` Powershell
-  Show-WGUpdatables | Select-Object -Property id | Update-WGPackage
-```
-or
-``` Powershell
-  $id = Show-WGUpdatables | Select-Object -Property id
-  winget update $id
-```
-or
-``` Powershell
-  $pkg = Show-WGUpdatables
-  winget update $pkg.id
-```
-or
  
 ``` Powershell
-  Update-WGPackage -Interactive
+  Update-WGPackages -Update
 ``` 
 
 ***
 
 ## Select and uninstall an installed package
+ 
 ``` Powershell
-  Show-WGList -Single | Select-Object -Property id | Uninstall-WGPackage
+  Uninstall-WGPackage
 ```
 
-or
+## Generic function to convert winget results to PSCustomObject
 
 ``` Powershell
- $id = Show-WGList -Single | Select-Object -Property id
- winget uninstall $id
-```
-
-or
-``` Powershell
-  $pkg = Show-WGList -Single
-  winget $pkg.id
-```
-
-or 
-``` Powershell
-  Uninstall-WGPackage -Interactive
-```
-
-***
-## Update packages interactively
-``` Powershell
-  update-WGPackage
+  $list = Invoke-Winget "winget list"
 ```
