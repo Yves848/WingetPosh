@@ -19,12 +19,12 @@ It's TUI (Terminal User Interface) entirely written in Powershell.
 No more dependencies.  Works with Powershell 5.1
 
 The availablle functions are :
-- Function        Get-WGList                                         0.6.1      wingetposh
-- Function        Install-WGPackage                                  0.6.1      wingetposh
-- Function        Invoke-Winget                                      0.6.1      wingetposh
-- Function        Show-WGList                                        0.6.1      wingetposh
-- Function        Uninstall-WGPackage                                0.6.1      wingetposh
-- Function        Update-WGPackages                                  0.6.1      wingetposh
+- Get-WGList                
+- Install-WGPackage [-Install]
+- Invoke-Winget               
+- Show-WGList                 
+- Uninstall-WGPackage         
+- Update-WGPackages [-Update] 
   
   
 ## Installation
