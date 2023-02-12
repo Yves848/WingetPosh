@@ -28,29 +28,29 @@ class Frame {
   [char]$RIGHTSPLIT
 
   Frame (
-      [bool]$Double
+    [bool]$Double
   ) {
-      if ($Double) {
-          $this.UL = "╔"
-          $this.UR = "╗"
-          $this.TOP = "═"
-          $this.LEFT = "║"
-          $this.RIGHT = "║"
-          $this.BL = "╚"
-          $this.BR = "╝"
-          $this.BOTTOM = "═"
-          $this.LEFTSPLIT = "⊫"
-      }
-      else {
-          $this.UL = "┌"
-          $this.UR = "┐"
-          $this.TOP = "─"
-          $this.LEFT = "│"
-          $this.RIGHT = "│"
-          $this.BL = "└"
-          $this.BR = "┘"
-          $this.BOTTOM = "─"
-      }
+    if ($Double) {
+      $this.UL = "╔"
+      $this.UR = "╗"
+      $this.TOP = "═"
+      $this.LEFT = "║"
+      $this.RIGHT = "║"
+      $this.BL = "╚"
+      $this.BR = "╝"
+      $this.BOTTOM = "═"
+      $this.LEFTSPLIT = "⊫"
+    }
+    else {
+      $this.UL = "┌"
+      $this.UR = "┐"
+      $this.TOP = "─"
+      $this.LEFT = "│"
+      $this.RIGHT = "│"
+      $this.BL = "└"
+      $this.BR = "┘"
+      $this.BOTTOM = "─"
+    }
   }
 }
 
@@ -79,107 +79,107 @@ class window {
   [int]$nbPages = 1
 
   window(
-      [int]$X,
-      [int]$y,
-      [int]$w,
-      [int]$h,
-      [bool]$Double,
-      [System.ConsoleColor]$color = "White"
+    [int]$X,
+    [int]$y,
+    [int]$w,
+    [int]$h,
+    [bool]$Double,
+    [System.ConsoleColor]$color = "White"
   ) {
-      $this.X = $X
-      $this.Y = $y
-      $this.W = $W
-      $this.H = $H
-      $this.frameStyle = [Frame]::new($Double)
-      $this.frameColor = $color
+    $this.X = $X
+    $this.Y = $y
+    $this.W = $W
+    $this.H = $H
+    $this.frameStyle = [Frame]::new($Double)
+    $this.frameColor = $color
     
   }
 
   window(
-      [int]$X,
-      [int]$y,
-      [int]$w,
-      [int]$h,
-      [bool]$Double,
-      [System.ConsoleColor]$color = "White",
-      [string]$title = "",
-      [System.ConsoleColor]$titlecolor = "Blue"
+    [int]$X,
+    [int]$y,
+    [int]$w,
+    [int]$h,
+    [bool]$Double,
+    [System.ConsoleColor]$color = "White",
+    [string]$title = "",
+    [System.ConsoleColor]$titlecolor = "Blue"
   ) {
-      $this.X = $X
-      $this.Y = $y
-      $this.W = $W
-      $this.H = $H
-      $this.frameStyle = [Frame]::new($Double)
-      $this.frameColor = $color
-      $this.title = $title
-      $this.titleColor = $titlecolor
+    $this.X = $X
+    $this.Y = $y
+    $this.W = $W
+    $this.H = $H
+    $this.frameStyle = [Frame]::new($Double)
+    $this.frameColor = $color
+    $this.title = $title
+    $this.titleColor = $titlecolor
   }
 
   [void] setPosition(
-      [int]$X,
-      [int]$Y
+    [int]$X,
+    [int]$Y
   ) {
-      [System.Console]::SetCursorPosition($X, $Y)
+    [System.Console]::SetCursorPosition($X, $Y)
   }
 
   [void] drawWindow() {
-      [System.Console]::CursorVisible = $false
-      $this.setPosition($this.X, $this.Y)
-      $bloc1 = "".PadLeft($this.W , $this.frameStyle.TOP)
-      $blank = "".PadLeft($this.W , " ") 
-      Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-      for ($i = 1; $i -lt $this.H; $i++) {
-          $Y2 = $this.Y + $i
-          #$X2 = $this.X + $this.W - 1
-          $this.setPosition($this.X, $Y2)
+    [System.Console]::CursorVisible = $false
+    $this.setPosition($this.X, $this.Y)
+    $bloc1 = "".PadLeft($this.W , $this.frameStyle.TOP)
+    $blank = "".PadLeft($this.W , " ") 
+    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
+    for ($i = 1; $i -lt $this.H; $i++) {
+      $Y2 = $this.Y + $i
+      #$X2 = $this.X + $this.W - 1
+      $this.setPosition($this.X, $Y2)
         
-          $X3 = $this.X 
-          $this.setPosition($X3, $Y2)
-          Write-Host $blank 
-      }
-      $Y2 = $this.Y + $this.H
-      $this.setPosition( $this.X, $Y2)
-      $bloc1 = "".PadLeft($this.W , $this.frameStyle.BOTTOM)
-      Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-      $this.drawTitle()
-      $this.drawFooter()
+      $X3 = $this.X 
+      $this.setPosition($X3, $Y2)
+      Write-Host $blank 
+    }
+    $Y2 = $this.Y + $this.H
+    $this.setPosition( $this.X, $Y2)
+    $bloc1 = "".PadLeft($this.W , $this.frameStyle.BOTTOM)
+    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
+    $this.drawTitle()
+    $this.drawFooter()
   }
 
   [void] drawTitle() {
-      if ($this.title -ne "") {
-          $local:X = $this.x + 2
-          $this.setPosition($local:X, $this.Y)
-          Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
-          $local:X = $local:X + 2
-          $this.setPosition($local:X, $this.Y)
-          Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
-          $local:X = $local:X + $this.title.Length
-          $this.setPosition($local:X, $this.Y)
-          Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
-      }
+    if ($this.title -ne "") {
+      $local:X = $this.x + 2
+      $this.setPosition($local:X, $this.Y)
+      Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+      $local:X = $local:X + 2
+      $this.setPosition($local:X, $this.Y)
+      Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
+      $local:X = $local:X + $this.title.Length
+      $this.setPosition($local:X, $this.Y)
+      Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+    }
   }
 
   [void] drawFooter() {
-      if ($this.footer -ne "") {
-          $local:x = $this.x + 2
-          $local:Y = $this.Y + $this.h
-          $this.setPosition($local:X, $local:Y)
-          [console]::write($this.footer)
-      }
+    if ($this.footer -ne "") {
+      $local:x = $this.x + 2
+      $local:Y = $this.Y + $this.h
+      $this.setPosition($local:X, $local:Y)
+      [console]::write($this.footer)
+    }
   }
 
   [void] drawPagination() {
-      $sPages = ('Page {0}/{1}' -f ($this.page, $this.nbPages))
-      [System.Console]::setcursorposition($this.W - ($sPages.Length + 6), $this.Y + $this.H)
-      [console]::write($sPages)
+    $sPages = ('Page {0}/{1}' -f ($this.page, $this.nbPages))
+    [System.Console]::setcursorposition($this.W - ($sPages.Length + 6), $this.Y + $this.H)
+    [console]::write($sPages)
   }
 
   [void] clearWindow() {
-      $local:blank = "".PadLeft($this.W, " ") 
-      for ($i = 1; $i -lt $this.H; $i++) {
-          $this.setPosition(($this.X), ($this.Y + $i))
-          Write-Host $blank 
-      } 
+    $local:blank = "".PadLeft($this.W, " ") 
+    for ($i = 1; $i -lt $this.H; $i++) {
+      $this.setPosition(($this.X), ($this.Y + $i))
+      Write-Host $blank 
+    } 
   }
 }
 
@@ -211,71 +211,71 @@ function getSearchTerms {
 
 function getColumnsHeaders {
   param(
-      [parameter (
-          Mandatory
-      )]
-      [string]$columsLine   
+    [parameter (
+      Mandatory
+    )]
+    [string]$columsLine   
   )
 
   $tempCols = $columsLine.Split(" ")
   $cols = @()
   $result = @()
   foreach ($column in $tempCols) {
-      if ($column.Trim() -ne "") {
-          $cols += $column
-      }
+    if ($column.Trim() -ne "") {
+      $cols += $column
+    }
   }
   
   $i = 0
   while ($i -lt $Cols.Length) {
-      $pos = $columsLine.IndexOf($Cols[$i])
-      if ($i -eq $Cols.Length) {
-          #Last Column
-          $len = $columsLine.Length - $pos
-      }
-      else {
-          #Not Last Column
-          $pos2 = $columsLine.IndexOf($Cols[$i + 1])
-          $len = $pos2 - $pos
-      }
-      $acolumn = [column]::new()
-      $acolumn.Name = $Cols[$i]
-      $acolumn.Position = $pos
-      $acolumn.Len = $len
-      $result += $acolumn
-      $i++
+    $pos = $columsLine.IndexOf($Cols[$i])
+    if ($i -eq $Cols.Length) {
+      #Last Column
+      $len = $columsLine.Length - $pos
+    }
+    else {
+      #Not Last Column
+      $pos2 = $columsLine.IndexOf($Cols[$i + 1])
+      $len = $pos2 - $pos
+    }
+    $acolumn = [column]::new()
+    $acolumn.Name = $Cols[$i]
+    $acolumn.Position = $pos
+    $acolumn.Len = $len
+    $result += $acolumn
+    $i++
   }
   $result
 }
 
 function color {
   param (
-      $Text,
-      $ForegroundColor = 'default',
-      $BackgroundColor = 'default'
+    $Text,
+    $ForegroundColor = 'default',
+    $BackgroundColor = 'default'
   )
   # Terminal Colors
   $Colors = @{
-      "default"    = @(40, 50)
-      "black"      = @(30, 0)
-      "lightgrey"  = @(33, 43)
-      "grey"       = @(37, 47)
-      "darkgrey"   = @(90, 100)
-      "red"        = @(91, 101)
-      "darkred"    = @(31, 41)
-      "green"      = @(92, 102)
-      "darkgreen"  = @(32, 42)
-      "yellow"     = @(93, 103)
-      "white"      = @(97, 107)
-      "brightblue" = @(94, 104)
-      "darkblue"   = @(34, 44)
-      "indigo"     = @(35, 45)
-      "cyan"       = @(96, 106)
-      "darkcyan"   = @(36, 46)
+    "default"    = @(40, 50)
+    "black"      = @(30, 0)
+    "lightgrey"  = @(33, 43)
+    "grey"       = @(37, 47)
+    "darkgrey"   = @(90, 100)
+    "red"        = @(91, 101)
+    "darkred"    = @(31, 41)
+    "green"      = @(92, 102)
+    "darkgreen"  = @(32, 42)
+    "yellow"     = @(93, 103)
+    "white"      = @(97, 107)
+    "brightblue" = @(94, 104)
+    "darkblue"   = @(34, 44)
+    "indigo"     = @(35, 45)
+    "cyan"       = @(96, 106)
+    "darkcyan"   = @(36, 46)
   }
 
   if ( $ForegroundColor -notin $Colors.Keys -or $BackgroundColor -notin $Colors.Keys) {
-      Write-Error "Invalid color choice!" -ErrorAction Stop
+    Write-Error "Invalid color choice!" -ErrorAction Stop
   }
 
   "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
@@ -283,7 +283,7 @@ function color {
 
 function Invoke-Winget {
   param (
-      [string]$cmd
+    [string]$cmd
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   
@@ -292,7 +292,7 @@ function Invoke-Winget {
 
   $fl = 0
   while (-not $lines[$fl].StartsWith("----")) {
-      $fl++
+    $fl++
   }
 
   $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
@@ -303,80 +303,80 @@ function Invoke-Winget {
 
  
   if ($columns.Length -eq 5) {
-      $availableStart = $columns[3].Position
-      $sourceStart = $columns[4].Position
+    $availableStart = $columns[3].Position
+    $sourceStart = $columns[4].Position
   }
   else {
-      $sourceStart = $columns[3].Position
+    $sourceStart = $columns[3].Position
   }
 
   $PackageList = @()
 
   if ($Columns.Length -eq 4) {
-      For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-          $line = $lines[$i]
-          if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
-              $name = $line.Substring(0, $idStart).TrimEnd()
-              $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-              $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-              $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-              if ($source -ne "") {
-                  $software = [upgradeSoftware]::new()
-                  $software.Name = $name;
-                  $software.Id = $id;
-                  $software.Version = $version
-                  $software.Source = $source
-                  $software.Selected = $false
-                  $PackageList += $software
-              }
-          }
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+      $line = $lines[$i]
+      if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
+        $name = $line.Substring(0, $idStart).TrimEnd()
+        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+        $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
+        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+        if ($source -ne "") {
+          $software = [upgradeSoftware]::new()
+          $software.Name = $name;
+          $software.Id = $id;
+          $software.Version = $version
+          $software.Source = $source
+          $software.Selected = $false
+          $PackageList += $software
+        }
       }
+    }
   }
   else {
-      For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-          $line = $lines[$i]
-          if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-              $name = $line.Substring(0, $idStart).TrimEnd()
-              $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-              $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-              $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-              $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-              if ($source -ne "") {
-                  $software = [UpgradeSoftware]::new()
-                  $software.Name = $name;
-                  $software.Id = $id;
-                  $software.Version = $version
-                  $software.AvailableVersion = $available
-                  $software.Source = $Source
-                  $software.Selected = $false
-                  $PackageList += $software
-              }
-          }
+    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
+      $line = $lines[$i]
+      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
+        $name = $line.Substring(0, $idStart).TrimEnd()
+        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+        $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+        $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
+        if ($source -ne "") {
+          $software = [UpgradeSoftware]::new()
+          $software.Name = $name;
+          $software.Id = $id;
+          $software.Version = $version
+          $software.AvailableVersion = $available
+          $software.Source = $Source
+          $software.Selected = $false
+          $PackageList += $software
+        }
       }
+    }
   }
   return $PackageList 
 }
 
 function makelines {
   param (
-      $list,
-      $checked
+    $list,
+    $checked
   ) 
   if ($checked) {
-      [string]$line = "✓"
+    [string]$line = "✓"
   }
   else {
-      [string]$line = " "
+    [string]$line = " "
   }
   $w = $host.UI.RawUI.WindowSize.Width
   foreach ($key in $columns.keys) {
-      [string]$col = $list.$key
-      $percent = $columns[$key][1]
-      $l = [math]::floor($w / 100 * $percent)
-      if ($col.Length -gt $l) {
-          $col = $col.Substring(0, $l)
-      }
-      $line = $line, $col.PadRight($l, " ") -join " "
+    [string]$col = $list.$key
+    $percent = $columns[$key][1]
+    $l = [math]::floor($w / 100 * $percent)
+    if ($col.Length -gt $l) {
+      $col = $col.Substring(0, $l)
+    }
+    $line = $line, $col.PadRight($l, " ") -join " "
   }
   $line
 }
@@ -404,82 +404,82 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
   $selected = 0
   [System.Console]::CursorVisible = $false
   while (-not $stop) {
-      $win.page = $page
-      $win.drawPagination()
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
-      $row = 0
-      $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
-          $index = (($page - 1) * $nbLines) + $row
-          $checked = $list[$index].Selected
-          $line = makelines $list[$index] $checked
-          if ($row -eq $selected) {
-              $(color $line "black" "white")
-          }
-          else {
-              if ($row % 2 -eq 0) {
-                  $(color $line "darkgrey")
-              }
-              else {
-                  $(color $line "white")
-              }
-          }
-          $row++
+    $win.page = $page
+    $win.drawPagination()
+    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    $row = 0
+    $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
+      $index = (($page - 1) * $nbLines) + $row
+      $checked = $list[$index].Selected
+      $line = makelines $list[$index] $checked
+      if ($row -eq $selected) {
+        $(color $line "black" "white")
       }
-      $nbDisplay = $partlist.Length
-      $sText = $partlist | Out-String
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
-      [system.console]::write($blanks)
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
-      [system.console]::write($sText)
-      while (-not $stop) {
-          if ($global:Host.UI.RawUI.KeyAvailable) { 
-              [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-              #Write-Host $key.VirtualKeyCode
-              if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
-                  $stop = $true
-              }
-              if ($key.VirtualKeyCode -eq 38) {
-                  # key up
-                  if ($selected -gt 0) {
-                      $selected --
-                  }
-              }
-              if ($key.VirtualKeyCode -eq 40) {
-                  # key Down
-                  if ($selected -lt $nbDisplay - 1) {
-                      $selected ++
-                  }
-              }
-              if ($key.VirtualKeyCode -eq 37) {
-                  # key Left
-                  if ($page -gt 1) {
-                      $skip -= $nbLines
-                      $page -= 1
-                      $selected = 0
-                  }
-              }
-              if ($key.VirtualKeyCode -eq 39) {
-                  # key Right
-                  if ($page -lt $nbPages) {
-                      $skip += $nbLines
-                      $page += 1
-                      $selected = 0
-                  }
-              }
-              if ($key.VirtualKeyCode -eq 32) {
-                  $index = (($page - 1) * $nbLines) + $selected
-                  $checked = $list[$index].Selected
-                  $list[$index].Selected = -not $checked
-              }
-              if ($key.VirtualKeyCode -eq 13) {
-                  Clear-Host
-                  $data.value = $list | Where-Object { $_.Selected }
-                  $stop = $true
-              }
-              break
+      else {
+        if ($row % 2 -eq 0) {
+          $(color $line "darkgrey")
+        }
+        else {
+          $(color $line "white")
+        }
+      }
+      $row++
+    }
+    $nbDisplay = $partlist.Length
+    $sText = $partlist | Out-String
+    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    [system.console]::write($blanks)
+    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    [system.console]::write($sText)
+    while (-not $stop) {
+      if ($global:Host.UI.RawUI.KeyAvailable) { 
+        [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
+        #Write-Host $key.VirtualKeyCode
+        if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
+          $stop = $true
+        }
+        if ($key.VirtualKeyCode -eq 38) {
+          # key up
+          if ($selected -gt 0) {
+            $selected --
           }
-          Start-Sleep -Milliseconds 20
-      }    
+        }
+        if ($key.VirtualKeyCode -eq 40) {
+          # key Down
+          if ($selected -lt $nbDisplay - 1) {
+            $selected ++
+          }
+        }
+        if ($key.VirtualKeyCode -eq 37) {
+          # key Left
+          if ($page -gt 1) {
+            $skip -= $nbLines
+            $page -= 1
+            $selected = 0
+          }
+        }
+        if ($key.VirtualKeyCode -eq 39) {
+          # key Right
+          if ($page -lt $nbPages) {
+            $skip += $nbLines
+            $page += 1
+            $selected = 0
+          }
+        }
+        if ($key.VirtualKeyCode -eq 32) {
+          $index = (($page - 1) * $nbLines) + $selected
+          $checked = $list[$index].Selected
+          $list[$index].Selected = -not $checked
+        }
+        if ($key.VirtualKeyCode -eq 13) {
+          Clear-Host
+          $data.value = $list | Where-Object { $_.Selected }
+          $stop = $true
+        }
+        break
+      }
+      Start-Sleep -Milliseconds 20
+    }    
   }
   [System.Console]::CursorVisible = $true
   
@@ -488,73 +488,75 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
 
 function Show-WGList {
   begin {
-      $sb = { invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-      [upgradeSoftware[]]$data = @()
+    $sb = { invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
+    [upgradeSoftware[]]$data = @()
   }
   process {
-      displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
+    displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
   }
   end {
-      return $data
+    return $data
   } 
 }
 
 function  Show-WGUpdatables {
   begin {
-      $sb = { invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
-      [upgradeSoftware[]]$data = @()
+    $sb = { invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
+    [upgradeSoftware[]]$data = @()
   }
   process {
-      displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
+    displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
   }
   end {
-      return $data
+    return $data
   }
 }
 
 function Install-WGPackage {
   param (
-      [switch]$install 
+    [switch]$install 
   )
   begin {
-      $term = getSearchTerms
+    $term = getSearchTerms
   }
   process {
-      if ($term.Trim() -ne "") {
-          $term = '"', $term, '"' -join ''
-          $sb = { invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
-          #displayGrid "Install Packages" $sb
-          [upgradeSoftware[]]$data = @()
-          displayGrid -title "Install Package" -cmd $sb -data ([ref]$data)
-          if ($data.length -gt 0) {
-              foreach($package in $data) {
-                  $id = $package.id
-                  invoke-expression "winget install --id $id"
-              }
+    if ($term.Trim() -ne "") {
+      $term = '"', $term, '"' -join ''
+      $sb = { invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+      #displayGrid "Install Packages" $sb
+      [upgradeSoftware[]]$data = @()
+      displayGrid -title "Install Package" -cmd $sb -data ([ref]$data)
+      if ($install) {
+        if ($data.length -gt 0) {
+          foreach ($package in $data) {
+            $id = $package.id
+            Invoke-Expression "winget install --id $id"
           }
+        }
       }
+    }
   }
   end {
-      return $data
+    return $data
   }
 }
 
 function Uninstall-WGPackage {
   begin {
-      $sb = { invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-      [upgradeSoftware[]]$data = @()
+    $sb = { invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
+    [upgradeSoftware[]]$data = @()
   }
   process {
-      displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
-      if ($data.length -gt 0) {
-          foreach($package in $data) {
-              $id = $package.id
-              invoke-expression "winget uninstall --id $id"
-          }
+    displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
+    if ($data.length -gt 0) {
+      foreach ($package in $data) {
+        $id = $package.id
+        Invoke-Expression "winget uninstall --id $id"
       }
+    }
   }
   end {
-     return $data 
+    return $data 
   }
 }
 

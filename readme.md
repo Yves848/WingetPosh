@@ -58,6 +58,11 @@ The availablle functions are :
         - Rewriting the TUI in full powershell (some flickering still to fix)
         - Adding "Invoke-Winget" funtion to add generic call to Winget'
 
+### Remark : 
+To install in powershell 5.1, you need to install the latest "PowershellGet"
+``` Powershell
+Install-Module PowerShellGet -AllowClobber -Force
+```
 ### Examples
 ``` Powershell
   Show-WGList
@@ -98,28 +103,16 @@ Of course, we can use this object collection to extract some usefull data .....
 
 ## Search and install a package
 
-When passing -Interactive (or even no search parameter), the function will prompt for a search term.
-The -Install parameter will launch the installation of the selected package.
+The -Install parameter will launch the installation of the selected package(s).
 
 ``` Powershell
-  Search-WGPackage -Install
+  Install-WGPackage -Install
 ```
 
 ![image8](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img8.png)
+![image8-1](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img8-1.png)
 
-``` Powershell
-  Search-WGPackage | Select-Object -Property Id | Install-WGPackage
-```
-or
-``` Powershell
-  $id = Search-WGPackage | Select-Object -Property Id
-  winget install $id
-```
-or
-``` Powershell
-  $pkg = Search-WGPackage 
-  winget install $pkg.id
-```
+
 
 ***
 
