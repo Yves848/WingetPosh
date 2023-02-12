@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.6'
+ModuleVersion = '0.6.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,7 +33,7 @@ Copyright = '(c) yvesg. All rights reserved.'
 Description = 'Helpers functions for Winget'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.2'
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -51,7 +51,7 @@ PowerShellVersion = '7.2'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
+#RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -69,7 +69,7 @@ RequiredModules = @('Microsoft.PowerShell.ConsoleGuiTools')
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Show-WGList', 'Search-WGPackage', 'Show-WGUpdatables','Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList','Get-WGUpdatables')
+FunctionsToExport = @('Show-WGList', 'Show-WGUpdatables','Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList','Get-WGUpdatables', 'Invoke-Winget')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -127,7 +127,14 @@ PrivateData = @{
         - Adding licence acceptance.
         
         0.5.6 : 
-        - Adding headless functions : Get-WGList and Get-WGUpdatables'
+        - Adding headless functions : Get-WGList and Get-WGUpdatables
+
+        0.6.0 :
+        - Removing "Microsoft.PowerShell.ConsoleGuiTools" dependance to add Powershell 5.1 compatibility
+        - Rewriting the TUI in full powershell (some flickering still to fix)
+        - Adding "Invoke-Winget" funtion to add generic call to Winget'
+
+        
         # Prerelease string of this module
         # Prerelease = ''
 

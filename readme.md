@@ -50,6 +50,14 @@ The availablle functions are :
 ### 0.5.5 : 
 - Adding license acceptance when installing module
 
+### 0.5.6 : 
+        - Adding headless functions : Get-WGList and Get-WGUpdatables
+
+### 0.6.0 :
+        - Removing "Microsoft.PowerShell.ConsoleGuiTools" dependance to add Powershell 5.1 compatibility
+        - Rewriting the TUI in full powershell (some flickering still to fix)
+        - Adding "Invoke-Winget" funtion to add generic call to Winget'
+
 ### Examples
 ``` Powershell
   Show-WGList
