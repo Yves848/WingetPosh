@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.6.0'
+ModuleVersion = '0.6.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Show-WGList', 'Show-WGUpdatables','Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList','Get-WGUpdatables', 'Invoke-Winget')
+FunctionsToExport = @('Show-WGList', 'Update-WGPackages', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList', 'Invoke-Winget')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -132,7 +132,12 @@ PrivateData = @{
         0.6.0 :
         - Removing "Microsoft.PowerShell.ConsoleGuiTools" dependance to add Powershell 5.1 compatibility
         - Rewriting the TUI in full powershell (some flickering still to fix)
-        - Adding "Invoke-Winget" funtion to add generic call to Winget'
+        - Adding "Invoke-Winget" funtion to add generic call to Winget
+        
+        0.6.1 : 
+        - Fix -Install switch of Install-WGPAckage
+        - Rename Show-WGUpdatables to Update-WGPackages
+        - Add a switch -Update to Update-WGPackages'
 
         
         # Prerelease string of this module

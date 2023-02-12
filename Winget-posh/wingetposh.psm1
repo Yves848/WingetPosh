@@ -499,13 +499,24 @@ function Show-WGList {
   } 
 }
 
-function  Show-WGUpdatables {
+function  Update-WGPackages {
+  param (
+    [switch]$update
+  )
   begin {
     $sb = { invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
     [upgradeSoftware[]]$data = @()
   }
   process {
     displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
+    if ($update) {
+      if ($data.length -gt 0) {
+        foreach ($package in $data) {
+          $id = $package.id
+          Invoke-Expression "winget upgrade --id $id"
+        }
+      }
+    }
   }
   end {
     return $data

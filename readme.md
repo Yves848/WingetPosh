@@ -79,14 +79,8 @@ When Hit return .....
 Of course, we can use this object collection to extract some usefull data .....
 ![](https://github.com/Yves848/WingetPosh/blob/master/images/img6.png?raw=true)
 
-
-``` Powershell
-  Show-WGUpdatables
-```
-![image3](https://github.com/Yves848/WingetPosh/blob/master/images/img3.png?raw=true)
-
 ```Powershell
-  Update-WGPackage
+  Update-WGPackages -update
 ```
 ![image9](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img9.png)
 
