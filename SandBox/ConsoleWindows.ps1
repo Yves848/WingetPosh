@@ -313,6 +313,7 @@ function _wgList {
                     $software.Version = $version
                     $software.AvailableVersion = $available
                     $software.Source = $Source
+                    $software.Selected = $false
                     $InstalledList += $software
                 }
             }
@@ -322,9 +323,15 @@ function _wgList {
 }
 
 function addCheckbox(
-    $text
+    $text,
+    $checked
 ) {
-    "[ ] $($text)"
+    if ($checked) {
+        "[X] $($text)"
+    } else {
+        "[ ] $($text)"
+    }
+    
 }
 
 function color {
@@ -385,8 +392,6 @@ function Show-WGList {
         $win.page = $page
         $win.drawPagination()
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        [console]::write($blanks)
-        [System.Console]::setcursorposition($win.X, $win.Y + 1)
         $row = 0
         $partlist = $list | `
             Select-Object -Property Name, Id, Version, AvailableVersion, Source -First $nbLines -Skip $skip `
@@ -394,10 +399,14 @@ function Show-WGList {
         | Out-String -Stream `
         | ForEach-Object {
             if (([string]$_.trim()) -ne "") {
-                $line = $(addCheckbox $_)
+                $index = (($page - 1)*$nbLines)+$row
+                $checked = $list[$index].Selected
+                $line = $(addCheckbox $_ $checked)
                 if ($row -eq $selected) {
                     $line = $(color $line "black" "white")
                 }
+                
+                
                 $line
                 $row ++
             }
@@ -405,7 +414,9 @@ function Show-WGList {
         }
         $sText = $partlist | Out-String
         [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        [console]::write($sText)
+        $blanks
+        [System.Console]::setcursorposition($win.X, $win.Y + 1)
+        $sText
         while (-not $stop) {
             if ($global:Host.UI.RawUI.KeyAvailable) { 
                 [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyUp'))
@@ -438,6 +449,12 @@ function Show-WGList {
                         $page += 1
                         $selected = 0
                     }
+                }
+                if ($key.VirtualKeyCode -eq 32) {
+                    $index = (($page - 1)*$nbLines)+$selected
+                    $checked = $list[$index].Selected
+                    $list[$index].Selected = -not $checked
+
                 }
                 break
             }
