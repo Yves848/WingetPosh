@@ -404,7 +404,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $Win.titleColor = "Green"
   $win.footer = $Single.LEFT, "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
   $win.drawWindow();
-  $win.drawVersion();
+  #$win.drawVersion();
   $nbLines = $Win.h - 2
   $blanks = ' '.PadRight($global:Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
   [System.Console]::setcursorposition($win.X, $win.Y + 1)

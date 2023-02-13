@@ -143,7 +143,10 @@ PrivateData = @{
         - Fix flickering
         - rename Update-WGPackages to Update-WGPackage for uniformity
         - in Install-WGPackage, F3 allows to run a new search
-        - Version of the module shown in the window frame'
+        - Version of the module shown in the window frame
+        
+        0.6.3 : 
+        - remove the module version of the window frame'
 
         
         # Prerelease string of this module

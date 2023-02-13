@@ -62,6 +62,14 @@ The availablle functions are :
         - Rename Show-WGUpdatables to Update-WGPackages
         - Add a switch -Update to Update-WGPackages
 
+### 0.6.2 :
+        - Fix flickering
+        - rename Update-WGPackages to Update-WGPackage for uniformity
+        - in Install-WGPackage, F3 allows to run a new search
+        - Version of the module shown in the window frame
+        
+### 0.6.3 : 
+        - remove the module version of the window frame
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
