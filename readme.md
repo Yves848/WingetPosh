@@ -67,6 +67,7 @@ To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
 Install-Module PowerShellGet -AllowClobber -Force
 ```
+Close and re-open the powershell 5.1 terminal to make changes effective.
 ### Examples
 ``` Powershell
   Show-WGList
