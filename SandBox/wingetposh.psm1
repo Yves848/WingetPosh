@@ -145,6 +145,13 @@ class window {
     $this.drawFooter()
   }
 
+
+  [void] drawVersion() {
+    $version = $this.frameStyle.LEFT, [string]$(Get-InstalledModule -Name wingetposh).version, $this.frameStyle.RIGHT -join ""
+    [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
+    [console]::write($version)
+  }
+
   [void] drawTitle() {
     if ($this.title -ne "") {
       $local:X = $this.x + 2
@@ -376,14 +383,17 @@ function makelines {
     if ($col.Length -gt $l) {
       $col = $col.Substring(0, $l)
     }
-    $line = $line, $col.PadRight($l, " ") -join " "
+    if ($key -eq "AvailableVersion") {
+      $line = $line, $col.PadRight($l, " ") -join " "
+    }
+    else {
+      $line = $line, $col.PadRight($l, " ") -join " "
+    }
   }
   $line
 }
 
-function displayGrid($title, [scriptblock]$cmd, [ref]$data) {   
-  $RunspaceHash = @{}
-  
+function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {   
   $global:Host.UI.RawUI.FlushInputBuffer()
   $WinWidth = [System.Console]::WindowWidth
   $X = 0
@@ -394,6 +404,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
   $Win.titleColor = "Green"
   $win.footer = $Single.LEFT, "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
   $win.drawWindow();
+  $win.drawVersion();
   $nbLines = $Win.h - 2
   $blanks = ' '.PadRight($global:Host.UI.RawUI.WindowSize.Width * ($nbLines + 1))
   [System.Console]::setcursorposition($win.X, $win.Y + 1)
@@ -405,6 +416,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
   $page = 1
   $selected = 0
   [System.Console]::CursorVisible = $false
+  $redraw = $false
   while (-not $stop) {
     $win.page = $page
     $win.drawPagination()
@@ -413,7 +425,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
     $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
       $index = (($page - 1) * $nbLines) + $row
       $checked = $list[$index].Selected
-      $line = makelines $list[$index] $checked
+      $line = makelines $list[$index] $checked 
       if ($row -eq $selected) {
         $(color $line "black" "white")
       }
@@ -429,8 +441,11 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
     }
     $nbDisplay = $partlist.Length
     $sText = $partlist | Out-String
-    [System.Console]::setcursorposition($win.X, $win.Y + 1)
-    [system.console]::write($blanks)
+    if ($redraw) {
+      [System.Console]::setcursorposition($win.X, $win.Y + 1)
+      [system.console]::write($blanks)
+      $redraw = $false
+    }
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     [system.console]::write($sText)
     while (-not $stop) {
@@ -461,6 +476,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
             $skip -= $nbLines
             $page -= 1
             $selected = 0
+            $redraw = $true     
           }
         }
         if ($key.VirtualKeyCode -eq 39) {
@@ -469,6 +485,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
             $skip += $nbLines
             $page += 1
             $selected = 0
+            $redraw = $true
           }
         }
         if ($key.VirtualKeyCode -eq 32) {
@@ -480,6 +497,22 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data) {
           Clear-Host
           $data.value = $list | Where-Object { $_.Selected }
           $stop = $true
+        }
+
+        if ($key.VirtualKeyCode -eq 114) {
+          if ($allowSearch) {
+            $term = getSearchTerms
+            [System.Console]::CursorVisible = $false
+            $term = '"', $term, '"' -join ''
+            $sb = { invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+            $list = Invoke-Command -ScriptBlock $sb
+            $skip = 0
+            $nbPages = [math]::Ceiling($list.count / $nbLines)
+            $win.nbpages = $nbPages
+            $page = 1
+            $selected = 0
+            $redraw = $true
+          }
         }
         break
       }
@@ -502,7 +535,7 @@ function displayHelp {
   $win.drawWindow();
   $buffer = "$(color "↑↓" "cyan") : Navigate `t`t $(color "← →" "cyan") Change page `
   $(color "Space" "cyan") : Select / Unselect package"
-  [System.Console]::setcursorposition($win.X+1, $win.Y + 1)
+  [System.Console]::setcursorposition($win.X + 1, $win.Y + 1)
   $buffer
   $stop = $false;
   while (-not $stop) {
@@ -530,7 +563,7 @@ function Show-WGList {
   } 
 }
 
-function  Update-WGPackages {
+function  Update-WGPackage {
   param (
     [switch]$update
   )
@@ -567,7 +600,7 @@ function Install-WGPackage {
       $sb = { invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
       [upgradeSoftware[]]$data = @()
-      displayGrid -title "Install Package" -cmd $sb -data ([ref]$data)
+      displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
       if ($install) {
         if ($data.length -gt 0) {
           foreach ($package in $data) {
@@ -610,4 +643,4 @@ function Get-WGUpdatables {
   invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
 }
 
-#_wgList
+

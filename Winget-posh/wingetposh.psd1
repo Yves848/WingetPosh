@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.6.1'
+ModuleVersion = '0.6.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Show-WGList', 'Update-WGPackages', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList', 'Invoke-Winget')
+FunctionsToExport = @('Show-WGList', 'Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList', 'Invoke-Winget')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -137,7 +137,13 @@ PrivateData = @{
         0.6.1 : 
         - Fix -Install switch of Install-WGPAckage
         - Rename Show-WGUpdatables to Update-WGPackages
-        - Add a switch -Update to Update-WGPackages'
+        - Add a switch -Update to Update-WGPackages
+
+        0.6.2 :
+        - Fix flickering
+        - rename Update-WGPackages to Update-WGPackage for uniformity
+        - in Install-WGPackage, F3 allows to run a new search
+        - Version of the module shown in the window frame'
 
         
         # Prerelease string of this module
