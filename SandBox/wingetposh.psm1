@@ -147,7 +147,7 @@ class window {
 
 
   [void] drawVersion() {
-    $version = $this.frameStyle.LEFT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction ignore).version, $this.frameStyle.RIGHT -join ""
+    $version = $this.frameStyle.LEFT, [string]$(Get-InstalledModule -Name wingetposh).version, $this.frameStyle.RIGHT -join ""
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
     [console]::write($version)
   }
@@ -402,7 +402,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
   $win.title = $title
   $Win.titleColor = "Green"
-  $win.footer = $Single.LEFT, "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
+  $win.footer = $Single.LEFT, "$(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[?]" "red") : Help $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
   $win.drawWindow();
   $win.drawVersion();
   $nbLines = $Win.h - 2
@@ -416,7 +416,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $page = 1
   $selected = 0
   [System.Console]::CursorVisible = $false
-  $redraw = $false
+  $redraw = $true
   while (-not $stop) {
     $win.page = $page
     $win.drawPagination()
@@ -452,26 +452,23 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
       if ($global:Host.UI.RawUI.KeyAvailable) { 
         [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
         #Write-Host $key.VirtualKeyCode
-        if ($key.Character -eq '?') {
-          displayHelp
+        if ($key.Character -eq '?') { # Help
+          displayHelp $allowSearch
         }
-        if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
+        if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) { # Quit
           $stop = $true
         }
-        if ($key.VirtualKeyCode -eq 38) {
-          # key up
+        if ($key.VirtualKeyCode -eq 38) { # key up
           if ($selected -gt 0) {
             $selected --
           }
         }
-        if ($key.VirtualKeyCode -eq 40) {
-          # key Down
+        if ($key.VirtualKeyCode -eq 40) { # key Down
           if ($selected -lt $nbDisplay - 1) {
             $selected ++
           }
         }
-        if ($key.VirtualKeyCode -eq 37) {
-          # key Left
+        if ($key.VirtualKeyCode -eq 37) { # key Left
           if ($page -gt 1) {
             $skip -= $nbLines
             $page -= 1
@@ -479,8 +476,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
             $redraw = $true     
           }
         }
-        if ($key.VirtualKeyCode -eq 39) {
-          # key Right
+        if ($key.VirtualKeyCode -eq 39) { # key Right
           if ($page -lt $nbPages) {
             $skip += $nbLines
             $page += 1
@@ -488,18 +484,18 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
             $redraw = $true
           }
         }
-        if ($key.VirtualKeyCode -eq 32) {
+        if ($key.VirtualKeyCode -eq 32) { # key Space
           $index = (($page - 1) * $nbLines) + $selected
           $checked = $list[$index].Selected
           $list[$index].Selected = -not $checked
         }
-        if ($key.VirtualKeyCode -eq 13) {
+        if ($key.VirtualKeyCode -eq 13) { # key Enter
           Clear-Host
           $data.value = $list | Where-Object { $_.Selected }
           $stop = $true
         }
 
-        if ($key.VirtualKeyCode -eq 114) {
+        if ($key.VirtualKeyCode -eq 114) { # key F3
           if ($allowSearch) {
             $term = getSearchTerms
             [System.Console]::CursorVisible = $false
@@ -514,6 +510,14 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
             $redraw = $true
           }
         }
+        if ($key.character -eq "+") { # key +
+          $checked = $true
+          $list | ForEach-Object {$_.Selected = $checked}
+        }
+        if ($key.character -eq "-") { # key -
+          $checked = $false
+          $list | ForEach-Object {$_.Selected = $checked}
+        }
         break
       }
       Start-Sleep -Milliseconds 20
@@ -523,25 +527,31 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
 }
 
 function displayHelp {
+  param (
+    [boolean]$allowSearch
+  )
   $global:Host.UI.RawUI.FlushInputBuffer()
-  $WinWidth = [System.Console]::WindowWidth - 2
-  $X = 2
-  $Y = 10
+  $Width = [System.Console]::WindowWidth - 2
+  $Height = [System.Console]::WindowHeight -2
   $WinHeigt = 4
-  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
+  $X = 2
+  $Y = [math]::Ceiling(($Height - $WinHeigt) / 2 )
+  $win = [window]::new($X, $Y, $Width, $WinHeigt, $false, "White");
   $win.title = "Help"
   $Win.titleColor = "Blue"
   $win.footer = $Single.LEFT, "$(color "[Esc]" "red") : Close", $Single.RIGHT -join ""
   $win.drawWindow();
-  $buffer = "$(color "↑↓" "cyan") : Navigate `t`t $(color "← →" "cyan") Change page `
-  $(color "Space" "cyan") : Select / Unselect package"
+  $buffer = "$(color "↑↓" "cyan") : Navigate `t`t`t`t $(color "← →" "cyan") Change page"
+  $buffer = $buffer, "   $(color "Space" "cyan") : Select / Unselect package `t`t $(color "+/-" "cyan") Select All/None " -join "`n"
+  if ($allowSearch) {
+    $buffer = $buffer, "   $(color "F3" "cyan") : Search" -join "`n"
+  }
   [System.Console]::setcursorposition($win.X + 1, $win.Y + 1)
   $buffer
   $stop = $false;
   while (-not $stop) {
     if ($global:Host.UI.RawUI.KeyAvailable) { 
       [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-      #Write-Host $key.VirtualKeyCode
       if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
         $stop = $true
       }

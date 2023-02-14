@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.6.3'
+ModuleVersion = '0.6.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -146,7 +146,12 @@ PrivateData = @{
         - Version of the module shown in the window frame
         
         0.6.3 : 
-        - remove the module version of the window frame'
+        - remove the module version of the window frame
+        
+        0.6.4 :
+        - Add "+" and "-" keys for selections in the grid
+        - Version of the module shown in the window frame (back)
+        - add "?" to display help'
 
         
         # Prerelease string of this module

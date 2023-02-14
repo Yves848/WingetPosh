@@ -70,12 +70,20 @@ The availablle functions are :
         
 ### 0.6.3 : 
         - remove the module version of the window frame
+
+### 0.6.4 :
+        - Add '+' and '-' keys for selections in the grid
+        - Version of the module shown in the window frame (back)
+        - add "?" to display help
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
 Install-Module PowerShellGet -AllowClobber -Force
 ```
 Close and re-open the powershell 5.1 terminal to make changes effective.
+
+There is a "?" on the bottom of the window, for interactive commands.
+Pressing "?" displays a "help" in the context of the running command.
 ### Examples
 ``` Powershell
   Show-WGList
@@ -130,3 +138,4 @@ The -Install parameter will launch the installation of the selected package(s).
 ``` Powershell
   $list = Invoke-Winget "winget list"
 ```
+![image11](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img11.png)
