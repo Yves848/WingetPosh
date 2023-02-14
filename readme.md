@@ -9,7 +9,7 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ***
 
 ## Demo
-https://youtu.be/nWH5SarJ6wI
+https://youtu.be/-dJaEZx9WNg
 
 
 A small set of functions to help using winget.
