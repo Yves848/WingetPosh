@@ -154,7 +154,7 @@ class window {
   
   
   [void] drawVersion() {
-    $version = $this.frameStyle.LEFT, [string]$(Get-InstalledModule -Name wingetposh).version, $this.frameStyle.RIGHT -join ""
+    $version = $this.frameStyle.LEFT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHT -join ""
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
     [console]::write($version)
   }
@@ -202,11 +202,11 @@ class window {
 }
   
 $columns = [ordered]@{
-  "Name"             = @(0, 33)
-  "Id"               = @(1, 33)
+  "Name"             = @(0, 32)
+  "Id"               = @(1, 32)
   "Version"          = @(2, 12)
   "AvailableVersion" = @(3, 12)
-  "Source"           = @(4, 7)
+  "Source"           = @(4, 6)
 }
   
 function getSearchTerms {
@@ -397,7 +397,8 @@ function makelines {
     $list,
     $checked,
     $row,
-    $selected
+    $selected,
+    $W
   ) 
   if ($iscoreclr) {
     $esc = "`e"
@@ -406,7 +407,7 @@ function makelines {
     $esc = $([char]0x1b)
   }
   [string]$line = ""
-  $w = $host.UI.RawUI.WindowSize.Width - 2
+  #$w = $host.UI.RawUI.WindowSize.Width - 2
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
     $percent = $columns[$key][1]
@@ -421,27 +422,43 @@ function makelines {
       $line = $line, $col.PadRight($l, " ") -join " "
     }
   }
-    
-  if ($row % 2 -eq 0) {
-    $line = "$esc[38;5;7m$($line)"
-  }
-  else {
-    $line = "$esc[38;5;8m$($line)"
-  }
   if ($row -eq $selected) {
     $line = "$esc[4m$($line)"
   }
-  else {
-    $line = "$($line)"
-  }
+  if ($row % 2 -eq 0) {
+      $line = "$esc[38;5;7m$($line)"
+    }
+    else {
+      $line = "$esc[38;5;8m$($line)"
+    }
   if ($checked) {
-    $line = "$esc[38;5;46m$(' ✓')", $line -join ""
-  }
-  else {
-    $line = "  ", $line -join ""
-  }
-  $line = "$esc[38;5;15m$($Single.LEFT)", $line -join ""
-  "$($line)$esc[38;5;15m$esc[0m$($Single.RIGHT)"
+      $line = "$esc[38;5;46m$('✓')", $line -join ""
+    }
+    else {
+      $line = " ", $line -join ""
+    }
+
+    "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
+  # if ($row % 2 -eq 0) {
+  #   $line = "$esc[38;5;7m$($line)"
+  # }
+  # else {
+  #   $line = "$esc[38;5;8m$($line)"
+  # }
+  # if ($row -eq $selected) {
+  #   $line = "$esc[4m$($line)"
+  # }
+  # else {
+  #   $line = "$($line)"
+  # }
+  # if ($checked) {
+  #   $line = "$esc[38;5;46m$(' ✓')", $line -join ""
+  # }
+  # else {
+  #   $line = "  ", $line -join ""
+  # }
+  # $line = "$esc[38;5;15m$($Single.LEFT)", $line -join ""
+  # "$($line)$esc[38;5;15m$($Single.RIGHT)$esc[0m"
 }
   
 function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
@@ -476,7 +493,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
     $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
       $index = (($page - 1) * $nbLines) + $row
       $checked = $list[$index].Selected
-      makelines $list[$index] $checked $row $selected
+      makelines $list[$index] $checked $row $selected $win.W-2
       $row++
     }
     $nbDisplay = $partlist.Length
@@ -574,7 +591,6 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
     }    
   }
   [System.Console]::CursorVisible = $true
-  Clear-Host
 }
   
 function displayHelp {
