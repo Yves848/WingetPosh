@@ -423,22 +423,24 @@ function makelines {
     }
   }
   if ($row -eq $selected) {
-    $line = "$esc[4m$($line)"
+    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
   }
-  if ($row % 2 -eq 0) {
+  else {
+    if ($row % 2 -eq 0) {
       $line = "$esc[38;5;7m$($line)"
     }
     else {
       $line = "$esc[38;5;8m$($line)"
     }
+  }
   if ($checked) {
-      $line = "$esc[38;5;46m$('✓')", $line -join ""
-    }
-    else {
-      $line = " ", $line -join ""
-    }
+    $line = "$esc[38;5;46m$('✓')", $line -join ""
+  }
+  else {
+    $line = " ", $line -join ""
+  }
 
-    "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
+  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
   # if ($row % 2 -eq 0) {
   #   $line = "$esc[38;5;7m$($line)"
   # }
@@ -672,12 +674,12 @@ function  Update-WGPackage {
   
 function Install-WGPackage {
   param (
-    [string]$package =  "",
+    [string]$package = "",
     [switch]$install 
   )
   begin {
     if ($package -eq "") {
-    $term = getSearchTerms
+      $term = getSearchTerms
     }
     else {
       $term = $package

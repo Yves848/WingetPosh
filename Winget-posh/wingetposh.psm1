@@ -423,7 +423,7 @@ function makelines {
     }
   }
   if ($row -eq $selected) {
-    $line = "$esc[4m$($line)"
+    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
   }
   if ($row % 2 -eq 0) {
       $line = "$esc[38;5;7m$($line)"
