@@ -154,7 +154,8 @@ PrivateData = @{
         - add "?" to display help
         
         0.6.5 :
-        - changing visuals, refining windows drawing'
+        - changing visuals, refining windows drawing
+        - add a "package" parameter to Install-WGPackage'
 
         
         # Prerelease string of this module

@@ -75,6 +75,10 @@ The availablle functions are :
         - Add '+' and '-' keys for selections in the grid
         - Version of the module shown in the window frame (back)
         - add "?" to display help
+
+### 0.6.5 :
+        - refine windows drawing
+        - add a "package" parameter to Install-WGPackage
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell

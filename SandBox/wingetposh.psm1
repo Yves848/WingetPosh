@@ -591,6 +591,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
     }    
   }
   [System.Console]::CursorVisible = $true
+  Clear-Host
 }
   
 function displayHelp {
@@ -671,10 +672,16 @@ function  Update-WGPackage {
   
 function Install-WGPackage {
   param (
+    [string]$package =  "",
     [switch]$install 
   )
   begin {
+    if ($package -eq "") {
     $term = getSearchTerms
+    }
+    else {
+      $term = $package
+    }
   }
   process {
     if ($term.Trim() -ne "") {
