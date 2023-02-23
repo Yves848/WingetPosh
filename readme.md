@@ -79,6 +79,10 @@ The availablle functions are :
 ### 0.6.5 :
         - refine windows drawing
         - add a "package" parameter to Install-WGPackage
+
+### 0.6.6 :
+        - Correctiong bugs in install, uninstall and update functions
+        - Fixing the order of the install-WGPackage parameters
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
