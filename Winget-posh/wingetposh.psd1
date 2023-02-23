@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.6.5'
+ModuleVersion = '0.6.6'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,7 +155,11 @@ PrivateData = @{
         
         0.6.5 :
         - changing visuals, refining windows drawing
-        - add a "package" parameter to Install-WGPackage'
+        - add a "package" parameter to Install-WGPackage
+        
+        0.6.6 :
+        - Correctiong bugs in install, uninstall and update functions
+        - Fixing the order of the install-WGPackage parameters'
 
         
         # Prerelease string of this module

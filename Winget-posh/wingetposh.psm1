@@ -439,26 +439,6 @@ function makelines {
     }
 
     "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
-  # if ($row % 2 -eq 0) {
-  #   $line = "$esc[38;5;7m$($line)"
-  # }
-  # else {
-  #   $line = "$esc[38;5;8m$($line)"
-  # }
-  # if ($row -eq $selected) {
-  #   $line = "$esc[4m$($line)"
-  # }
-  # else {
-  #   $line = "$($line)"
-  # }
-  # if ($checked) {
-  #   $line = "$esc[38;5;46m$(' ✓')", $line -join ""
-  # }
-  # else {
-  #   $line = "  ", $line -join ""
-  # }
-  # $line = "$esc[38;5;15m$($Single.LEFT)", $line -join ""
-  # "$($line)$esc[38;5;15m$($Single.RIGHT)$esc[0m"
 }
   
 function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
@@ -658,9 +638,10 @@ function  Update-WGPackage {
     displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
     if ($update) {
       if ($data.length -gt 0) {
-        foreach ($package in $data) {
-          $id = $package.id
-          Invoke-Expression "winget upgrade --id $id"
+        $data | ForEach-Object {
+          $id = $_.Id
+          $expression = "winget upgrade --id $($id)"
+          Invoke-Expression $expression
         }
       }
     }
@@ -672,8 +653,9 @@ function  Update-WGPackage {
   
 function Install-WGPackage {
   param (
-    [string]$package =  "",
-    [switch]$install 
+    [switch]$install,
+    [string]$package =  ""
+    
   )
   begin {
     if ($package -eq "") {
@@ -692,9 +674,10 @@ function Install-WGPackage {
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
       if ($install) {
         if ($data.length -gt 0) {
-          foreach ($package in $data) {
-            $id = $package.id
-            Invoke-Expression "winget install --id $id"
+          $data | ForEach-Object {
+            $id = $_.Id
+            $expression = "winget install --id $($id)"
+            Invoke-Expression $expression
           }
         }
       }
@@ -713,9 +696,10 @@ function Uninstall-WGPackage {
   process {
     displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
     if ($data.length -gt 0) {
-      foreach ($package in $data) {
-        $id = $package.id
-        Invoke-Expression "winget uninstall --id $id"
+      $data | ForEach-Object {
+        $id = $_.Id
+        $expression = "winget uninstall --id $($id)"
+        Invoke-Expression $expression
       }
     }
   }

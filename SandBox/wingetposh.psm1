@@ -439,26 +439,6 @@ function makelines {
     }
 
     "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
-  # if ($row % 2 -eq 0) {
-  #   $line = "$esc[38;5;7m$($line)"
-  # }
-  # else {
-  #   $line = "$esc[38;5;8m$($line)"
-  # }
-  # if ($row -eq $selected) {
-  #   $line = "$esc[4m$($line)"
-  # }
-  # else {
-  #   $line = "$($line)"
-  # }
-  # if ($checked) {
-  #   $line = "$esc[38;5;46m$(' ✓')", $line -join ""
-  # }
-  # else {
-  #   $line = "  ", $line -join ""
-  # }
-  # $line = "$esc[38;5;15m$($Single.LEFT)", $line -join ""
-  # "$($line)$esc[38;5;15m$($Single.RIGHT)$esc[0m"
 }
   
 function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
