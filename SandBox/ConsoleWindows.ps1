@@ -69,9 +69,7 @@ class column {
   [Int16]$Position
   [Int16]$Len
 }
-  
-  
-  
+    
 class window {
   [int]$X
   [int]$Y
@@ -223,10 +221,11 @@ function getSearchTerms {
   $win.setPosition($X + 2, $Y + 2);
   [System.Console]::Write('Package : ')
   [system.console]::CursorVisible = $true
-  $pack = [System.Console]::ReadLine()
+  $pack = [ System.Console]::ReadLine()
   return $pack
 }
   
+
 function getColumnsHeaders {
   param(
     [parameter (
@@ -265,7 +264,46 @@ function getColumnsHeaders {
   }
   $result
 }
+function getColumnsHeaders2 {
+  param(
+    [parameter (
+      Mandatory
+    )]
+    [string]$columsLine   
+  )
   
+  $tempCols = $columsLine.Split(" ")
+  $cols = @()
+  $result = @()
+  foreach ($column in $tempCols) {
+    if ($column.Trim() -ne "") {
+      $cols += $column
+    }
+  }
+
+
+    
+  $i = 0
+  while ($i -lt $Cols.Length) {
+    $pos = $columsLine.IndexOf($Cols[$i])
+    if ($i -eq $Cols.Length -1 ) {
+      #Last Column
+      $len = $columsLine.Length - $pos
+    }
+    else {
+      #Not Last Column
+      $pos2 = $columsLine.IndexOf($Cols[$i + 1])
+      $len = $pos2 - $pos
+    }
+    $acolumn = [column]::new()
+    $acolumn.Name = $Cols[$i]
+    $acolumn.Position = $pos
+    $acolumn.Len = $len
+    $result += $acolumn
+    $i++
+  }
+  $result
+}
 function color {
   param (
     $Text,
@@ -372,6 +410,41 @@ function Invoke-Winget {
       }
     }
   }
+  return $PackageList 
+}
+
+function Invoke-Winget2 {
+  param (
+    [string]$cmd
+  )
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+  $locals = getWingetLocals 
+  $TerminalWidth = $Host.UI.RawUI.WindowSize.Width
+
+  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth
+  [string[]]$lines = $SearchResult -Split [Environment]::NewLine
+  
+  $fl = 0
+  while (-not $lines[$fl].StartsWith("----")) {
+    $fl++
+  }
+  
+  $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
+  $lWidth = $lines[$fl - 1].Length
+  
+  $idStart = $Columns[1].Position
+  $versionStart = $Columns[2].Position
+   
+  
+  $PackageList = @()
+  
+  foreach($col in [column[]]$cols) {
+    write-host $col.Name
+    $index = $($locals.values).IndexOf($col.Name)
+    Write-Host $locals.keys[$index]
+  }
+  
+  
   return $PackageList 
 }
   
@@ -711,6 +784,13 @@ function Uninstall-WGPackage {
 function Get-WGList {
   Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
 }
+
+function Search-WGPackage {
+  param(
+    [string]$search
+  )
+  Invoke-Winget2 "winget search $search" | Where-Object { $_.source -eq "winget" }
+}
   
 function Get-WGUpdatables {
   Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
@@ -728,4 +808,36 @@ function testcolor {
   } 
 }
 
-Install-WGPackage nuget -install
+function getWingetLocals {
+  $language = (Get-UICulture).Name
+  $version = $SearchResult = Invoke-Expression "winget --version" | Out-String -NoNewline
+  $languageData = $(
+      $hash = @{}
+
+      $(try {
+          # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
+          ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
+      } catch {
+          # Fall back to English if a locale file doesn't exist
+          (
+              ('SearchName','Name'),
+              ('SearchID','Id'),
+              ('SearchVersion','Version'),
+              ('AvailableHeader','Available'),
+              ('SearchSource','Source'),
+              ('ShowVersion','Version'),
+              ('GetManifestResultVersionNotFound','No version found matching:'),
+              ('InstallerFailedWithCode','Installer failed with exit code:'),
+              ('UninstallFailedWithCode','Uninstall failed with exit code:'),
+              ('AvailableUpgrades','upgrades available.')
+          ) | ForEach-Object {[pscustomobject]@{name = $_[0]; value = $_[1]}}
+      }) | ForEach-Object {
+          # Convert the array into a hashtable
+          $hash[$_.name] = $_.value
+      }
+    $hash
+  )
+  return $languageData
+}
+
+Search-WGPackage -search code

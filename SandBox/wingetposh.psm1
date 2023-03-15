@@ -247,7 +247,7 @@ function getColumnsHeaders {
   $i = 0
   while ($i -lt $Cols.Length) {
     $pos = $columsLine.IndexOf($Cols[$i])
-    if ($i -eq $Cols.Length) {
+    if ($i -eq $Cols.Length -1) {
       #Last Column
       $len = $columsLine.Length - $pos
     }
@@ -372,6 +372,32 @@ function Invoke-Winget {
       }
     }
   }
+  return $PackageList 
+}
+function Invoke-Winget2 {
+  param (
+    [string]$cmd
+  )
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+    
+  $SearchResult = Invoke-Expression $cmd | Out-String -Width $Host.UI.RawUI.WindowSize.Width
+  [string[]]$lines = $SearchResult -Split [Environment]::NewLine
+  
+  $fl = 0
+  while (-not $lines[$fl].StartsWith("----")) {
+    $fl++
+  }
+  
+  $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
+  
+  $idStart = $Columns[1].Position
+  $versionStart = $Columns[2].Position
+   
+  
+  $PackageList = @()
+  
+  
+  
   return $PackageList 
 }
   
@@ -666,7 +692,7 @@ function Install-WGPackage {
   process {
     if ($term.Trim() -ne "") {
       $term = '"', $term, '"' -join ''
-      $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+      $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
       [upgradeSoftware[]]$data = @()
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
@@ -708,6 +734,13 @@ function Get-WGList {
   Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
 }
   
+
+function Search-WGPackage {
+  param(
+    [string]$search
+  )
+  Invoke-Winget "winget search $search" | Where-Object { $_.source -eq "winget" }
+}
 function Get-WGUpdatables {
   Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
 }
