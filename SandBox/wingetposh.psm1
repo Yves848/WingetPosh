@@ -657,11 +657,7 @@ function Install-WGPackage {
     }
   }
   end {
-    [PSCustomObject[]]$result = @()
-    foreach ($d in $data) {
-      $result += [pscustomobject] $d
-    }
-    return $result
+    return $data
   }
 }
   
@@ -681,42 +677,43 @@ function Uninstall-WGPackage {
     }
   }
   end {
-    [PSCustomObject[]]$result = @()
-    foreach($d in $data) {
-      $result += [pscustomobject] $d
-    }
-    return $result
+    return $data
   }
 }
   
 function Get-WGList {
-  $data = Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
-  [PSCustomObject[]]$result = @()
-  foreach($d in $data) {
-    $result += [pscustomobject] $d
-  }
-  return $result
+  Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
 }
 
 function Search-WGPackage {
   param(
     [string]$search
   )
-  $data = Invoke-Winget "winget search $search" | Where-Object { $_.source -eq "winget" }
-  [PSCustomObject[]]$result = @()
-  foreach($d in $data) {
-    $result += [pscustomobject] $d
-  }
-  return $result
+  Invoke-Winget "winget search $search" | Where-Object { $_.source -eq "winget" }
 }
   
 function Get-WGUpdatables {
-  $data = Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
-  [PSCustomObject[]]$result = @()
-  foreach($d in $data) {
-    $result += [pscustomobject] $d
+  Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
+}
+
+function Out-Object {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+      [hashtable]
+      $Data
+  )
+  begin {
+    [PSCustomObject[]]$result = @()
   }
-  return $result
+  process {
+    foreach($d in $data) {
+      $result += [pscustomobject]$d
+    }
+  }
+  end {
+    return $result
+  }
 }
   
 function testcolor {
