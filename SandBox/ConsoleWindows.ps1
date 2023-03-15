@@ -199,13 +199,7 @@ class window {
   }
 }
   
-$columns = [ordered]@{
-  "Name"             = @(0, 32)
-  "Id"               = @(1, 32)
-  "Version"          = @(2, 12)
-  "AvailableVersion" = @(3, 12)
-  "Source"           = @(4, 6)
-}
+$columns = [ordered]@{}
   
 function getSearchTerms {
   $WinWidth = [System.Console]::WindowWidth
@@ -246,7 +240,7 @@ function getColumnsHeaders {
   $i = 0
   while ($i -lt $Cols.Length) {
     $pos = $columsLine.IndexOf($Cols[$i])
-    if ($i -eq $Cols.Length) {
+    if ($i -eq $Cols.Length - 1) {
       #Last Column
       $len = $columsLine.Length - $pos
     }
@@ -432,16 +426,14 @@ function Invoke-Winget2 {
   $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
   $lWidth = $lines[$fl - 1].Length
   
-  $idStart = $Columns[1].Position
-  $versionStart = $Columns[2].Position
-   
   
   $PackageList = @()
-  
+  $columns.Clear()
   foreach($col in [column[]]$cols) {
-    write-host $col.Name
-    $index = $($locals.values).IndexOf($col.Name)
-    Write-Host $locals.keys[$index]
+    $colName = ($locals.GetEnumerator() | Where-Object {$_.Value -eq $col.name} | Select-Object -First 1).key
+    $colPercent = $col.Len / $lWidth * 100
+    $colWidth = [System.Math]::Round($TerminalWidth / 100 * $colPercent);
+    $Columns.Add($colName,@($col.Position,$colWidth))
   }
   
   
@@ -741,7 +733,7 @@ function Install-WGPackage {
   process {
     if ($term.Trim() -ne "") {
       $term = '"', $term, '"' -join ''
-      $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+      $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
       [upgradeSoftware[]]$data = @()
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
@@ -841,3 +833,4 @@ function getWingetLocals {
 }
 
 Search-WGPackage -search code
+#Install-WGPackage
