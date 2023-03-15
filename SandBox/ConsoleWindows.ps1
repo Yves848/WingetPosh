@@ -258,43 +258,7 @@ function getColumnsHeaders {
   }
   $result
 }
-function getColumnsHeaders2 {
-  param(
-    [parameter (
-      Mandatory
-    )]
-    [string]$columsLine   
-  )
-  
-  $tempCols = $columsLine.Split(" ")
-  $cols = @()
-  $result = @()
-  foreach ($column in $tempCols) {
-    if ($column.Trim() -ne "") {
-      $cols += $column
-    }
-  }
-  $i = 0
-  while ($i -lt $Cols.Length) {
-    $pos = $columsLine.IndexOf($Cols[$i])
-    if ($i -eq $Cols.Length - 1 ) {
-      #Last Column
-      $len = $columsLine.Length - $pos
-    }
-    else {
-      #Not Last Column
-      $pos2 = $columsLine.IndexOf($Cols[$i + 1])
-      $len = $pos2 - $pos
-    }
-    $acolumn = [column]::new()
-    $acolumn.Name = $Cols[$i]
-    $acolumn.Position = $pos
-    $acolumn.Len = $len
-    $result += $acolumn
-    $i++
-  }
-  $result
-}
+
 function color {
   param (
     $Text,
@@ -333,84 +297,8 @@ function Invoke-Winget {
     [string]$cmd
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-    
-  $SearchResult = Invoke-Expression $cmd | Out-String -Width $Host.UI.RawUI.WindowSize.Width
-  [string[]]$lines = $SearchResult -Split [Environment]::NewLine
-  
-  $fl = 0
-  while (-not $lines[$fl].StartsWith("----")) {
-    $fl++
-  }
-  
-  $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
-  
-  $idStart = $Columns[1].Position
-  $versionStart = $Columns[2].Position
-   
-  
-   
-  if ($columns.Length -eq 5) {
-    $availableStart = $columns[3].Position
-    $sourceStart = $columns[4].Position
-  }
-  else {
-    $sourceStart = $columns[3].Position
-  }
-  
-  $PackageList = @()
-  
-  if ($Columns.Length -eq 4) {
-    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-      $line = $lines[$i]
-      if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
-        $name = $line.Substring(0, $idStart).TrimEnd()
-        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-        $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-        if ($source -ne "") {
-          $software = [upgradeSoftware]::new()
-          $software.Name = $name;
-          $software.Id = $id;
-          $software.Version = $version
-          $software.Source = $source
-          $software.Selected = $false
-          $PackageList += $software
-        }
-      }
-    }
-  }
-  else {
-    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-      $line = $lines[$i]
-      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-        $name = $line.Substring(0, $idStart).TrimEnd()
-        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-        $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-        $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-        if ($source -ne "") {
-          $software = [UpgradeSoftware]::new()
-          $software.Name = $name;
-          $software.Id = $id;
-          $software.Version = $version
-          $software.AvailableVersion = $available
-          $software.Source = $Source
-          $software.Selected = $false
-          $PackageList += $software
-        }
-      }
-    }
-  }
-  return $PackageList 
-}
-
-function Invoke-Winget2 {
-  param (
-    [string]$cmd
-  )
-  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   #$locals = getWingetLocals 
-  $TerminalWidth = $Host.UI.RawUI.BufferSize.Width -2
+  $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
 
   $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth
   [string[]]$lines = $SearchResult -Split [Environment]::NewLine
@@ -426,7 +314,7 @@ function Invoke-Winget2 {
   $PackageList = @()
   $columns.Clear()
   foreach ($col in [column[]]$cols) {
-    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.49,2)
+    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.49, 2)
     $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
     $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
   }
@@ -473,54 +361,7 @@ function makeBlanks {
   $blanks | Out-String
 }
 
-function makelines0 {
-  param (
-    $list,
-    $checked,
-    $row,
-    $selected,
-    $W
-  ) 
-  if ($iscoreclr) {
-    $esc = "`e"
-  }
-  else {
-    $esc = $([char]0x1b)
-  }
-  [string]$line = ""
-  #$w = $host.UI.RawUI.WindowSize.Width - 2
-  foreach ($key in $columns.keys) {
-    [string]$col = $list.$key
-    $percent = $columns[$key][1]
-    $l = [math]::floor($w / 100 * $percent)
-    if ($col.Length -gt $l) {
-      $col = $col.Substring(0, $l)
-    }
-    if ($key -eq "AvailableVersion") {
-      $line = $line, $col.PadRight($l, " ") -join " "
-    }
-    else {
-      $line = $line, $col.PadRight($l, " ") -join " "
-    }
-  }
-  if ($row -eq $selected) {
-    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
-  }
-  if ($row % 2 -eq 0) {
-    $line = "$esc[38;5;7m$($line)"
-  }
-  else {
-    $line = "$esc[38;5;8m$($line)"
-  }
-  if ($checked) {
-    $line = "$esc[38;5;46m$('✓')", $line -join ""
-  }
-  else {
-    $line = " ", $line -join ""
-  }
 
-  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
-}
 function makelines {
   param (
     $list,
@@ -740,13 +581,17 @@ function displayHelp {
 function Show-WGList {
   begin {
     $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    [upgradeSoftware[]]$data = @()
+    $data = @{}
   }
   process {
     displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
   }
   end {
-    return $data
+    [PSCustomObject[]]$result = @()
+    foreach ($d in $data) {
+      $result += [pscustomobject] $d
+    }
+    return $result
   } 
 }
   
@@ -771,7 +616,11 @@ function  Update-WGPackage {
     }
   }
   end {
-    return $data
+    [PSCustomObject[]]$result = @()
+    foreach ($d in $data) {
+      $result += [pscustomobject] $d
+    }
+    return $result
   }
 }
   
@@ -792,7 +641,7 @@ function Install-WGPackage {
   process {
     if ($term.Trim() -ne "") {
       $term = '"', $term, '"' -join ''
-      $sb = { Invoke-Winget2 "winget search $term" | Where-Object { $_.source -eq "winget" } }
+      $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
       [upgradeSoftware[]]$data = @()
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
@@ -808,7 +657,11 @@ function Install-WGPackage {
     }
   }
   end {
-    return $data
+    [PSCustomObject[]]$result = @()
+    foreach ($d in $data) {
+      $result += [pscustomobject] $d
+    }
+    return $result
   }
 }
   
@@ -828,23 +681,42 @@ function Uninstall-WGPackage {
     }
   }
   end {
-    return $data 
+    [PSCustomObject[]]$result = @()
+    foreach($d in $data) {
+      $result += [pscustomobject] $d
+    }
+    return $result
   }
 }
   
 function Get-WGList {
-  Invoke-Winget2 "winget list" | Where-Object { $_.source -eq "winget" }
+  $data = Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
+  [PSCustomObject[]]$result = @()
+  foreach($d in $data) {
+    $result += [pscustomobject] $d
+  }
+  return $result
 }
 
 function Search-WGPackage {
   param(
     [string]$search
   )
-  Invoke-Winget2 "winget search $search" | Where-Object { $_.source -eq "winget" }
+  $data = Invoke-Winget "winget search $search" | Where-Object { $_.source -eq "winget" }
+  [PSCustomObject[]]$result = @()
+  foreach($d in $data) {
+    $result += [pscustomobject] $d
+  }
+  return $result
 }
   
 function Get-WGUpdatables {
-  Invoke-Winget2 "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
+  $data = Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
+  [PSCustomObject[]]$result = @()
+  foreach($d in $data) {
+    $result += [pscustomobject] $d
+  }
+  return $result
 }
   
 function testcolor {
@@ -861,7 +733,7 @@ function testcolor {
 
 function getWingetLocals {
   $language = (Get-UICulture).Name
-  $version = $SearchResult = Invoke-Expression "winget --version" | Out-String -NoNewline
+  $version = Invoke-Expression "winget --version" | Out-String -NoNewline
   $languageData = $(
     $hash = @{}
 
@@ -892,7 +764,9 @@ function getWingetLocals {
   return $languageData
 }
 
+
 #Search-WGPackage -search code
-Install-WGPackage -package code
+##Install-WGPackage -package code
 #Get-WGList
 #Get-WGUpdatables
+$list = Show-WGList
