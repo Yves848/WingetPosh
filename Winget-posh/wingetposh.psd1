@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.7.0'
+ModuleVersion = '0.7.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -166,7 +166,10 @@ PrivateData = @{
         - Improving winget result parsing
         - Every function now returns a hastable.  Faster, lighter
         - Adding a "Out-Object" function to convert hashtable results in PsCustomObject arrays (if needed)
-        - Adding a "Search-WGPackage" to search without the graphical interface'
+        - Adding a "Search-WGPackage" to search without the graphical interface
+        
+        0.7.2 : 
+        - Minor bug fixes'
 
         
         # Prerelease string of this module
