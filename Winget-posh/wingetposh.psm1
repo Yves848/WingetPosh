@@ -602,13 +602,13 @@ function  Update-WGPackage {
   )
   begin {
     $sb = { Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
-    [upgradeSoftware[]]$data = @()
+    [hashtable]$data = @{}
   }
   process {
     displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
     if ($update) {
       if ($data.length -gt 0) {
-        $data | ForEach-Object {
+        $data | Out-Object | ForEach-Object {
           $id = $_.Id
           $expression = "winget upgrade --id $($id)"
           Invoke-Expression $expression
@@ -640,11 +640,11 @@ function Install-WGPackage {
       $term = '"', $term, '"' -join ''
       $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
-      [upgradeSoftware[]]$data = @()
+      [hashtable]$data = @{}
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
       if ($install) {
         if ($data.length -gt 0) {
-          $data | ForEach-Object {
+          $data | Out-Object | ForEach-Object {
             $id = $_.Id
             $expression = "winget install --id $($id)"
             Invoke-Expression $expression
@@ -661,12 +661,12 @@ function Install-WGPackage {
 function Uninstall-WGPackage {
   begin {
     $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    [upgradeSoftware[]]$data = @()
+    [hashtable]$data = @{}
   }
   process {
     displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
     if ($data.length -gt 0) {
-      $data | ForEach-Object {
+      $data | Out-Object | ForEach-Object {
         $id = $_.Id
         $expression = "winget uninstall --id $($id)"
         Invoke-Expression $expression
