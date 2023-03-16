@@ -90,6 +90,12 @@ The availablle functions are :
         - Every function now returns a hastable.  Faster, lighter
         - Adding a "Out-Object" function to convert hashtable results in PsCustomObject arrays (if needed)
         - Adding a "Search-WGPackage" to search without the graphical interface
+  
+### 0.7.2 : 
+        - Minor bug fixes
+        
+### 0.7.3 :
+        - fixing visual function (using hastables)
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell

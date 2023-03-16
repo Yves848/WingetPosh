@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.7.2'
+ModuleVersion = '0.7.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -169,7 +169,10 @@ PrivateData = @{
         - Adding a "Search-WGPackage" to search without the graphical interface
         
         0.7.2 : 
-        - Minor bug fixes'
+        - Minor bug fixes
+        
+        0.7.3 :
+        - fixing visual function (using hastables)'
 
         
         # Prerelease string of this module
