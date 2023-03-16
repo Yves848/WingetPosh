@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.6.6'
+ModuleVersion = '0.7.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Show-WGList', 'Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList', 'Invoke-Winget')
+FunctionsToExport = @('Show-WGList', 'Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList', 'Invoke-Winget', 'Out-Object', 'Search-WGPackage')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -159,7 +159,14 @@ PrivateData = @{
         
         0.6.6 :
         - Correctiong bugs in install, uninstall and update functions
-        - Fixing the order of the install-WGPackage parameters'
+        - Fixing the order of the install-WGPackage parameters
+
+        0.7.0 :
+        - Changing search mode.  Now the search is on everything, not only the name
+        - Improving winget result parsing
+        - Every function now returns a hastable.  Faster, lighter
+        - Adding a "Out-Object" function to convert hashtable results in PsCustomObject arrays (if needed)
+        - Adding a "Search-WGPackage" to search without the graphical interface'
 
         
         # Prerelease string of this module

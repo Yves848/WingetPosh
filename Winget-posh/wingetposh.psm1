@@ -69,9 +69,7 @@ class column {
   [Int16]$Position
   [Int16]$Len
 }
-  
-  
-  
+    
 class window {
   [int]$X
   [int]$Y
@@ -201,13 +199,7 @@ class window {
   }
 }
   
-$columns = [ordered]@{
-  "Name"             = @(0, 32)
-  "Id"               = @(1, 32)
-  "Version"          = @(2, 12)
-  "AvailableVersion" = @(3, 12)
-  "Source"           = @(4, 6)
-}
+$columns = [ordered]@{}
   
 function getSearchTerms {
   $WinWidth = [System.Console]::WindowWidth
@@ -223,10 +215,11 @@ function getSearchTerms {
   $win.setPosition($X + 2, $Y + 2);
   [System.Console]::Write('Package : ')
   [system.console]::CursorVisible = $true
-  $pack = [System.Console]::ReadLine()
+  $pack = [ System.Console]::ReadLine()
   return $pack
 }
   
+
 function getColumnsHeaders {
   param(
     [parameter (
@@ -247,7 +240,7 @@ function getColumnsHeaders {
   $i = 0
   while ($i -lt $Cols.Length) {
     $pos = $columsLine.IndexOf($Cols[$i])
-    if ($i -eq $Cols.Length) {
+    if ($i -eq $Cols.Length - 1) {
       #Last Column
       $len = $columsLine.Length - $pos
     }
@@ -265,7 +258,7 @@ function getColumnsHeaders {
   }
   $result
 }
-  
+
 function color {
   param (
     $Text,
@@ -304,8 +297,10 @@ function Invoke-Winget {
     [string]$cmd
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-    
-  $SearchResult = Invoke-Expression $cmd | Out-String -Width $Host.UI.RawUI.WindowSize.Width
+  #$locals = getWingetLocals 
+  $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
+
+  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth
   [string[]]$lines = $SearchResult -Split [Environment]::NewLine
   
   $fl = 0
@@ -313,65 +308,39 @@ function Invoke-Winget {
     $fl++
   }
   
-  $columns = getColumnsHeaders -columsLine $lines[$fl - 1]
-  
-  $idStart = $Columns[1].Position
-  $versionStart = $Columns[2].Position
-   
-  
-   
-  if ($columns.Length -eq 5) {
-    $availableStart = $columns[3].Position
-    $sourceStart = $columns[4].Position
-  }
-  else {
-    $sourceStart = $columns[3].Position
-  }
+  $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
+  $lWidth = $lines[$fl].Length
   
   $PackageList = @()
+  $columns.Clear()
+  foreach ($col in [column[]]$cols) {
+    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.49, 2)
+    $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
+    $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
+  }
   
-  if ($Columns.Length -eq 4) {
-    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-      $line = $lines[$i]
-      if ($line.Length -gt ($sourceStart + 1) -and -not $line.StartsWith('-')) {
-        $name = $line.Substring(0, $idStart).TrimEnd()
-        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-        $version = $line.Substring($versionStart, $sourceStart - $versionStart).TrimEnd()
-        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-        if ($source -ne "") {
-          $software = [upgradeSoftware]::new()
-          $software.Name = $name;
-          $software.Id = $id;
-          $software.Version = $version
-          $software.Source = $source
-          $software.Selected = $false
-          $PackageList += $software
+  For ($i = $fl + 1; $i -lt $lines.Length; $i++) {
+    $line = $lines[$i]
+
+    if (-not $line.StartsWith('-')) {
+      foreach ($column in $columns) {
+        $package = [ordered]@{}
+        try {
+          foreach ($key in $column.keys) {
+            $curcol = $column[$key]
+            $field = $line.Substring($curcol[0], $curcol[2])
+            #Write-Host ("{0} pos {1} len {2} width {3}" -f ($field, $curcol[1], $curcol[2], $curcol[3])) -ForegroundColor Green
+            $package.Add($key, $field)  
+          }
+          $PackageList += $package
+        }
+        catch {
+          <#Do this if a terminating exception happens#>
         }
       }
     }
   }
-  else {
-    For ($i = $fl + 1; $i -le $lines.Length; $i++) {
-      $line = $lines[$i]
-      if ($line.Length -gt ($availableStart + 1) -and -not $line.StartsWith('-')) {
-        $name = $line.Substring(0, $idStart).TrimEnd()
-        $id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-        $version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-        $available = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-        $source = $line.Substring($sourceStart, $line.Length - $sourceStart).TrimEnd()
-        if ($source -ne "") {
-          $software = [UpgradeSoftware]::new()
-          $software.Name = $name;
-          $software.Id = $id;
-          $software.Version = $version
-          $software.AvailableVersion = $available
-          $software.Source = $Source
-          $software.Selected = $false
-          $PackageList += $software
-        }
-      }
-    }
-  }
+  
   return $PackageList 
 }
   
@@ -392,6 +361,7 @@ function makeBlanks {
   $blanks | Out-String
 }
 
+
 function makelines {
   param (
     $list,
@@ -410,35 +380,30 @@ function makelines {
   #$w = $host.UI.RawUI.WindowSize.Width - 2
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
-    $percent = $columns[$key][1]
-    $l = [math]::floor($w / 100 * $percent)
+    #$percent = $columns[$key][1]
+    $l = $columns[$key][1]
     if ($col.Length -gt $l) {
       $col = $col.Substring(0, $l)
     }
-    if ($key -eq "AvailableVersion") {
-      $line = $line, $col.PadRight($l, " ") -join " "
-    }
-    else {
-      $line = $line, $col.PadRight($l, " ") -join " "
-    }
+    $line = $line, $col.PadRight($l, " ") -join " "
   }
   if ($row -eq $selected) {
     $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
   }
   if ($row % 2 -eq 0) {
-      $line = "$esc[38;5;7m$($line)"
-    }
-    else {
-      $line = "$esc[38;5;8m$($line)"
-    }
+    $line = "$esc[38;5;7m$($line)"
+  }
+  else {
+    $line = "$esc[38;5;8m$($line)"
+  }
   if ($checked) {
-      $line = "$esc[38;5;46m$('✓')", $line -join ""
-    }
-    else {
-      $line = " ", $line -join ""
-    }
+    $line = "$esc[38;5;46m$('✓')", $line -join ""
+  }
+  else {
+    $line = " ", $line -join ""
+  }
 
-    "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
+  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
 }
   
 function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
@@ -616,13 +581,17 @@ function displayHelp {
 function Show-WGList {
   begin {
     $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    [upgradeSoftware[]]$data = @()
+    $data = @{}
   }
   process {
     displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
   }
   end {
-    return $data
+    [PSCustomObject[]]$result = @()
+    foreach ($d in $data) {
+      $result += [pscustomobject] $d
+    }
+    return $result
   } 
 }
   
@@ -647,19 +616,23 @@ function  Update-WGPackage {
     }
   }
   end {
-    return $data
+    [PSCustomObject[]]$result = @()
+    foreach ($d in $data) {
+      $result += [pscustomobject] $d
+    }
+    return $result
   }
 }
   
 function Install-WGPackage {
   param (
     [switch]$install,
-    [string]$package =  ""
+    [string]$package = ""
     
   )
   begin {
     if ($package -eq "") {
-    $term = getSearchTerms
+      $term = getSearchTerms
     }
     else {
       $term = $package
@@ -668,7 +641,7 @@ function Install-WGPackage {
   process {
     if ($term.Trim() -ne "") {
       $term = '"', $term, '"' -join ''
-      $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+      $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
       [upgradeSoftware[]]$data = @()
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
@@ -704,16 +677,44 @@ function Uninstall-WGPackage {
     }
   }
   end {
-    return $data 
+    return $data
   }
 }
   
 function Get-WGList {
   Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
 }
+
+function Search-WGPackage {
+  param(
+    [Parameter(Mandatory=$true)]
+    [string]$package
+  )
+  Invoke-Winget "winget search $package" | Where-Object { $_.source -eq "winget" }
+}
   
 function Get-WGUpdatables {
   Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
+}
+
+function Out-Object {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+      [hashtable]
+      $Data
+  )
+  begin {
+    [PSCustomObject[]]$result = @()
+  }
+  process {
+    foreach($d in $data) {
+      $result += [pscustomobject]$d
+    }
+  }
+  end {
+    return $result
+  }
 }
   
 function testcolor {
@@ -726,4 +727,37 @@ function testcolor {
   0..255 | ForEach-Object {
     Write-Host "$esc[4m$esc[38;5;$($_)m'test'$esc[0m"
   } 
+}
+
+function getWingetLocals {
+  $language = (Get-UICulture).Name
+  $version = Invoke-Expression "winget --version" | Out-String -NoNewline
+  $languageData = $(
+    $hash = @{}
+
+    $(try {
+        # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
+          ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
+      }
+      catch {
+        # Fall back to English if a locale file doesn't exist
+        (
+              ('SearchName', 'Name'),
+              ('SearchID', 'Id'),
+              ('SearchVersion', 'Version'),
+              ('AvailableHeader', 'Available'),
+              ('SearchSource', 'Source'),
+              ('ShowVersion', 'Version'),
+              ('GetManifestResultVersionNotFound', 'No version found matching:'),
+              ('InstallerFailedWithCode', 'Installer failed with exit code:'),
+              ('UninstallFailedWithCode', 'Uninstall failed with exit code:'),
+              ('AvailableUpgrades', 'upgrades available.')
+        ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
+      }) | ForEach-Object {
+      # Convert the array into a hashtable
+      $hash[$_.name] = $_.value
+    }
+    $hash
+  )
+  return $languageData
 }

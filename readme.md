@@ -83,6 +83,13 @@ The availablle functions are :
 ### 0.6.6 :
         - Correctiong bugs in install, uninstall and update functions
         - Fixing the order of the install-WGPackage parameters
+
+### 0.7.0 :
+        - Changing search mode.  Now the search is on everything, not only the name
+        - Improving winget result parsing
+        - Every function now returns a hastable.  Faster, lighter
+        - Adding a "Out-Object" function to convert hashtable results in PsCustomObject arrays (if needed)
+        - Adding a "Search-WGPackage" to search without the graphical interface
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
@@ -107,6 +114,21 @@ When Hit return .....
 
 Of course, we can use this object collection to extract some usefull data .....
 ![](https://github.com/Yves848/WingetPosh/blob/master/images/img6.png?raw=true)
+
+***
+## Search Packages
+The -Package parameter is mandatory.
+
+``` Powershell
+  Search-WGPackage -Package code
+```
+***
+
+## Converting results to PSCustomObject arrays
+
+``` Powershell
+  Get-WGList | Out-Object
+```
 
 ***
 
