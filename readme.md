@@ -96,6 +96,9 @@ The availablle functions are :
         
 ### 0.7.3 :
         - fixing visual function (using hastables)
+
+### 0.7.4 :
+        - fixing bug with visual functions returning multiple objects
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell

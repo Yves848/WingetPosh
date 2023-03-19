@@ -326,7 +326,6 @@ function Invoke-Winget {
   
   For ($i = $fl + 1; $i -lt $lines.Length; $i++) {
     $line = $lines[$i]
-
     if (-not $line.StartsWith('-')) {
       foreach ($column in $columns) {
         $package = [ordered]@{}
@@ -506,7 +505,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
         if ($key.VirtualKeyCode -eq 13) {
           # key Enter
           Clear-Host
-          $data.value = $list | Where-Object { $_.Selected }
+          $data.value = $data.value = $list | Where-Object { $_.Selected }
           $stop = $true
         }
         if ($key.VirtualKeyCode -eq 114) {
@@ -640,7 +639,7 @@ function Install-WGPackage {
       $term = '"', $term, '"' -join ''
       $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
       #displayGrid "Install Packages" $sb
-      [hashtable]$data = @{}
+      $data = @()
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
       if ($install) {
         if ($data.length -gt 0) {
@@ -661,7 +660,7 @@ function Install-WGPackage {
 function Uninstall-WGPackage {
   begin {
     $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    [hashtable]$data = @{}
+    $data = @()
   }
   process {
     displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)

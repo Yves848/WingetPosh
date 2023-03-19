@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.7.3'
+ModuleVersion = '0.7.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -172,7 +172,10 @@ PrivateData = @{
         - Minor bug fixes
         
         0.7.3 :
-        - fixing visual function (using hastables)'
+        - fixing visual function (using hastables)
+        
+        0.7.4 :
+        - fixing bug with visual functions returning multiple objects'
 
         
         # Prerelease string of this module
