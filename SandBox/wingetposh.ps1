@@ -133,7 +133,6 @@ class window {
     [System.Console]::CursorVisible = $false
     $this.setPosition($this.X, $this.Y)
     $bloc1 = $this.frameStyle.UL, "".PadLeft($this.W - 2, $this.frameStyle.TOP), $this.frameStyle.UR -join ""
-    #$blank = "".PadLeft($this.W , " ") 
     $blank = "$esc[38;5;15m$($this.frameStyle.LEFT)", "".PadLeft($this.W - 2, " "), "$esc[38;5;15m$($this.frameStyle.RIGHT)" -join ""
     Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
     for ($i = 1; $i -lt $this.H; $i++) {
@@ -297,7 +296,6 @@ function Invoke-Winget {
     [string]$cmd
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  #$locals = getWingetLocals 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
 
   $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth
@@ -333,7 +331,6 @@ function Invoke-Winget {
           foreach ($key in $column.keys) {
             $curcol = $column[$key]
             $field = $line.Substring($curcol[0], $curcol[2])
-            #Write-Host ("{0} pos {1} len {2} width {3}" -f ($field, $curcol[1], $curcol[2], $curcol[3])) -ForegroundColor Green
             $package.Add($key, $field)  
           }
           $PackageList += $package
@@ -381,10 +378,8 @@ function makelines {
     $esc = $([char]0x1b)
   }
   [string]$line = ""
-  #$w = $host.UI.RawUI.WindowSize.Width - 2
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
-    #$percent = $columns[$key][1]
     $l = $columns[$key][1]
     if ($col.Length -gt $l) {
       $col = $col.Substring(0, $l)
@@ -444,8 +439,6 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
     }
   }
   
-  #[System.Console]::setcursorposition($win.X + 3, $win.Y + 1)
-  #[System.Console]::write('Getting the list.......')
   $session = [powershell]::create()
   $statedata.X = ($win.X + 3)
   $statedata.Y = ($win.Y + 1)
@@ -600,7 +593,6 @@ function displayHelp {
   while (-not $stop) {
     if ($global:Host.UI.RawUI.KeyAvailable) { 
       [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-      #Write-Host $key.VirtualKeyCode
       if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
         $stop = $true
       }
@@ -665,7 +657,6 @@ function Install-WGPackage {
     if ($term.Trim() -ne "") {
       $term = '"', $term, '"' -join ''
       $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
-      #displayGrid "Install Packages" $sb
       $data = @()
       displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
       if ($install) {
@@ -751,41 +742,6 @@ function testcolor {
     Write-Host "$esc[4m$esc[38;5;$($_)m'test'$esc[0m"
   } 
 }
-
-function getWingetLocals {
-  $language = (Get-UICulture).Name
-  $version = Invoke-Expression "winget --version" | Out-String -NoNewline
-  $languageData = $(
-    $hash = @{}
-
-    $(try {
-        # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
-          ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
-      }
-      catch {
-        # Fall back to English if a locale file doesn't exist
-        (
-              ('SearchName', 'Name'),
-              ('SearchID', 'Id'),
-              ('SearchVersion', 'Version'),
-              ('AvailableHeader', 'Available'),
-              ('SearchSource', 'Source'),
-              ('ShowVersion', 'Version'),
-              ('GetManifestResultVersionNotFound', 'No version found matching:'),
-              ('InstallerFailedWithCode', 'Installer failed with exit code:'),
-              ('UninstallFailedWithCode', 'Uninstall failed with exit code:'),
-              ('AvailableUpgrades', 'upgrades available.')
-        ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
-      }) | ForEach-Object {
-      # Convert the array into a hashtable
-      $hash[$_.name] = $_.value
-    }
-    $hash
-  )
-  return $languageData
-}
-
-
 
 #Search-WGPackage -search code
 #Install-WGPackage -install
