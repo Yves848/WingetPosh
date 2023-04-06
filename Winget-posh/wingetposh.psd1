@@ -175,7 +175,10 @@ PrivateData = @{
         - fixing visual function (using hastables)
         
         0.7.4 :
-        - fixing bug with visual functions returning multiple objects'
+        - fixing bug with visual functions returning multiple objects
+        
+        0.7.5 :
+        - Fixing the update-wgpackage when multiple packages selected'
 
         
         # Prerelease string of this module

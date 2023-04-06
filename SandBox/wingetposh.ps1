@@ -601,7 +601,7 @@ function  Update-WGPackage {
   )
   begin {
     $sb = { Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
-    [hashtable]$data = @{}
+    $data = @()
   }
   process {
     displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
@@ -761,7 +761,8 @@ function getWingetLocals {
 
 
 #Search-WGPackage -search code
-Install-WGPackage -install
+#Install-WGPackage -install
 #Get-WGList
 #Get-WGUpdatables
 #$list = Show-WGList
+Update-WGPackage -update

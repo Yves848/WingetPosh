@@ -99,6 +99,9 @@ The availablle functions are :
 
 ### 0.7.4 :
         - fixing bug with visual functions returning multiple objects
+
+### 0.7.5 :
+        - Fixing the update-wgpackage when multiple packages selected
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
