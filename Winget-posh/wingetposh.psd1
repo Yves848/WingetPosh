@@ -183,7 +183,8 @@ PrivateData = @{
         0.7.9 :
         - Start Using runspaces to multitask the module.
           First usage is for animating the waitings.
-          Last version before heavy code restucture / rewrite'
+          Last version before heavy code restucture / rewrite
+        - Small visual improvements'
 
         
         # Prerelease string of this module

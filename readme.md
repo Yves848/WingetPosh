@@ -102,6 +102,12 @@ The availablle functions are :
 
 ### 0.7.5 :
         - Fixing the update-wgpackage when multiple packages selected
+
+### 0.7.9 :
+        - Start Using runspaces to multitask the module.
+          First usage is for animating the waitings.
+          Last version before heavy code restucture / rewrite
+        - Small visual improvements
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
