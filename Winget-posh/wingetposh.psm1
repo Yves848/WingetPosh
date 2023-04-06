@@ -424,10 +424,37 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $win.drawVersion();
   $nbLines = $Win.h - 1
   $blanks = makeBlanks $nblines $win
+
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData",$StateData)
+
+  $sb = {
+    $x = $statedata.X
+    $y = $statedata.Y
+    $i = 1
+    Write-Host $statedata
+    while($true) {
+      [System.Console]::setcursorposition($X, $Y)
+      $str = '⏳ Getting the data ', ''.PadLeft($i,'.') -join ''
+      [System.Console]::write($str)
+      $i++
+      Start-Sleep -Milliseconds 50
+    }
+  }
   
-  [System.Console]::setcursorposition($win.X + 3, $win.Y + 1)
-  [System.Console]::write('Getting the list.......')
+  #[System.Console]::setcursorposition($win.X + 3, $win.Y + 1)
+  #[System.Console]::write('Getting the list.......')
+  $session = [powershell]::create()
+  $statedata.X = ($win.X + 3)
+  $statedata.Y = ($win.Y + 1)
+  $session.Runspace = $runspace
+  $null = $session.AddScript($sb)
+  $handle = $session.BeginInvoke()
   $list = Invoke-Command -ScriptBlock $cmd
+  $session.Stop()
+  $runspace.Dispose()
   $skip = 0
   $nbPages = [math]::Ceiling($list.count / $nbLines)
   $win.nbpages = $nbPages

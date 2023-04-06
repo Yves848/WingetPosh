@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.7.5'
+ModuleVersion = '0.7.9'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -178,7 +178,12 @@ PrivateData = @{
         - fixing bug with visual functions returning multiple objects
         
         0.7.5 :
-        - Fixing the update-wgpackage when multiple packages selected'
+        - Fixing the update-wgpackage when multiple packages selected
+        
+        0.7.9 :
+        - Start Using runspaces to multitask the module.
+          First usage is for animating the waitings.
+          Last version before heavy code restucture / rewrite'
 
         
         # Prerelease string of this module

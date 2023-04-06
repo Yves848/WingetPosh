@@ -1,4 +1,4 @@
-[Flags()] enum Styles {
+﻿[Flags()] enum Styles {
   Normal = 0
   Underline = 1
   Bold = 2
@@ -437,7 +437,7 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
     Write-Host $statedata
     while($true) {
       [System.Console]::setcursorposition($X, $Y)
-      $str = 'Getting the list ', ''.PadLeft($i,'.') -join ''
+      $str = '⏳ Getting the data ', ''.PadLeft($i,'.') -join ''
       [System.Console]::write($str)
       $i++
       Start-Sleep -Milliseconds 50
@@ -453,7 +453,6 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $null = $session.AddScript($sb)
   $handle = $session.BeginInvoke()
   $list = Invoke-Command -ScriptBlock $cmd
-  #Start-Sleep -Seconds 5
   $session.Stop()
   $runspace.Dispose()
   $skip = 0
