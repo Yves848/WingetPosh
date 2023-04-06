@@ -9,28 +9,38 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ***
 
 ## Demo
-https://youtu.be/-dJaEZx9WNg
+https://youtu.be/8hW1kMu2Dq8
 
 
-A small set of functions to help using winget.
+A set of functions to help using winget.
 
-It's TUI (Terminal User Interface) entirely written in Powershell.
+Entirely written in __Powershell__, it has 2 types of functions : visuals and non visuals.
 
-No more dependencies.  Works with Powershell 5.1
+No dependencies are used to ensure compatibility with Powershell 5.1
 
 The availablle functions are :
 - Get-WGList                
-- Install-WGPackage [-Install]
-- Invoke-Winget               
+- Install-WGPackage [-Install] [-package]
+- Invoke-Winget 
+- Out-Object              
 - Show-WGList                 
 - Uninstall-WGPackage         
-- Update-WGPackages [-Update] 
+- Update-WGPackage [-Update] 
+- Search-WGPackage
   
   
+***
 ## Installation
 ``` Powershell
   Install-Module -Name wingetposh -Scope CurrentUser
 ```
+### Remark : 
+To install in powershell 5.1, you need to install the latest "PowershellGet"
+``` Powershell
+Install-Module PowerShellGet -AllowClobber -Force
+```
+Close and re-open the powershell 5.1 terminal to make changes effective.
+***
 
 ## History
 ### 0.5.1 : 
@@ -108,30 +118,42 @@ The availablle functions are :
           First usage is for animating the waitings.
           Last version before heavy code restucture / rewrite
         - Small visual improvements
-### Remark : 
-To install in powershell 5.1, you need to install the latest "PowershellGet"
-``` Powershell
-Install-Module PowerShellGet -AllowClobber -Force
-```
-Close and re-open the powershell 5.1 terminal to make changes effective.
 
 There is a "?" on the bottom of the window, for interactive commands.
 Pressing "?" displays a "help" in the context of the running command.
 ### Examples
 ``` Powershell
+   Get-Command -module wingetposh
+```
+![](./images/001.png)
+``` Powershell
   Show-WGList
 ```
-![image1](https://github.com/Yves848/WingetPosh/blob/master/images/img1.png?raw=true)
+![image1](./images/002.png)
 
-This function allows multiselection.
+This function allows multiselection, by pressing "space" on the selected line.
 When at least one package is selected, when the function is exitted with "Return", an Object list is returned.
 
-![](https://github.com/Yves848/WingetPosh/blob/master/images/img4.png?raw=true)
+![](./images/003.png)
 When Hit return .....
-![](https://github.com/Yves848/WingetPosh/blob/master/images/img5.png?raw=true)
+![](./images/004.png)
 
-Of course, we can use this object collection to extract some usefull data .....
-![](https://github.com/Yves848/WingetPosh/blob/master/images/img6.png?raw=true)
+The result is a hashtable, faster and more memory efficient.
+
+But the result can be converted to object by piping it to Out-Object
+
+``` Powershell
+   Show-WGlist | Out-Object
+```
+![](images/005.png)
+
+And, of course, we can pipe this result to perform additionnal operations .....
+
+``` Powershell
+   Show-WGList | Out-Object | Select-Object -Property id
+```
+
+![](./images/006.png)
 
 ***
 ## Search Packages
@@ -152,25 +174,25 @@ The -Package parameter is mandatory.
 
 ## Search and install a package
 
-The -Install parameter will launch the installation of the selected package(s).
+The (optionnal) **-Install** parameter will launch the installation of the selected package(s).
+If no **-package** parameter is specified, the function will popup a window to enter the terms to search.
 
 ``` Powershell
   Install-WGPackage -Install
 ```
 
-![image8](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img8.png)
-![image8-1](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img8-1.png)
+![image8](./images/007.png)
 
-
+![image8-1](./images/008.png)
 
 ***
 
 ## Select and update an installed package
  
 ```Powershell
-  Update-WGPackages -update
+  Update-WGPackage -update
 ```
-![image9](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img9.png)
+![image9](./images/009.png)
 
 ***
 
@@ -179,11 +201,11 @@ The -Install parameter will launch the installation of the selected package(s).
 ``` Powershell
   Uninstall-WGPackage
 ```
-![image10](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img10.png)
+![image10](./images/010.png)
 
 ## Generic function to convert winget results to PSCustomObject
 
 ``` Powershell
-  $list = Invoke-Winget "winget list"
+  Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
 ```
-![image11](https://raw.githubusercontent.com/Yves848/WingetPosh/master/images/img11.png)
+![image11](./images/011.png)
