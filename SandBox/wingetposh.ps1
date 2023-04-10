@@ -377,14 +377,13 @@ function Invoke-Winget2 {
       $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
       [System.Console]::write($str)
       $i++
-      Start-Sleep -Milliseconds 50
+      Start-Sleep -Milliseconds 75
     }
   }
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
   $handle = $session.BeginInvoke()
-  #$list = Invoke-Command -ScriptBlock $cmd
   
   $PackageList = @()
   $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth -Stream 
@@ -428,7 +427,9 @@ function Invoke-Winget2 {
             }
             $i2++
           }
-          $field = $sb.ToString()
+
+          $field = adjustCol -len $columns.$($col.Name)[1] -col $sb.ToString()
+          
           if ($field.EndsWith("…")) {
             $i2++
           }
@@ -505,6 +506,36 @@ function makelines {
   "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
 }
 
+function adjustCol {
+  param(
+    [int]$len,
+    [string]$col
+  )
+  
+  $charcount = 0
+  $i = 0
+  $field = ""
+  while ($charcount -lt $len) {
+    [char]$char = $col[$i]
+    #$field = $field, $char -join ""
+    $field = $field + $char
+    $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
+    if ($nbBytes -gt 1) {
+      $charcount += ($nbBytes - 1)
+    }
+    else {
+      $charcount += $nbBytes
+    }
+    $i++
+  }
+  
+  if ($field.Contains("…")) {
+    $field = $field, " " -join ""
+  }
+  
+  return $field
+}
+
 function makelines2 {
   param (
     $list,
@@ -522,12 +553,19 @@ function makelines2 {
   [string]$line = ""
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
-    $l = $columns[$key][1]
-    # watching for excess bytes (UTF8)
-    if ($col.Length -gt $l) {
-      $col = $col.Substring(0, $l)
-    }
-    $line = $line, $col.PadRight($l, " ") -join " "
+    # $l = $columns[$key][1]
+    # $col = $col.PadRight($l, " ")
+    # if ($columns.Keys.IndexOf($key) -eq 0) {
+    #   if ([text.Encoding]::UTF8.GetByteCount($col) -gt $l) {
+    #     $col = adjustCol -col $col -len $l 
+    #   }
+    # }
+    # else {
+    #   if ($col.Length -gt $l) {
+    #     $col = $col.Substring(0, $l)
+    #   }
+    # }
+    $line = $line, $col -join " "
   }
   if ($row -eq $selected) {
     $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
@@ -705,7 +743,6 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   [System.Console]::CursorVisible = $true
   Clear-Host
 }
-
 function displayGrid2 {
   param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
