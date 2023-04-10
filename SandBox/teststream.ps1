@@ -1,5 +1,5 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-[string[]]$WingetArgs = @("list")
+[string[]]$WingetArgs = @("search","node")
 #$WingetArgs += "--source", "winget"
 
 [string[]]       $IndexTitles = @("Name", "Id", "Version", "Available", "Source")

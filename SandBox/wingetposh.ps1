@@ -372,17 +372,19 @@ function Invoke-Winget2 {
       if ($data) {
         $s = [string]$_
         $package = [ordered]@{}
-        $i = 0
+        $i2 = 0
         foreach ($col in $cols) {
           [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
           [long]$bytecount = 0
           #$field = [System.Text.Encoding]::UTF8.GetString($line).Substring($col.Position,$col.Len)
-          while($bytecount -lt $col.Len) {
-            [char]$char = $s[$i]
+          while($i2 -lt $col.Len) {
+            [char]$char = $s[$i2]
             [void]$sb.Append($char)
             $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
             $byteCount += $nbBytes
+            $i2++
           }
+          #$i=$i2
           $field = $sb.ToString()
           $sb = $null
           $package.Add($col.Name, $field)
@@ -889,4 +891,4 @@ function testcolor {
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage node 
+Search-WGPackage qq-
