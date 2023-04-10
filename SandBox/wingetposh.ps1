@@ -504,6 +504,49 @@ function makelines {
 
   "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
 }
+
+function makelines2 {
+  param (
+    $list,
+    $checked,
+    $row,
+    $selected,
+    $W
+  ) 
+  if ($iscoreclr) {
+    $esc = "`e"
+  }
+  else {
+    $esc = $([char]0x1b)
+  }
+  [string]$line = ""
+  foreach ($key in $columns.keys) {
+    [string]$col = $list.$key
+    $l = $columns[$key][1]
+    # watching for excess bytes (UTF8)
+    if ($col.Length -gt $l) {
+      $col = $col.Substring(0, $l)
+    }
+    $line = $line, $col.PadRight($l, " ") -join " "
+  }
+  if ($row -eq $selected) {
+    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
+  }
+  if ($row % 2 -eq 0) {
+    $line = "$esc[38;5;7m$($line)"
+  }
+  else {
+    $line = "$esc[38;5;8m$($line)"
+  }
+  if ($checked) {
+    $line = "$esc[38;5;46m$('✓')", $line -join ""
+  }
+  else {
+    $line = " ", $line -join ""
+  }
+
+  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
+}
   
 function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
   $global:Host.UI.RawUI.FlushInputBuffer()
@@ -705,7 +748,7 @@ function displayGrid2 {
     $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
       $index = (($page - 1) * $nbLines) + $row
       $checked = $list[$index].Selected
-      makelines $list[$index] $checked $row $selected $win.W-2
+      makelines2 $list[$index] $checked $row $selected $win.W-2
       $row++
     }
     $nbDisplay = $partlist.Length
