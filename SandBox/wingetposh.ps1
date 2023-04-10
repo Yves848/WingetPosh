@@ -359,7 +359,33 @@ function Invoke-Winget2 {
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
-
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = 0
+  $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  
+  
+  $sb = {
+    $x = $statedata.X
+    $y = $statedata.Y
+    $i = 1
+    #Write-Host $statedata
+    while ($true) {
+      [System.Console]::setcursorposition($X, $Y)
+      $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
+      [System.Console]::write($str)
+      $i++
+      Start-Sleep -Milliseconds 50
+    }
+  }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $handle = $session.BeginInvoke()
+  #$list = Invoke-Command -ScriptBlock $cmd
+  
   $PackageList = @()
   $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth -Stream 
 
@@ -418,6 +444,8 @@ function Invoke-Winget2 {
     }
     $i++
   }
+  $session.Stop()
+  $runspace.Dispose()
   return $PackageList 
 } 
 
@@ -694,178 +722,145 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
 function displayGrid2 {
   param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-    $datalist,
+    $list,
     [string]$title, 
     [ref]$data, 
     $allowSearch = $false
   )
-  begin {
-    $list2 = @()
-  }
+   
+  $global:Host.UI.RawUI.FlushInputBuffer()
+  $WinWidth = [System.Console]::WindowWidth
+  $X = 0
+  $Y = 0
+  $WinHeigt = [System.Console]::WindowHeight - 1
+  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
+  $win.title = $title
+  $Win.titleColor = "Green"
+  $win.footer = $Single.LEFT, "$(color "[?]" "red") : Help $(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
+  $win.drawWindow();
+  $win.drawVersion();
+  $nbLines = $Win.h - 1
+  $blanks = makeBlanks $nblines $win
 
-  process {
-    $list = $datalist
-  }
-
-  end {
-
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   
-    $global:Host.UI.RawUI.FlushInputBuffer()
-    $WinWidth = [System.Console]::WindowWidth
-    $X = 0
-    $Y = 0
-    $WinHeigt = [System.Console]::WindowHeight - 1
-    $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
-    $win.title = $title
-    $Win.titleColor = "Green"
-    $win.footer = $Single.LEFT, "$(color "[?]" "red") : Help $(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
-    $win.drawWindow();
-    $win.drawVersion();
-    $nbLines = $Win.h - 1
-    $blanks = makeBlanks $nblines $win
-
-    $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-    $runspace = [runspacefactory]::CreateRunspace()
-    $runspace.Open()
-    $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
-
-    $sb = {
-      $x = $statedata.X
-      $y = $statedata.Y
-      $i = 1
-      Write-Host $statedata
-      while ($true) {
-        [System.Console]::setcursorposition($X, $Y)
-        $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
-        [System.Console]::write($str)
-        $i++
-        Start-Sleep -Milliseconds 50
-      }
+  $statedata.X = ($win.X + 3)
+  $statedata.Y = ($win.Y + 1)
+ 
+  $skip = 0
+  $nbPages = [math]::Ceiling($list.count / $nbLines)
+  $win.nbpages = $nbPages
+  $page = 1
+  $selected = 0
+  [System.Console]::CursorVisible = $false
+  $redraw = $true
+  while (-not $stop) {
+    $win.page = $page
+    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    $row = 0
+    $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
+      $index = (($page - 1) * $nbLines) + $row
+      $checked = $list[$index].Selected
+      makelines $list[$index] $checked $row $selected $win.W-2
+      $row++
     }
-  
-    $session = [powershell]::create()
-    $statedata.X = ($win.X + 3)
-    $statedata.Y = ($win.Y + 1)
-    $session.Runspace = $runspace
-    $null = $session.AddScript($sb)
-    $handle = $session.BeginInvoke()
-    #$list = Invoke-Command -ScriptBlock $cmd
-    $session.Stop()
-    $runspace.Dispose()
-    $skip = 0
-    $nbPages = [math]::Ceiling($list.count / $nbLines)
-    $win.nbpages = $nbPages
-    $page = 1
-    $selected = 0
-    [System.Console]::CursorVisible = $false
-    $redraw = $true
+    $nbDisplay = $partlist.Length
+    $sText = $partlist | Out-String 
+    if ($redraw) {
+      [System.Console]::setcursorposition($win.X, $win.Y + 1)
+      [system.console]::write($blanks)
+      $redraw = $false
+    }
+    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    [system.console]::write($sText.Substring(0, $sText.Length - 2))
+    $win.drawPagination()
     while (-not $stop) {
-      $win.page = $page
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
-      $row = 0
-      $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
-        $index = (($page - 1) * $nbLines) + $row
-        $checked = $list[$index].Selected
-        makelines $list[$index] $checked $row $selected $win.W-2
-        $row++
-      }
-      $nbDisplay = $partlist.Length
-      $sText = $partlist | Out-String 
-      if ($redraw) {
-        [System.Console]::setcursorposition($win.X, $win.Y + 1)
-        [system.console]::write($blanks)
-        $redraw = $false
-      }
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
-      [system.console]::write($sText.Substring(0, $sText.Length - 2))
-      $win.drawPagination()
-      while (-not $stop) {
-        if ($global:Host.UI.RawUI.KeyAvailable) { 
-          [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-          if ($key.Character -eq '?') {
-            # Help
-            displayHelp $allowSearch
-          }
-          if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
-            # Quit
-            $stop = $true
-          }
-          if ($key.VirtualKeyCode -eq 38) {
-            # key up
-            if ($selected -gt 0) {
-              $selected --
-            }
-          }
-          if ($key.VirtualKeyCode -eq 40) {
-            # key Down
-            if ($selected -lt $nbDisplay - 1) {
-              $selected ++
-            }
-          }
-          if ($key.VirtualKeyCode -eq 37) {
-            # key Left
-            if ($page -gt 1) {
-              $skip -= $nbLines
-              $page -= 1
-              $selected = 0
-              $redraw = $true     
-            }
-          }
-          if ($key.VirtualKeyCode -eq 39) {
-            # key Right
-            if ($page -lt $nbPages) {
-              $skip += $nbLines
-              $page += 1
-              $selected = 0
-              $redraw = $true
-            }
-          }
-          if ($key.VirtualKeyCode -eq 32) {
-            # key Space
-            $index = (($page - 1) * $nbLines) + $selected
-            $checked = $list[$index].Selected
-            $list[$index].Selected = -not $checked
-          }
-          if ($key.VirtualKeyCode -eq 13) {
-            # key Enter
-            Clear-Host
-            $data.value = $data.value = $list | Where-Object { $_.Selected }
-            $stop = $true
-          }
-          if ($key.VirtualKeyCode -eq 114) {
-            # key F3
-            if ($allowSearch) {
-              $term = getSearchTerms
-              [System.Console]::CursorVisible = $false
-              $term = '"', $term, '"' -join ''
-              $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
-              $list = Invoke-Command -ScriptBlock $sb
-              $skip = 0
-              $nbPages = [math]::Ceiling($list.count / $nbLines)
-              $win.nbpages = $nbPages
-              $page = 1
-              $selected = 0
-              $redraw = $true
-            }
-          }
-          if ($key.character -eq "+") {
-            # key +
-            $checked = $true
-            $list | ForEach-Object { $_.Selected = $checked }
-          }
-          if ($key.character -eq "-") {
-            # key -
-            $checked = $false
-            $list | ForEach-Object { $_.Selected = $checked }
-          }
-          break
+      if ($global:Host.UI.RawUI.KeyAvailable) { 
+        [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
+        if ($key.Character -eq '?') {
+          # Help
+          displayHelp $allowSearch
         }
-        Start-Sleep -Milliseconds 20
-      }    
-    }
-    [System.Console]::CursorVisible = $true
-    Clear-Host
+        if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
+          # Quit
+          $stop = $true
+        }
+        if ($key.VirtualKeyCode -eq 38) {
+          # key up
+          if ($selected -gt 0) {
+            $selected --
+          }
+        }
+        if ($key.VirtualKeyCode -eq 40) {
+          # key Down
+          if ($selected -lt $nbDisplay - 1) {
+            $selected ++
+          }
+        }
+        if ($key.VirtualKeyCode -eq 37) {
+          # key Left
+          if ($page -gt 1) {
+            $skip -= $nbLines
+            $page -= 1
+            $selected = 0
+            $redraw = $true     
+          }
+        }
+        if ($key.VirtualKeyCode -eq 39) {
+          # key Right
+          if ($page -lt $nbPages) {
+            $skip += $nbLines
+            $page += 1
+            $selected = 0
+            $redraw = $true
+          }
+        }
+        if ($key.VirtualKeyCode -eq 32) {
+          # key Space
+          $index = (($page - 1) * $nbLines) + $selected
+          $checked = $list[$index].Selected
+          $list[$index].Selected = -not $checked
+        }
+        if ($key.VirtualKeyCode -eq 13) {
+          # key Enter
+          Clear-Host
+          $data.value = $data.value = $list | Where-Object { $_.Selected }
+          $stop = $true
+        }
+        if ($key.VirtualKeyCode -eq 114) {
+          # key F3
+          if ($allowSearch) {
+            $term = getSearchTerms
+            [System.Console]::CursorVisible = $false
+            $term = '"', $term, '"' -join ''
+            $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
+            $list = Invoke-Command -ScriptBlock $sb
+            $skip = 0
+            $nbPages = [math]::Ceiling($list.count / $nbLines)
+            $win.nbpages = $nbPages
+            $page = 1
+            $selected = 0
+            $redraw = $true
+          }
+        }
+        if ($key.character -eq "+") {
+          # key +
+          $checked = $true
+          $list | ForEach-Object { $_.Selected = $checked }
+        }
+        if ($key.character -eq "-") {
+          # key -
+          $checked = $false
+          $list | ForEach-Object { $_.Selected = $checked }
+        }
+        break
+      }
+      Start-Sleep -Milliseconds 20
+    }    
   }
+  [System.Console]::CursorVisible = $true
+  Clear-Host
+  
 }
   
   
@@ -1018,7 +1013,7 @@ function Search-WGPackage {
   #Invoke-Winget "winget search $package" | Where-Object { $_.source -eq "winget" }
   $list = Invoke-Winget2 $command
   $data = @()
-  $list | displayGrid2 -title "Search" -data ([ref]$data) -allowSearch $false
+  displayGrid2 -list $list -title "Search" -data ([ref]$data) -allowSearch $false
   $data
 }
   
