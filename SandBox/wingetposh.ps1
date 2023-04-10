@@ -377,7 +377,7 @@ function Invoke-Winget2 {
       $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
       [System.Console]::write($str)
       $i++
-      Start-Sleep -Milliseconds 75
+      Start-Sleep -Milliseconds 100
     }
   }
   $session = [powershell]::create()
@@ -428,7 +428,7 @@ function Invoke-Winget2 {
             $i2++
           }
           $field = $sb.ToString()
-          if ($field.Contains("…"))  {
+          if ($field.Contains("…")) {
             $i2++
           }
           $field = adjustCol -len $columns.$($col.Name)[1] -col $field
@@ -1008,24 +1008,61 @@ function Uninstall-WGPackage {
 }
   
 function Get-WGList {
-  Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
+  #Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
+  param(
+    [string]$source,
+    [switch]$interactive
+  )
+  $command = "winget list"
+ 
+  $list = Invoke-Winget2 $command
+
+  if ($source) {
+    $list = $list |  Where-Object { $_.source -eq "winget" }
+  }
+  if ($interactive) {
+    $data = @()
+    displayGrid2 -list $list -title "Packages List " -data ([ref]$data) -allowSearch $false
+    $data
+  }
+  else {
+    $list
+  }
 }
 
 function Search-WGPackage {
   param(
     [Parameter(Mandatory = $true)]
     [string]$package,
-    [string]$source
+    [string]$source,
+    [switch]$interactive,
+    [switch]$allowSearch,
+    [ValidateScript({$interactive})]
+    [switch]$install
   )
   $command = "winget search '$package'"
-  if ($source) {
-    $command = $command, " --source $source" -join ""
-  }
-  #Invoke-Winget "winget search $package" | Where-Object { $_.source -eq "winget" }
   $list = Invoke-Winget2 $command
-  $data = @()
-  displayGrid2 -list $list -title "Search" -data ([ref]$data) -allowSearch $false
-  $data
+  if ($source) {
+    $list = $list |  Where-Object { $_.source -eq "winget" }
+  }
+  if ($interactive) {
+    $data = @()
+    displayGrid2 -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+    if ($install) {
+      if ($data.length -gt 0) {
+        $data | Out-Object | ForEach-Object {
+          $id = $_.Id
+          $expression = "winget install --id $($id)"
+          Invoke-Expression $expression
+        }
+      }
+    }
+    $data
+  }
+  else {
+    $list
+  }
+  
 }
   
 function Get-WGUpdatables {
@@ -1066,8 +1103,8 @@ function testcolor {
 
 #Search-WGPackage -search code
 #Install-WGPackage -install
-#Get-WGList
+#Get-WGList -interactive -source winget
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage -package 'node' 
+Search-WGPackage -package 'notepad' -interactive -install
