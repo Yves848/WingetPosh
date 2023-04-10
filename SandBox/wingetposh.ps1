@@ -311,14 +311,17 @@ function Invoke-Winget {
   
   $PackageList = @()
   $columns.Clear()
+  $i = 1
   foreach ($col in [column[]]$cols) {
-    if ($col.name -ne "source") {
-    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
-    $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
+    #if ($col.name -ne "source") {
+    if ($i -lt $cols.length) {
+      $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
+      $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
     }
     else {
       $colWidth = $col.len  
     }
+    $i++
     $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
   }
   
@@ -330,13 +333,18 @@ function Invoke-Winget {
         try {
           foreach ($key in $column.keys) {
             $curcol = $column[$key]
-            $field = $line.Substring($curcol[0], $curcol[2])
+            if ($line.Length -ge ($curcol[0] + $curcol[2])) {
+              $field = $line.Substring($curcol[0], $curcol[2])
+            } 
+            else {
+              $field = $line.Substring($line.Length - $curcol[2])
+            }
             $package.Add($key, $field)  
           }
           $PackageList += $package
         }
         catch {
-          <#Do this if a terminating exception happens#>
+          #Write-Error $_
         }
       }
     }
@@ -344,6 +352,132 @@ function Invoke-Winget {
   
   return $PackageList 
 }
+
+function Invoke-Winget2 {
+  param (
+    [string]$cmd
+  )
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+  $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
+
+  $PackageList = @()
+  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth -Stream 
+
+  $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
+    if ($_.StartsWith('---')) {
+      $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1]
+      $data = $true
+    }
+    else {
+      if ($data) {
+        $s = [string]$_
+        $package = [ordered]@{}
+        $i = 0
+        foreach ($col in $cols) {
+          [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
+          [long]$bytecount = 0
+          #$field = [System.Text.Encoding]::UTF8.GetString($line).Substring($col.Position,$col.Len)
+          while($bytecount -lt $col.Len) {
+            [char]$char = $s[$i]
+            [void]$sb.Append($char)
+            $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
+            $byteCount += $nbBytes
+          }
+          $field = $sb.ToString()
+          $sb = $null
+          $package.Add($col.Name, $field)
+        }
+        $PackageList += $package
+      }
+    }
+    $i++
+  }
+  return $PackageList 
+} 
+
+function Get-SubstringByByteCount {
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory)]
+    [ValidateScript({ $null -ne $_ -and $_.Value -is [string] })]
+    [ref]$InputString,
+    [int]$FromIndex = 0,
+    [Parameter(Mandatory)]
+    [int]$ByteCount,
+    [ValidateScript({ [Text.Encoding]::$_ })]
+    [string]$Encoding = 'UTF8'
+  )
+  
+  [long]$byteCounter = 0
+  [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $ByteCount
+  $i = $FromIndex
+  try {
+    while ( $byteCounter -lt $ByteCount -and $i -lt $InputString.Value.Length ) {
+      [char]$char = $InputString.Value[$i++]
+      [void]$sb.Append($char)
+      $byteCounter += [Text.Encoding]::$Encoding.GetByteCount($char)
+    }
+
+    $sb.ToString()
+  } finally {
+    if( $sb ) {
+      $sb = $null
+      [System.GC]::Collect()
+    }
+  }
+}
+
+<#
+  $fl = 0
+  while (-not $lines[$fl].StartsWith("----")) {
+    $fl++
+  }
+  
+  $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
+  $lWidth = $lines[$fl].Length
+  
+  $PackageList = @()
+  $columns.Clear()
+  $i = 1
+  foreach ($col in [column[]]$cols) {
+    #if ($col.name -ne "source") {
+    if ($i -lt $cols.length) {
+    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
+    $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
+    }
+    else {
+      $colWidth = $col.len  
+    }
+    $i++
+    $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
+  }
+  
+  For ($i = $fl + 1; $i -lt $lines.Length; $i++) {
+    $line = $lines[$i]
+    if (-not $line.StartsWith('-')) {
+      foreach ($column in $columns) {
+        $package = [ordered]@{}
+        try {
+          foreach ($key in $column.keys) {
+            $curcol = $column[$key]
+            if ($line.Length -ge ($curcol[0] + $curcol[2])) {
+            $field = $line.Substring($curcol[0], $curcol[2])
+            } 
+            else {
+              $field = $line.Substring($line.Length - $curcol[2])
+            }
+            $package.Add($key, $field)  
+          }
+          $PackageList += $package
+        }
+        catch {
+          #Write-Error $_
+        }
+      }
+    }
+  }
+  #>
+
   
 function makeBlanks {
   param(
@@ -423,16 +557,16 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $runspace = [runspacefactory]::CreateRunspace()
   $runspace.Open()
-  $Runspace.SessionStateProxy.SetVariable("StateData",$StateData)
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
 
   $sb = {
     $x = $statedata.X
     $y = $statedata.Y
     $i = 1
     Write-Host $statedata
-    while($true) {
+    while ($true) {
       [System.Console]::setcursorposition($X, $Y)
-      $str = '⏳ Getting the data ', ''.PadLeft($i,'.') -join ''
+      $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
       [System.Console]::write($str)
       $i++
       Start-Sleep -Milliseconds 50
@@ -701,10 +835,16 @@ function Get-WGList {
 
 function Search-WGPackage {
   param(
-    [Parameter(Mandatory=$true)]
-    [string]$package
+    [Parameter(Mandatory = $true)]
+    [string]$package,
+    [string]$source
   )
-  Invoke-Winget "winget search $package" | Where-Object { $_.source -eq "winget" }
+  $command = "winget search $package"
+  if ($source) {
+    $command = $command, " --source $source" -join ""
+  }
+  #Invoke-Winget "winget search $package" | Where-Object { $_.source -eq "winget" }
+  Invoke-Winget2 $command
 }
   
 function Get-WGUpdatables {
@@ -715,14 +855,14 @@ function Out-Object {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-      [hashtable]
-      $Data
+    [hashtable]
+    $Data
   )
   begin {
     [PSCustomObject[]]$result = @()
   }
   process {
-    foreach($d in $data) {
+    foreach ($d in $data) {
       $result += [pscustomobject]$d
     }
   }
@@ -747,5 +887,6 @@ function testcolor {
 #Install-WGPackage -install
 #Get-WGList
 #Get-WGUpdatables
-$list = Show-WGList
+#$list = Show-WGList
 #Update-WGPackage -update
+Search-WGPackage node 
