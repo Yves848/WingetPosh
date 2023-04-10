@@ -15,6 +15,11 @@ Function        Search-WGPackage                                   0.8.0      wi
 - Using animations for the long processing tasks
 - New parameters added
 
+## Installation
+```
+  Install-module wingetposh -scope currentuser -allowprerelease
+```
+
 ## Get-WGPackage
 
 ```
