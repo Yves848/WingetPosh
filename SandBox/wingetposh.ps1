@@ -427,12 +427,13 @@ function Invoke-Winget2 {
             }
             $i2++
           }
-
-          $field = adjustCol -len $columns.$($col.Name)[1] -col $sb.ToString()
-          
-          if ($field.EndsWith("…")) {
+          $field = $sb.ToString()
+          if ($field.Contains("…"))  {
             $i2++
           }
+          $field = adjustCol -len $columns.$($col.Name)[1] -col $field
+          
+
           $sb = $null
           $package.Add($col.Name, $field)
         }
@@ -553,18 +554,6 @@ function makelines2 {
   [string]$line = ""
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
-    # $l = $columns[$key][1]
-    # $col = $col.PadRight($l, " ")
-    # if ($columns.Keys.IndexOf($key) -eq 0) {
-    #   if ([text.Encoding]::UTF8.GetByteCount($col) -gt $l) {
-    #     $col = adjustCol -col $col -len $l 
-    #   }
-    # }
-    # else {
-    #   if ($col.Length -gt $l) {
-    #     $col = $col.Substring(0, $l)
-    #   }
-    # }
     $line = $line, $col -join " "
   }
   if ($row -eq $selected) {
@@ -884,9 +873,7 @@ function displayGrid2 {
   }
   [System.Console]::CursorVisible = $true
   Clear-Host
-  
 }
-  
   
 function displayHelp {
   param(
@@ -1083,4 +1070,4 @@ function testcolor {
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage -package 'node'
+Search-WGPackage -package 'node' 
