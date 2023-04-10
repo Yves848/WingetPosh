@@ -133,7 +133,6 @@ class window {
     [System.Console]::CursorVisible = $false
     $this.setPosition($this.X, $this.Y)
     $bloc1 = $this.frameStyle.UL, "".PadLeft($this.W - 2, $this.frameStyle.TOP), $this.frameStyle.UR -join ""
-    #$blank = "".PadLeft($this.W , " ") 
     $blank = "$esc[38;5;15m$($this.frameStyle.LEFT)", "".PadLeft($this.W - 2, " "), "$esc[38;5;15m$($this.frameStyle.RIGHT)" -join ""
     Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
     for ($i = 1; $i -lt $this.H; $i++) {
@@ -291,63 +290,187 @@ function color {
   
   "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
+
+function Invoke-Expression2 {
+  param(
+    [string]$exp,
+    [string]$title
+  )
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = 0
+  $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $statedata.title = $title
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  $sb = {
+    $x = $statedata.X
+    $y = $statedata.Y
   
+
+    $i = 1
+    #Write-Host $statedata
+    $string = "".PadRight(30, ".")
+    $nav = "oOo"
+    while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight(30, '.')
+      }
+      else {
+        if ($i -gt 27) {
+          $nb = 30 - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft(30, '.')
+
+        }
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight(27 - $i, '.')
+          $string = $left, $nav, $right -join ""
+        }
+      }
+      [System.Console]::setcursorposition($X, $Y)
+      $str = "$($statedata.title) ", $string -join ""
+      [System.Console]::write($str)
+      $i++
+      if ($i -gt 30) {
+        $i = 1
+      }
+      Start-Sleep -Milliseconds 100
+    }
+
+
+  }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $handle = $session.BeginInvoke()
+  $result = Invoke-Expression -Command $exp
+
+  $session.Stop()
+  $runspace.Dispose()
+  [System.Console]::setcursorposition($statedata.X, $statedata.Y)
+  [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width," "))
+}
+
 function Invoke-Winget {
   param (
     [string]$cmd
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  #$locals = getWingetLocals 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = 0
+  $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  
+  
+  $sb = {
+    $x = $statedata.X
+    $y = $statedata.Y
+    $i = 1
+    #Write-Host $statedata
+    $string = "".PadRight(30, ".")
+    $nav = "oOo"
+    while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight(30, '.')
+      }
+      else {
+        if ($i -gt 27) {
+          $nb = 30 - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft(30, '.')
 
-  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth
-  [string[]]$lines = $SearchResult -Split [Environment]::NewLine
-  
-  $fl = 0
-  while (-not $lines[$fl].StartsWith("----")) {
-    $fl++
-  }
-  
-  $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
-  $lWidth = $lines[$fl].Length
-  
-  $PackageList = @()
-  $columns.Clear()
-  foreach ($col in [column[]]$cols) {
-    if ($col.name -ne "source") {
-    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
-    $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
-    }
-    else {
-      $colWidth = $col.len  
-    }
-    $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
-  }
-  
-  For ($i = $fl + 1; $i -lt $lines.Length; $i++) {
-    $line = $lines[$i]
-    if (-not $line.StartsWith('-')) {
-      foreach ($column in $columns) {
-        $package = [ordered]@{}
-        try {
-          foreach ($key in $column.keys) {
-            $curcol = $column[$key]
-            $field = $line.Substring($curcol[0], $curcol[2])
-            #Write-Host ("{0} pos {1} len {2} width {3}" -f ($field, $curcol[1], $curcol[2], $curcol[3])) -ForegroundColor Green
-            $package.Add($key, $field)  
-          }
-          $PackageList += $package
         }
-        catch {
-          <#Do this if a terminating exception happens#>
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight(27 - $i, '.')
+          $string = $left, $nav, $right -join ""
         }
       }
+      [System.Console]::setcursorposition($X, $Y)
+      $str = '⏳ Getting the data ', $string -join ""
+      [System.Console]::write($str)
+      $i++
+      if ($i -gt 30) {
+        $i = 1
+      }
+      Start-Sleep -Milliseconds 100
     }
+  
   }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $handle = $session.BeginInvoke()
   
+  $PackageList = @()
+  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth -Stream 
+
+  $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
+    if ($_.StartsWith('---')) {
+      $lWidth = $_.Length
+      $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1]
+      $columns.Clear()
+      $i = 1
+      foreach ($col in [column[]]$cols) {
+        if ($i -lt $cols.length) {
+          $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
+          $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
+        }
+        else {
+          $colWidth = $col.len  
+        }
+        $i++
+        $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
+      }
+      $data = $true
+    }
+    else {
+      if ($data) {
+        $s = [string]$_
+        $package = [ordered]@{}
+        $i2 = 0
+        foreach ($col in $cols) {
+          [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
+          $charcount = 0
+          while ($charcount -lt $col.Len) {
+            [char]$char = $s[$i2]
+            [void]$sb.Append($char)
+            $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
+            if ($nbBytes -gt 1) {
+              $charcount += ($nbBytes - 1)
+            }
+            else {
+              $charcount += $nbBytes
+            }
+            $i2++
+          }
+          $field = $sb.ToString()
+          if ($field.Contains("…")) {
+            $i2++
+          }
+          $field = adjustCol -len $columns.$($col.Name)[1] -col $field
+          
+
+          $sb = $null
+          $package.Add($col.Name, $field)
+        }
+        $PackageList += $package
+      }
+    }
+    $i++
+  }
+  $session.Stop()
+  $runspace.Dispose()
   return $PackageList 
-}
-  
+} 
+
 function makeBlanks {
   param(
     $nblines,
@@ -365,6 +488,35 @@ function makeBlanks {
   $blanks | Out-String
 }
 
+function adjustCol {
+  param(
+    [int]$len,
+    [string]$col
+  )
+  
+  $charcount = 0
+  $i = 0
+  $field = ""
+  while ($charcount -lt $len) {
+    [char]$char = $col[$i]
+    #$field = $field, $char -join ""
+    $field = $field + $char
+    $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
+    if ($nbBytes -gt 1) {
+      $charcount += ($nbBytes - 1)
+    }
+    else {
+      $charcount += $nbBytes
+    }
+    $i++
+  }
+  
+  if ($field.Contains("…")) {
+    $field = $field, " " -join ""
+  }
+  
+  return $field
+}
 
 function makelines {
   param (
@@ -381,15 +533,9 @@ function makelines {
     $esc = $([char]0x1b)
   }
   [string]$line = ""
-  #$w = $host.UI.RawUI.WindowSize.Width - 2
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
-    #$percent = $columns[$key][1]
-    $l = $columns[$key][1]
-    if ($col.Length -gt $l) {
-      $col = $col.Substring(0, $l)
-    }
-    $line = $line, $col.PadRight($l, " ") -join " "
+    $line = $line, $col -join " "
   }
   if ($row -eq $selected) {
     $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
@@ -410,7 +556,16 @@ function makelines {
   "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
 }
   
-function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
+
+function displayGrid {
+  param (
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+    $list,
+    [string]$title, 
+    [ref]$data, 
+    $allowSearch = $false
+  )
+   
   $global:Host.UI.RawUI.FlushInputBuffer()
   $WinWidth = [System.Console]::WindowWidth
   $X = 0
@@ -426,35 +581,10 @@ function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $fals
   $blanks = makeBlanks $nblines $win
 
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $runspace = [runspacefactory]::CreateRunspace()
-  $runspace.Open()
-  $Runspace.SessionStateProxy.SetVariable("StateData",$StateData)
-
-  $sb = {
-    $x = $statedata.X
-    $y = $statedata.Y
-    $i = 1
-    Write-Host $statedata
-    while($true) {
-      [System.Console]::setcursorposition($X, $Y)
-      $str = '⏳ Getting the data ', ''.PadLeft($i,'.') -join ''
-      [System.Console]::write($str)
-      $i++
-      Start-Sleep -Milliseconds 50
-    }
-  }
   
-  #[System.Console]::setcursorposition($win.X + 3, $win.Y + 1)
-  #[System.Console]::write('Getting the list.......')
-  $session = [powershell]::create()
   $statedata.X = ($win.X + 3)
   $statedata.Y = ($win.Y + 1)
-  $session.Runspace = $runspace
-  $null = $session.AddScript($sb)
-  $handle = $session.BeginInvoke()
-  $list = Invoke-Command -ScriptBlock $cmd
-  $session.Stop()
-  $runspace.Dispose()
+ 
   $skip = 0
   $nbPages = [math]::Ceiling($list.count / $nbLines)
   $win.nbpages = $nbPages
@@ -600,7 +730,6 @@ function displayHelp {
   while (-not $stop) {
     if ($global:Host.UI.RawUI.KeyAvailable) { 
       [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-      #Write-Host $key.VirtualKeyCode
       if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
         $stop = $true
       }
@@ -608,179 +737,124 @@ function displayHelp {
   }
 }
   
-  
-function Show-WGList {
-  begin {
-    $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    $data = @{}
-  }
-  process {
-    displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
-  }
-  end {
-    return $data
-  } 
-}
-  
-function  Update-WGPackage {
-  param (
-    [switch]$update
+   
+function Get-WGPackage {
+  param(
+    [string]$source,
+    [switch]$interactive,
+    [switch]$uninstall,
+    [switch]$update,
+    [switch]$apply
   )
-  begin {
-    $sb = { Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
-    $data = @()
+  if ($update) {
+    $command = "winget update"
   }
-  process {
-    displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
-    if ($update) {
+  else {
+    $command = "winget list"
+  }
+  
+  if ($apply) {
+    if (-not $interactive) {
+      Write-Warning "🚫 -apply can only be used with -interactive"
+      return $null
+    }
+    if ((-not $update) -and (-not $uninstall)) {
+      Write-Warning "🚫 -apply can only be used with -update or -uninstall"
+      return $null
+    }
+  }
+
+  if ($update -or $uninstall) {
+    if (-not $interactive) {
+      Write-Warning "🚫 -update and -uninstall can only be used with -interactive"
+      return $null
+    }
+  }
+
+  $list = Invoke-Winget $command
+
+  if ($source) {
+    $list = $list |  Where-Object { $_.source -eq $source }
+  }
+  
+  if ($interactive) {
+    $data = @()
+    displayGrid -list $list -title "Packages List " -data ([ref]$data) -allowSearch $false
+    if ($apply) {
+      $title = ""
       if ($data.length -gt 0) {
         $data | Out-Object | ForEach-Object {
-          $id = $_.Id
-          $expression = "winget upgrade --id $($id)"
-          Invoke-Expression $expression
-        }
-      }
-    }
-  }
-  end {
-    return $data
-  }
-}
-  
-function Install-WGPackage {
-  param (
-    [switch]$install,
-    [string]$package = ""
-    
-  )
-  begin {
-    if ($package -eq "") {
-      $term = getSearchTerms
-    }
-    else {
-      $term = $package
-    }
-  }
-  process {
-    if ($term.Trim() -ne "") {
-      $term = '"', $term, '"' -join ''
-      $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
-      #displayGrid "Install Packages" $sb
-      $data = @()
-      displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
-      if ($install) {
-        if ($data.length -gt 0) {
-          $data | Out-Object | ForEach-Object {
-            $id = $_.Id
-            $expression = "winget install --id $($id)"
-            Invoke-Expression $expression
+          $id = ($_.Id).Trim()
+          if ($uninstall) {
+            $expression = "winget uninstall --id $($id)"
+            $title = "🗑️ Uninstall $($id)"
           }
+          else {
+            $expression = "winget upgrade --id $($id)"
+            $title = "⚡ Upgrade $($id)"
+          }
+          
+          Invoke-Expression2 -exp $expression -title $title
         }
       }
     }
+    $data
   }
-  end {
-    return $data
+  else {
+    $list
   }
-}
-  
-function Uninstall-WGPackage {
-  begin {
-    $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    $data = @()
-  }
-  process {
-    displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
-    if ($data.length -gt 0) {
-      $data | Out-Object | ForEach-Object {
-        $id = $_.Id
-        $expression = "winget uninstall --id $($id)"
-        Invoke-Expression $expression
-      }
-    }
-  }
-  end {
-    return $data
-  }
-}
-  
-function Get-WGList {
-  Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
 }
 
 function Search-WGPackage {
   param(
-    [Parameter(Mandatory=$true)]
-    [string]$package
+    [Parameter(Mandatory = $true)]
+    [string]$package,
+    [string]$source,
+    [switch]$interactive,
+    [switch]$allowSearch,
+    [ValidateScript({ $interactive })]
+    [switch]$install
   )
-  Invoke-Winget "winget search $package" | Where-Object { $_.source -eq "winget" }
-}
-  
-function Get-WGUpdatables {
-  Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
+  $command = "winget search '$package'"
+  $list = Invoke-Winget $command
+  if ($source) {
+    $list = $list |  Where-Object { $_.source -eq $source }
+  }
+  if ($interactive) {
+    $data = @()
+    displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+    if ($install) {
+      if ($data.length -gt 0) {
+        $data | Out-Object | ForEach-Object {
+          $id = ($_.Id).Trim()
+          $expression = "winget install --id $($id)"
+          Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+        }
+      }
+    }
+    $data
+  }
+  else {
+    $list
+  }
 }
 
 function Out-Object {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-      [hashtable]
-      $Data
+    [hashtable]
+    $Data
   )
   begin {
     [PSCustomObject[]]$result = @()
   }
   process {
-    foreach($d in $data) {
+    foreach ($d in $data) {
       $result += [pscustomobject]$d
     }
   }
   end {
     return $result
   }
-}
-  
-function testcolor {
-  if ($iscoreclr) {
-    $esc = "`e"
-  }
-  else {
-    $esc = $([char]0x1b)
-  }
-  0..255 | ForEach-Object {
-    Write-Host "$esc[4m$esc[38;5;$($_)m'test'$esc[0m"
-  } 
-}
-
-function getWingetLocals {
-  $language = (Get-UICulture).Name
-  $version = Invoke-Expression "winget --version" | Out-String -NoNewline
-  $languageData = $(
-    $hash = @{}
-
-    $(try {
-        # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
-          ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
-      }
-      catch {
-        # Fall back to English if a locale file doesn't exist
-        (
-              ('SearchName', 'Name'),
-              ('SearchID', 'Id'),
-              ('SearchVersion', 'Version'),
-              ('AvailableHeader', 'Available'),
-              ('SearchSource', 'Source'),
-              ('ShowVersion', 'Version'),
-              ('GetManifestResultVersionNotFound', 'No version found matching:'),
-              ('InstallerFailedWithCode', 'Installer failed with exit code:'),
-              ('UninstallFailedWithCode', 'Uninstall failed with exit code:'),
-              ('AvailableUpgrades', 'upgrades available.')
-        ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
-      }) | ForEach-Object {
-      # Convert the array into a hashtable
-      $hash[$_.name] = $_.value
-    }
-    $hash
-  )
-  return $languageData
 }

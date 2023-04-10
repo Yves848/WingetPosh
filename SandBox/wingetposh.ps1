@@ -290,70 +290,70 @@ function color {
   
   "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
-  
-function Invoke-Winget {
-  param (
-    [string]$cmd
-  )
-  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
 
-  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth
-  [string[]]$lines = $SearchResult -Split [Environment]::NewLine
+function Invoke-Expression2 {
+  param(
+    [string]$exp,
+    [string]$title
+  )
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = 0
+  $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $statedata.title = $title
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  $sb = {
+    $x = $statedata.X
+    $y = $statedata.Y
   
-  $fl = 0
-  while (-not $lines[$fl].StartsWith("----")) {
-    $fl++
-  }
-  
-  $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
-  $lWidth = $lines[$fl].Length
-  
-  $PackageList = @()
-  $columns.Clear()
-  $i = 1
-  foreach ($col in [column[]]$cols) {
-    #if ($col.name -ne "source") {
-    if ($i -lt $cols.length) {
-      $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
-      $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
-    }
-    else {
-      $colWidth = $col.len  
-    }
-    $i++
-    $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
-  }
-  
-  For ($i = $fl + 1; $i -lt $lines.Length; $i++) {
-    $line = $lines[$i]
-    if (-not $line.StartsWith('-')) {
-      foreach ($column in $columns) {
-        $package = [ordered]@{}
-        try {
-          foreach ($key in $column.keys) {
-            $curcol = $column[$key]
-            if ($line.Length -ge ($curcol[0] + $curcol[2])) {
-              $field = $line.Substring($curcol[0], $curcol[2])
-            } 
-            else {
-              $field = $line.Substring($line.Length - $curcol[2])
-            }
-            $package.Add($key, $field)  
-          }
-          $PackageList += $package
+
+    $i = 1
+    #Write-Host $statedata
+    $string = "".PadRight(30, ".")
+    $nav = "oOo"
+    while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight(30, '.')
+      }
+      else {
+        if ($i -gt 27) {
+          $nb = 30 - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft(30, '.')
+
         }
-        catch {
-          #Write-Error $_
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight(27 - $i, '.')
+          $string = $left, $nav, $right -join ""
         }
       }
+      [System.Console]::setcursorposition($X, $Y)
+      $str = "$($statedata.title) ", $string -join ""
+      [System.Console]::write($str)
+      $i++
+      if ($i -gt 30) {
+        $i = 1
+      }
+      Start-Sleep -Milliseconds 100
     }
+
+
   }
-  
-  return $PackageList 
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $handle = $session.BeginInvoke()
+  $result = Invoke-Expression -Command $exp
+
+  $session.Stop()
+  $runspace.Dispose()
+  [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width," "))
 }
 
-function Invoke-Winget2 {
+function Invoke-Winget {
   param (
     [string]$cmd
   )
@@ -372,13 +372,36 @@ function Invoke-Winget2 {
     $y = $statedata.Y
     $i = 1
     #Write-Host $statedata
+    $string = "".PadRight(30, ".")
+    $nav = "oOo"
     while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight(30, '.')
+      }
+      else {
+        if ($i -gt 27) {
+          $nb = 30 - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft(30, '.')
+
+        }
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight(27 - $i, '.')
+          $string = $left, $nav, $right -join ""
+        }
+      }
       [System.Console]::setcursorposition($X, $Y)
-      $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
+      $str = '⏳ Getting the data ', $string -join ""
       [System.Console]::write($str)
       $i++
+      if ($i -gt 30) {
+        $i = 1
+      }
       Start-Sleep -Milliseconds 100
     }
+  
   }
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
@@ -464,49 +487,6 @@ function makeBlanks {
   $blanks | Out-String
 }
 
-
-function makelines {
-  param (
-    $list,
-    $checked,
-    $row,
-    $selected,
-    $W
-  ) 
-  if ($iscoreclr) {
-    $esc = "`e"
-  }
-  else {
-    $esc = $([char]0x1b)
-  }
-  [string]$line = ""
-  foreach ($key in $columns.keys) {
-    [string]$col = $list.$key
-    $l = $columns[$key][1]
-    if ($col.Length -gt $l) {
-      $col = $col.Substring(0, $l)
-    }
-    $line = $line, $col.PadRight($l, " ") -join " "
-  }
-  if ($row -eq $selected) {
-    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
-  }
-  if ($row % 2 -eq 0) {
-    $line = "$esc[38;5;7m$($line)"
-  }
-  else {
-    $line = "$esc[38;5;8m$($line)"
-  }
-  if ($checked) {
-    $line = "$esc[38;5;46m$('✓')", $line -join ""
-  }
-  else {
-    $line = " ", $line -join ""
-  }
-
-  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
-}
-
 function adjustCol {
   param(
     [int]$len,
@@ -537,7 +517,7 @@ function adjustCol {
   return $field
 }
 
-function makelines2 {
+function makelines {
   param (
     $list,
     $checked,
@@ -575,164 +555,8 @@ function makelines2 {
   "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
 }
   
-function displayGrid($title, [scriptblock]$cmd, [ref]$data, $allowSearch = $false) {
-  $global:Host.UI.RawUI.FlushInputBuffer()
-  $WinWidth = [System.Console]::WindowWidth
-  $X = 0
-  $Y = 0
-  $WinHeigt = [System.Console]::WindowHeight - 1
-  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
-  $win.title = $title
-  $Win.titleColor = "Green"
-  $win.footer = $Single.LEFT, "$(color "[?]" "red") : Help $(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
-  $win.drawWindow();
-  $win.drawVersion();
-  $nbLines = $Win.h - 1
-  $blanks = makeBlanks $nblines $win
 
-  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $runspace = [runspacefactory]::CreateRunspace()
-  $runspace.Open()
-  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
-
-  $sb = {
-    $x = $statedata.X
-    $y = $statedata.Y
-    $i = 1
-    Write-Host $statedata
-    while ($true) {
-      [System.Console]::setcursorposition($X, $Y)
-      $str = '⏳ Getting the data ', ''.PadLeft($i, '.') -join ''
-      [System.Console]::write($str)
-      $i++
-      Start-Sleep -Milliseconds 50
-    }
-  }
-  
-  $session = [powershell]::create()
-  $statedata.X = ($win.X + 3)
-  $statedata.Y = ($win.Y + 1)
-  $session.Runspace = $runspace
-  $null = $session.AddScript($sb)
-  $handle = $session.BeginInvoke()
-  $list = Invoke-Command -ScriptBlock $cmd
-  $session.Stop()
-  $runspace.Dispose()
-  $skip = 0
-  $nbPages = [math]::Ceiling($list.count / $nbLines)
-  $win.nbpages = $nbPages
-  $page = 1
-  $selected = 0
-  [System.Console]::CursorVisible = $false
-  $redraw = $true
-  while (-not $stop) {
-    $win.page = $page
-    [System.Console]::setcursorposition($win.X, $win.Y + 1)
-    $row = 0
-    $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
-      $index = (($page - 1) * $nbLines) + $row
-      $checked = $list[$index].Selected
-      makelines $list[$index] $checked $row $selected $win.W-2
-      $row++
-    }
-    $nbDisplay = $partlist.Length
-    $sText = $partlist | Out-String 
-    if ($redraw) {
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
-      [system.console]::write($blanks)
-      $redraw = $false
-    }
-    [System.Console]::setcursorposition($win.X, $win.Y + 1)
-    [system.console]::write($sText.Substring(0, $sText.Length - 2))
-    $win.drawPagination()
-    while (-not $stop) {
-      if ($global:Host.UI.RawUI.KeyAvailable) { 
-        [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-        if ($key.Character -eq '?') {
-          # Help
-          displayHelp $allowSearch
-        }
-        if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
-          # Quit
-          $stop = $true
-        }
-        if ($key.VirtualKeyCode -eq 38) {
-          # key up
-          if ($selected -gt 0) {
-            $selected --
-          }
-        }
-        if ($key.VirtualKeyCode -eq 40) {
-          # key Down
-          if ($selected -lt $nbDisplay - 1) {
-            $selected ++
-          }
-        }
-        if ($key.VirtualKeyCode -eq 37) {
-          # key Left
-          if ($page -gt 1) {
-            $skip -= $nbLines
-            $page -= 1
-            $selected = 0
-            $redraw = $true     
-          }
-        }
-        if ($key.VirtualKeyCode -eq 39) {
-          # key Right
-          if ($page -lt $nbPages) {
-            $skip += $nbLines
-            $page += 1
-            $selected = 0
-            $redraw = $true
-          }
-        }
-        if ($key.VirtualKeyCode -eq 32) {
-          # key Space
-          $index = (($page - 1) * $nbLines) + $selected
-          $checked = $list[$index].Selected
-          $list[$index].Selected = -not $checked
-        }
-        if ($key.VirtualKeyCode -eq 13) {
-          # key Enter
-          Clear-Host
-          $data.value = $data.value = $list | Where-Object { $_.Selected }
-          $stop = $true
-        }
-        if ($key.VirtualKeyCode -eq 114) {
-          # key F3
-          if ($allowSearch) {
-            $term = getSearchTerms
-            [System.Console]::CursorVisible = $false
-            $term = '"', $term, '"' -join ''
-            $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
-            $list = Invoke-Command -ScriptBlock $sb
-            $skip = 0
-            $nbPages = [math]::Ceiling($list.count / $nbLines)
-            $win.nbpages = $nbPages
-            $page = 1
-            $selected = 0
-            $redraw = $true
-          }
-        }
-        if ($key.character -eq "+") {
-          # key +
-          $checked = $true
-          $list | ForEach-Object { $_.Selected = $checked }
-        }
-        if ($key.character -eq "-") {
-          # key -
-          $checked = $false
-          $list | ForEach-Object { $_.Selected = $checked }
-        }
-        break
-      }
-      Start-Sleep -Milliseconds 20
-    }    
-  }
-  [System.Console]::CursorVisible = $true
-  Clear-Host
-}
-function displayGrid2 {
+function displayGrid {
   param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
     $list,
@@ -774,7 +598,7 @@ function displayGrid2 {
     $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
       $index = (($page - 1) * $nbLines) + $row
       $checked = $list[$index].Selected
-      makelines2 $list[$index] $checked $row $selected $win.W-2
+      makelines $list[$index] $checked $row $selected $win.W-2
       $row++
     }
     $nbDisplay = $partlist.Length
@@ -912,117 +736,67 @@ function displayHelp {
   }
 }
   
-  
-function Show-WGList {
-  begin {
-    $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    $data = @{}
-  }
-  process {
-    displayGrid -title "Installed Packages" -cmd $sb -data ([ref]$data)
-  }
-  end {
-    return $data
-  } 
-}
-  
-function  Update-WGPackage {
-  param (
-    [switch]$update
-  )
-  begin {
-    $sb = { Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" } }
-    $data = @()
-  }
-  process {
-    displayGrid -title "Upgradable Packages" -cmd $sb -data ([ref]$data)
-    if ($update) {
-      if ($data.length -gt 0) {
-        $data | Out-Object | ForEach-Object {
-          $id = $_.Id
-          $expression = "winget upgrade --id $($id)"
-          Invoke-Expression $expression
-        }
-      }
-    }
-  }
-  end {
-    return $data
-  }
-}
-  
-function Install-WGPackage {
-  param (
-    [switch]$install,
-    [string]$package = ""
-    
-  )
-  begin {
-    if ($package -eq "") {
-      $term = getSearchTerms
-    }
-    else {
-      $term = $package
-    }
-  }
-  process {
-    if ($term.Trim() -ne "") {
-      $term = '"', $term, '"' -join ''
-      $sb = { Invoke-Winget "winget search $term" | Where-Object { $_.source -eq "winget" } }
-      $data = @()
-      displayGrid -title "Install Package" -cmd $sb -data ([ref]$data) $true
-      if ($install) {
-        if ($data.length -gt 0) {
-          $data | Out-Object | ForEach-Object {
-            $id = $_.Id
-            $expression = "winget install --id $($id)"
-            Invoke-Expression $expression
-          }
-        }
-      }
-    }
-  }
-  end {
-    return $data
-  }
-}
-  
-function Uninstall-WGPackage {
-  begin {
-    $sb = { Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" } }
-    $data = @()
-  }
-  process {
-    displayGrid -title "Remove Packages" -cmd $sb -data ([ref]$data)
-    if ($data.length -gt 0) {
-      $data | Out-Object | ForEach-Object {
-        $id = $_.Id
-        $expression = "winget uninstall --id $($id)"
-        Invoke-Expression $expression
-      }
-    }
-  }
-  end {
-    return $data
-  }
-}
-  
-function Get-WGList {
-  #Invoke-Winget "winget list" | Where-Object { $_.source -eq "winget" }
+   
+function Get-WGPackage {
   param(
     [string]$source,
-    [switch]$interactive
+    [switch]$interactive,
+    [switch]$uninstall,
+    [switch]$update,
+    [switch]$apply
   )
-  $command = "winget list"
- 
-  $list = Invoke-Winget2 $command
+  if ($update) {
+    $command = "winget update"
+  }
+  else {
+    $command = "winget list"
+  }
+  
+  if ($apply) {
+    if (-not $interactive) {
+      Write-Warning "🚫 -apply can only be used with -interactive"
+      return $null
+    }
+    if ((-not $update) -and (-not $uninstall)) {
+      Write-Warning "🚫 -apply can only be used with -update or -uninstall"
+      return $null
+    }
+  }
+
+  if ($update -or $uninstall) {
+    if (-not $interactive) {
+      Write-Warning "🚫 -update and -uninstall can only be used with -interactive"
+      return $null
+    }
+  }
+
+  $list = Invoke-Winget $command
 
   if ($source) {
-    $list = $list |  Where-Object { $_.source -eq "winget" }
+    $list = $list |  Where-Object { $_.source -eq $source }
   }
+  
   if ($interactive) {
     $data = @()
-    displayGrid2 -list $list -title "Packages List " -data ([ref]$data) -allowSearch $false
+    displayGrid -list $list -title "Packages List " -data ([ref]$data) -allowSearch $false
+    if ($apply) {
+      $title = ""
+      if ($data.length -gt 0) {
+        $data | Out-Object | ForEach-Object {
+          $id = ($_.Id).Trim()
+          if ($uninstall) {
+            $expression = "winget uninstall --id $($id)"
+            $title = "🗑️ Uninstall $($id)"
+          }
+          else {
+            $expression = "winget upgrade --id $($id)"
+            $title = "⚡ Upgrade $($id)"
+          }
+          
+          Invoke-Expression2 -exp $expression -title $title
+        }
+      }
+    }
     $data
   }
   else {
@@ -1037,23 +811,23 @@ function Search-WGPackage {
     [string]$source,
     [switch]$interactive,
     [switch]$allowSearch,
-    [ValidateScript({$interactive})]
+    [ValidateScript({ $interactive })]
     [switch]$install
   )
   $command = "winget search '$package'"
-  $list = Invoke-Winget2 $command
+  $list = Invoke-Winget $command
   if ($source) {
-    $list = $list |  Where-Object { $_.source -eq "winget" }
+    $list = $list |  Where-Object { $_.source -eq $source }
   }
   if ($interactive) {
     $data = @()
-    displayGrid2 -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+    displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
     if ($install) {
       if ($data.length -gt 0) {
         $data | Out-Object | ForEach-Object {
-          $id = $_.Id
+          $id = ($_.Id).Trim()
           $expression = "winget install --id $($id)"
-          Invoke-Expression $expression
+          Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
         }
       }
     }
@@ -1062,11 +836,6 @@ function Search-WGPackage {
   else {
     $list
   }
-  
-}
-  
-function Get-WGUpdatables {
-  Invoke-Winget "winget upgrade --include-unknown" | Where-Object { $_.source -eq "winget" }
 }
 
 function Out-Object {
@@ -1103,8 +872,8 @@ function testcolor {
 
 #Search-WGPackage -search code
 #Install-WGPackage -install
-#Get-WGList -interactive -source winget
+#Get-WGPackage -interactive -source winget -update -apply
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage -package 'notepad' -interactive -install
+Search-WGPackage -package 'notepad' -interactive -install -source winget

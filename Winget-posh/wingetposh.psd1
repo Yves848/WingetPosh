@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.7.9'
+ModuleVersion = '0.8.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Show-WGList', 'Update-WGPackage', 'Install-WGPackage', 'Uninstall-WGPackage','Get-WGList', 'Invoke-Winget', 'Out-Object', 'Search-WGPackage')
+FunctionsToExport = @('Get-WGPackage', 'Invoke-Winget', 'Out-Object', 'Search-WGPackage')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -184,11 +184,14 @@ PrivateData = @{
         - Start Using runspaces to multitask the module.
           First usage is for animating the waitings.
           Last version before heavy code restucture / rewrite
-        - Small visual improvements'
+        - Small visual improvements
+        
+        0.8.0 : 
+        - .......'
 
         
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'alpha'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $true
