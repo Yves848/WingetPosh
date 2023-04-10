@@ -1,14 +1,21 @@
 # Define a string that contains Kanji characters mixed with normal text
-$string = "こんにちは, PowerShell 世界!"
+$string = "QQ小程序开发者工具    The"
+$string2 = "MusicLake             The"
+$string3 = "MusicLâke             The"
 
-# Convert the string to a byte array using UTF8 encoding
-$bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+$i = 0
+$count = 0
 
-# Convert the byte array back to a string using UTF8 encoding
-$utf8string = [System.Text.Encoding]::UTF8.GetString($bytes)
+while ($count -lt 22) {
+  [char]$char = $string[$i]
+  $bytes = [text.Encoding]::UTF8.GetByteCount($char)
+  if ($bytes -gt 1) {
+    $count += ($bytes -1)
+  } else {
+    $count += $bytes
+  }
+  $i++
+}
 
-# Use Substring method on the UTF8 encoded string to get the first 5 characters
-$substring = $utf8string.Substring(0, 5)
-
-# Output the result
-Write-Output $substring
+"i : $($i) count : $($count)"
+$string[$i]

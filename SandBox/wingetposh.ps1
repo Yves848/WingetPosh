@@ -376,16 +376,25 @@ function Invoke-Winget2 {
         foreach ($col in $cols) {
           [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
           [long]$bytecount = 0
+          $charcount = 0
           #$field = [System.Text.Encoding]::UTF8.GetString($line).Substring($col.Position,$col.Len)
-          while($i2 -lt $col.Len) {
+          while($charcount -lt $col.Len) {
             [char]$char = $s[$i2]
             [void]$sb.Append($char)
             $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
             $byteCount += $nbBytes
+            if ($nbBytes -gt 1) {
+              $charcount += ($nbBytes -1)
+            } else {
+              $charcount += $nbBytes
+            }
             $i2++
           }
           #$i=$i2
           $field = $sb.ToString()
+          if ($field.EndsWith("…")) {
+            $i2++
+          }
           $sb = $null
           $package.Add($col.Name, $field)
         }
@@ -841,7 +850,7 @@ function Search-WGPackage {
     [string]$package,
     [string]$source
   )
-  $command = "winget search $package"
+  $command = "winget search '$package'"
   if ($source) {
     $command = $command, " --source $source" -join ""
   }
@@ -891,4 +900,4 @@ function testcolor {
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage qq-
+Search-WGPackage -package 'node'
