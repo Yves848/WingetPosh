@@ -415,14 +415,11 @@ function Invoke-Winget2 {
         $i2 = 0
         foreach ($col in $cols) {
           [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
-          [long]$bytecount = 0
           $charcount = 0
-          #$field = [System.Text.Encoding]::UTF8.GetString($line).Substring($col.Position,$col.Len)
           while ($charcount -lt $col.Len) {
             [char]$char = $s[$i2]
             [void]$sb.Append($char)
             $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
-            $byteCount += $nbBytes
             if ($nbBytes -gt 1) {
               $charcount += ($nbBytes - 1)
             }
@@ -431,7 +428,6 @@ function Invoke-Winget2 {
             }
             $i2++
           }
-          #$i=$i2
           $field = $sb.ToString()
           if ($field.EndsWith("…")) {
             $i2++
@@ -449,58 +445,6 @@ function Invoke-Winget2 {
   return $PackageList 
 } 
 
-<#
-  $fl = 0
-  while (-not $lines[$fl].StartsWith("----")) {
-    $fl++
-  }
-  
-  $cols = getColumnsHeaders -columsLine $lines[$fl - 1]
-  $lWidth = $lines[$fl].Length
-  
-  $PackageList = @()
-  $columns.Clear()
-  $i = 1
-  foreach ($col in [column[]]$cols) {
-    #if ($col.name -ne "source") {
-    if ($i -lt $cols.length) {
-    $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
-    $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
-    }
-    else {
-      $colWidth = $col.len  
-    }
-    $i++
-    $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
-  }
-  
-  For ($i = $fl + 1; $i -lt $lines.Length; $i++) {
-    $line = $lines[$i]
-    if (-not $line.StartsWith('-')) {
-      foreach ($column in $columns) {
-        $package = [ordered]@{}
-        try {
-          foreach ($key in $column.keys) {
-            $curcol = $column[$key]
-            if ($line.Length -ge ($curcol[0] + $curcol[2])) {
-            $field = $line.Substring($curcol[0], $curcol[2])
-            } 
-            else {
-              $field = $line.Substring($line.Length - $curcol[2])
-            }
-            $package.Add($key, $field)  
-          }
-          $PackageList += $package
-        }
-        catch {
-          #Write-Error $_
-        }
-      }
-    }
-  }
-  #>
-
-  
 function makeBlanks {
   param(
     $nblines,
