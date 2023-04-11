@@ -350,7 +350,8 @@ function Invoke-Expression2 {
 
   $session.Stop()
   $runspace.Dispose()
-  [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width," "))
+  [System.Console]::setcursorposition($statedata.X, $statedata.Y)
+  [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width, " "))
 }
 
 function Invoke-Winget {
@@ -360,7 +361,7 @@ function Invoke-Winget {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $statedata.X = 0
+  $statedata.X = 1
   $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
   $runspace = [runspacefactory]::CreateRunspace()
   $runspace.Open()
@@ -384,7 +385,6 @@ function Invoke-Winget {
           $nb = 30 - $i
           $mobile = $nav.Substring(1, $nb)
           $string = $mobile.PadLeft(30, '.')
-
         }
         else {
           $left = "".PadLeft($i, '.')
@@ -440,6 +440,9 @@ function Invoke-Winget {
           $charcount = 0
           while ($charcount -lt $col.Len) {
             [char]$char = $s[$i2]
+            if (-not ([bool]$char)) {
+              $char = " "
+            }
             [void]$sb.Append($char)
             $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
             if ($nbBytes -gt 1) {
@@ -454,9 +457,9 @@ function Invoke-Winget {
           if ($field.Contains("…")) {
             $i2++
           }
+
           $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
-
           $sb = $null
           $package.Add($col.Name, $field)
         }
@@ -498,7 +501,6 @@ function adjustCol {
   $field = ""
   while ($charcount -lt $len) {
     [char]$char = $col[$i]
-    #$field = $field, $char -join ""
     $field = $field + $char
     $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
     if ($nbBytes -gt 1) {
@@ -745,6 +747,7 @@ function Get-WGPackage {
     [switch]$update,
     [switch]$apply
   )
+  $title = ""
   if ($update) {
     $command = "winget update"
   }
@@ -770,6 +773,15 @@ function Get-WGPackage {
     }
   }
 
+  if ($update) {
+    $title = "⫷ Update ⫸"
+  }
+  else {
+    if ($uninstall) {
+      $title = "⫷ Uninstall ⫸"
+    }
+  }
+
   $list = Invoke-Winget $command
 
   if ($source) {
@@ -778,7 +790,7 @@ function Get-WGPackage {
   
   if ($interactive) {
     $data = @()
-    displayGrid -list $list -title "Packages List " -data ([ref]$data) -allowSearch $false
+    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false
     if ($apply) {
       $title = ""
       if ($data.length -gt 0) {
@@ -806,7 +818,6 @@ function Get-WGPackage {
 
 function Search-WGPackage {
   param(
-    [Parameter(Mandatory = $true)]
     [string]$package,
     [string]$source,
     [switch]$interactive,
@@ -814,28 +825,42 @@ function Search-WGPackage {
     [ValidateScript({ $interactive })]
     [switch]$install
   )
-  $command = "winget search '$package'"
-  $list = Invoke-Winget $command
-  if ($source) {
-    $list = $list |  Where-Object { $_.source -eq $source }
+  begin {
+    $terms = $package
+    if ($package.Trim() -eq "") {
+      $terms = getSearchTerms
+    }
   }
-  if ($interactive) {
-    $data = @()
-    displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
-    if ($install) {
-      if ($data.length -gt 0) {
-        $data | Out-Object | ForEach-Object {
-          $id = ($_.Id).Trim()
-          $expression = "winget install --id $($id)"
-          Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+  process {
+    if ($terms -ne "") {
+      $command = "winget search '$terms'"
+      $list = Invoke-Winget $command
+      if ($source) {
+        $list = $list |  Where-Object { $_.source -eq $source }
+      }
+      if ($interactive) {
+        $data = @()
+        displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+        if ($install) {
+          if ($data.length -gt 0) {
+            $data | Out-Object | ForEach-Object {
+              $id = ($_.Id).Trim()
+              $expression = "winget install --id $($id)"
+              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+            }
+          }
         }
+        $data
+      }
+      else {
+        $list
       }
     }
-    $data
+    else {
+      "Aborted"
+    }
   }
-  else {
-    $list
-  }
+  
 }
 
 function Out-Object {
@@ -857,23 +882,11 @@ function Out-Object {
     return $result
   }
 }
-  
-function testcolor {
-  if ($iscoreclr) {
-    $esc = "`e"
-  }
-  else {
-    $esc = $([char]0x1b)
-  }
-  0..255 | ForEach-Object {
-    Write-Host "$esc[4m$esc[38;5;$($_)m'test'$esc[0m"
-  } 
-}
 
 #Search-WGPackage -search code
 #Install-WGPackage -install
-#Get-WGPackage -interactive -source winget -update -apply
+Get-WGPackage -interactive 
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage -package 'notepad' -interactive -install -source winget
+#Search-WGPackage -package 'notepad' -interactive -install -source winget

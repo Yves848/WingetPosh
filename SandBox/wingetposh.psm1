@@ -385,7 +385,6 @@ function Invoke-Winget {
           $nb = 30 - $i
           $mobile = $nav.Substring(1, $nb)
           $string = $mobile.PadLeft(30, '.')
-
         }
         else {
           $left = "".PadLeft($i, '.')
@@ -441,6 +440,9 @@ function Invoke-Winget {
           $charcount = 0
           while ($charcount -lt $col.Len) {
             [char]$char = $s[$i2]
+            if (-not ([bool]$char)) {
+              $char = " "
+            }
             [void]$sb.Append($char)
             $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
             if ($nbBytes -gt 1) {
@@ -455,9 +457,9 @@ function Invoke-Winget {
           if ($field.Contains("…")) {
             $i2++
           }
+
           $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
-
           $sb = $null
           $package.Add($col.Name, $field)
         }
@@ -499,7 +501,6 @@ function adjustCol {
   $field = ""
   while ($charcount -lt $len) {
     [char]$char = $col[$i]
-    #$field = $field, $char -join ""
     $field = $field + $char
     $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
     if ($nbBytes -gt 1) {
