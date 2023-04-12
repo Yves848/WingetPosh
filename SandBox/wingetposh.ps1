@@ -321,7 +321,6 @@ function Invoke-Expression2 {
     }}'
     $spinners = $spinner | ConvertFrom-Json 
     $frameCount = $spinners.aesthetic.frames.count
-    $frameLength = $spinners.aesthetic.frames[0].Length
     $frameInterval = $spinners.aesthetic.interval
 
     $i = 1
@@ -336,8 +335,6 @@ function Invoke-Expression2 {
       Start-Sleep -Milliseconds $frameInterval
       $i++
     }
-
-
   }
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
@@ -454,7 +451,6 @@ function Invoke-Winget {
           if ($field.Contains("…")) {
             $i2++
           }
-
           $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
           $sb = $null
@@ -803,11 +799,16 @@ function Get-WGPackage {
           }
           [System.Console]::CursorVisible = $false
           Invoke-Expression2 -exp $expression -title $title
+          #Write-Host "Exit code : $($LASTEXITCODE)"
+          Write-Host "Name $($_.Name)"
           [System.Console]::CursorVisible = $true
         }
       }
+      # display summary.
+
+    } else {
+      $data
     }
-    $data
   }
   else {
     $list
@@ -846,6 +847,7 @@ function Search-WGPackage {
               $expression = "winget install --id $($id)"
               [System.Console]::CursorVisible = $false
               Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+              #Write-Host "Exit code : $($LASTEXITCODE)"
               [System.Console]::CursorVisible = $true
             }
           }
@@ -860,7 +862,6 @@ function Search-WGPackage {
       "Aborted"
     }
   }
-  
 }
 
 function Out-Object {
@@ -871,7 +872,7 @@ function Out-Object {
     $Data
   )
   begin {
-    [PSCustomObject[]]$result = @()
+    [pscustomobject[]]$result = @()
   }
   process {
     foreach ($d in $data) {
@@ -883,10 +884,11 @@ function Out-Object {
   }
 }
 
+
 #Search-WGPackage -search code
 #Install-WGPackage -install
-#Get-WGPackage -interactive -uninstall -apply
+Get-WGPackage -interactive | Out-Object
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-Search-WGPackage -package 'notepad' -interactive -install -source winget
+#Search-WGPackage -package 'notepad' -interactive -install -source winget

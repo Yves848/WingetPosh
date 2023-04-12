@@ -321,7 +321,6 @@ function Invoke-Expression2 {
     }}'
     $spinners = $spinner | ConvertFrom-Json 
     $frameCount = $spinners.aesthetic.frames.count
-    $frameLength = $spinners.aesthetic.frames[0].Length
     $frameInterval = $spinners.aesthetic.interval
 
     $i = 1
@@ -336,8 +335,6 @@ function Invoke-Expression2 {
       Start-Sleep -Milliseconds $frameInterval
       $i++
     }
-
-
   }
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
@@ -802,11 +799,16 @@ function Get-WGPackage {
           }
           [System.Console]::CursorVisible = $false
           Invoke-Expression2 -exp $expression -title $title
+          #Write-Host "Exit code : $($LASTEXITCODE)"
+          Write-Host "Name $($_.Name)"
           [System.Console]::CursorVisible = $true
         }
       }
+      # display summary.
+
+    } else {
+      $data
     }
-    $data
   }
   else {
     $list
@@ -845,6 +847,7 @@ function Search-WGPackage {
               $expression = "winget install --id $($id)"
               [System.Console]::CursorVisible = $false
               Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+              #Write-Host "Exit code : $($LASTEXITCODE)"
               [System.Console]::CursorVisible = $true
             }
           }
@@ -859,7 +862,6 @@ function Search-WGPackage {
       "Aborted"
     }
   }
-  
 }
 
 function Out-Object {

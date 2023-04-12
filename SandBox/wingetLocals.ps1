@@ -30,3 +30,9 @@ function getWingetLocals {
   )
   return $languageData
 }
+
+if (-not (test-path -Path ~/.config/.wingetposh)) {
+  new-item -Path ~/.config/.wingetposh
+}
+
+getWingetLocals | Out-File ~/.config/.wingetposh/locals.json -Force 
