@@ -457,7 +457,6 @@ function Invoke-Winget {
           if ($field.Contains("…")) {
             $i2++
           }
-
           $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
           $sb = $null
