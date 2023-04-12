@@ -63,6 +63,17 @@ class Frame {
   
 $Single = [Frame]::new($false)
 $Double = [Frame]::new($true)
+
+$baseFields = @{
+  'SearchName'= 'Name'
+  'SearchID'= 'Id'
+  'SearchVersion'= 'Version'
+  'AvailableHeader'= 'Available'
+  'SearchSource'= 'Source'
+  'ShowVersion'= 'Version'
+  'AvailableUpgrades'= 'upgrades available.'
+  "SearchMatch"= "Moniker"
+}
   
 class column {
   [string]$Name
@@ -226,6 +237,8 @@ function getColumnsHeaders {
     )]
     [string]$columsLine   
   )
+
+  $fields = Get-Content C:\Users\yvesg\.config\.wingetposh\locals.json | ConvertFrom-Json
   
   $tempCols = $columsLine.Split(" ")
   $cols = @()
@@ -249,7 +262,14 @@ function getColumnsHeaders {
       $len = $pos2 - $pos
     }
     $acolumn = [column]::new()
-    $acolumn.Name = $Cols[$i]
+    # get EN Name
+    $base = $fields.psobject.Properties | Where-Object {$_.Value -eq $cols[$i]}
+    if ($base.count -eq 1) {
+      $BaseName = $base.Name
+    } else {
+      $BaseName = ($base | Where-Object {$_.Name.StartsWith("Search")}).Name
+    }
+    $acolumn.Name = $baseFields[$BaseName]
     $acolumn.Position = $pos
     $acolumn.Len = $len
     $result += $acolumn
@@ -790,11 +810,11 @@ function Get-WGPackage {
         $data | Out-Object | ForEach-Object {
           $id = ($_.Id).Trim()
           if ($uninstall) {
-            $expression = "winget uninstall --id $($id)"
+            $expression = "winget uninstall --id $($_.Name)"
             $title = "🗑️ Uninstall $($id)"
           }
           else {
-            $expression = "winget upgrade --id $($id)"
+            $expression = "winget upgrade --id $($_.Name)"
             $title = "⚡ Upgrade $($id)"
           }
           [System.Console]::CursorVisible = $false
@@ -846,7 +866,7 @@ function Search-WGPackage {
               $id = ($_.Id).Trim()
               $expression = "winget install --id $($id)"
               [System.Console]::CursorVisible = $false
-              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($_.Name)"
               #Write-Host "Exit code : $($LASTEXITCODE)"
               [System.Console]::CursorVisible = $true
             }
@@ -887,8 +907,8 @@ function Out-Object {
 
 #Search-WGPackage -search code
 #Install-WGPackage -install
-Get-WGPackage -interactive | Out-Object
+#Get-WGPackage -interactive | Out-Object
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-#Search-WGPackage -package 'notepad' -interactive -install -source winget
+Search-WGPackage -package 'notepad' -interactive -install -source winget

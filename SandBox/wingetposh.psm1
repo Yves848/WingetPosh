@@ -64,6 +64,18 @@ class Frame {
 $Single = [Frame]::new($false)
 $Double = [Frame]::new($true)
   
+
+$baseFields = @{
+  'SearchName'= 'Name'
+  'SearchID'= 'Id'
+  'SearchVersion'= 'Version'
+  'AvailableHeader'= 'Available'
+  'SearchSource'= 'Source'
+  'ShowVersion'= 'Version'
+  'AvailableUpgrades'= 'upgrades available.'
+  "SearchMatch"= "Moniker"
+}
+  
 class column {
   [string]$Name
   [Int16]$Position
@@ -226,6 +238,8 @@ function getColumnsHeaders {
     )]
     [string]$columsLine   
   )
+
+  $fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
   
   $tempCols = $columsLine.Split(" ")
   $cols = @()
@@ -249,7 +263,14 @@ function getColumnsHeaders {
       $len = $pos2 - $pos
     }
     $acolumn = [column]::new()
-    $acolumn.Name = $Cols[$i]
+    # get EN Name
+    $base = $fields.psobject.Properties | Where-Object {$_.Value -eq $cols[$i]}
+    if ($base.count -eq 1) {
+      $BaseName = $base.Name
+    } else {
+      $BaseName = ($base | Where-Object {$_.Name.StartsWith("Search")}).Name
+    }
+    $acolumn.Name = $baseFields[$BaseName]
     $acolumn.Position = $pos
     $acolumn.Len = $len
     $result += $acolumn
@@ -791,21 +812,20 @@ function Get-WGPackage {
           $id = ($_.Id).Trim()
           if ($uninstall) {
             $expression = "winget uninstall --id $($id)"
-            $title = "🗑️ Uninstall $($id)"
+            $title = "🗑️ Uninstall $($_.Name)"
           }
           else {
             $expression = "winget upgrade --id $($id)"
-            $title = "⚡ Upgrade $($id)"
+            $title = "⚡ Upgrade $($_.Name)"
           }
           [System.Console]::CursorVisible = $false
           Invoke-Expression2 -exp $expression -title $title
           #Write-Host "Exit code : $($LASTEXITCODE)"
-          Write-Host "Name $($_.Name)"
           [System.Console]::CursorVisible = $true
         }
       }
       # display summary.
-
+      
     } else {
       $data
     }
@@ -846,7 +866,7 @@ function Search-WGPackage {
               $id = ($_.Id).Trim()
               $expression = "winget install --id $($id)"
               [System.Console]::CursorVisible = $false
-              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($_.Name)"
               #Write-Host "Exit code : $($LASTEXITCODE)"
               [System.Console]::CursorVisible = $true
             }

@@ -64,6 +64,17 @@ class Frame {
 $Single = [Frame]::new($false)
 $Double = [Frame]::new($true)
   
+
+$baseFields = @{
+  'SearchName'= 'Name'
+  'SearchID'= 'Id'
+  'SearchVersion'= 'Version'
+  'AvailableHeader'= 'Available'
+  'SearchSource'= 'Source'
+  'ShowVersion'= 'Version'
+  'AvailableUpgrades'= 'upgrades available.'
+}
+  
 class column {
   [string]$Name
   [Int16]$Position
@@ -226,6 +237,8 @@ function getColumnsHeaders {
     )]
     [string]$columsLine   
   )
+
+  $fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
   
   $tempCols = $columsLine.Split(" ")
   $cols = @()
@@ -249,7 +262,14 @@ function getColumnsHeaders {
       $len = $pos2 - $pos
     }
     $acolumn = [column]::new()
-    $acolumn.Name = $Cols[$i]
+    # get EN Name
+    $base = $fields.psobject.Properties | Where-Object {$_.Value -eq $cols[$i]}
+    if ($base.count -eq 1) {
+      $BaseName = $base.Name
+    } else {
+      $BaseName = ($base | Where-Object {$_.Name.StartsWith("Search")}).Name
+    }
+    $acolumn.Name = $baseFields[$BaseName]
     $acolumn.Position = $pos
     $acolumn.Len = $len
     $result += $acolumn
@@ -306,41 +326,35 @@ function Invoke-Expression2 {
   $sb = {
     $x = $statedata.X
     $y = $statedata.Y
-  
+    $spinner = '{"aesthetic": {
+      "interval": 80,
+      "frames": [
+        "▰▱▱▱▱▱▱",
+        "▰▰▱▱▱▱▱",
+        "▰▰▰▱▱▱▱",
+        "▰▰▰▰▱▱▱",
+        "▰▰▰▰▰▱▱",
+        "▰▰▰▰▰▰▱",
+        "▰▰▰▰▰▰▰",
+        "▰▱▱▱▱▱▱"
+      ]
+    }}'
+    $spinners = $spinner | ConvertFrom-Json 
+    $frameCount = $spinners.aesthetic.frames.count
+    $frameInterval = $spinners.aesthetic.interval
 
     $i = 1
-    #Write-Host $statedata
     $string = "".PadRight(30, ".")
     $nav = "oOo"
     while ($true) {
-      if ($i -lt $nav.Length) {
-        $mobile = $nav.Substring($nav.Length - $i)
-        $string = $mobile.PadRight(30, '.')
-      }
-      else {
-        if ($i -gt 27) {
-          $nb = 30 - $i
-          $mobile = $nav.Substring(1, $nb)
-          $string = $mobile.PadLeft(30, '.')
-
-        }
-        else {
-          $left = "".PadLeft($i, '.')
-          $right = "".PadRight(27 - $i, '.')
-          $string = $left, $nav, $right -join ""
-        }
-      }
+      $e = "$([char]27)"
       [System.Console]::setcursorposition($X, $Y)
-      $str = "$($statedata.title) ", $string -join ""
-      [System.Console]::write($str)
+      $frame = $spinners.aesthetic.frames[$i % $frameCount]
+      $string = "$($e)[s","$e[u$frame"," $($statedata.title)" -join ""
+      [System.Console]::write($string)
+      Start-Sleep -Milliseconds $frameInterval
       $i++
-      if ($i -gt 30) {
-        $i = 1
-      }
-      Start-Sleep -Milliseconds 100
     }
-
-
   }
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
@@ -351,7 +365,7 @@ function Invoke-Expression2 {
   $session.Stop()
   $runspace.Dispose()
   [System.Console]::setcursorposition($statedata.X, $statedata.Y)
-  [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width," "))
+  [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width, " "))
 }
 
 function Invoke-Winget {
@@ -361,7 +375,7 @@ function Invoke-Winget {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $statedata.X = 0
+  $statedata.X = 1
   $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
   $runspace = [runspacefactory]::CreateRunspace()
   $runspace.Open()
@@ -385,7 +399,6 @@ function Invoke-Winget {
           $nb = 30 - $i
           $mobile = $nav.Substring(1, $nb)
           $string = $mobile.PadLeft(30, '.')
-
         }
         else {
           $left = "".PadLeft($i, '.')
@@ -441,6 +454,9 @@ function Invoke-Winget {
           $charcount = 0
           while ($charcount -lt $col.Len) {
             [char]$char = $s[$i2]
+            if (-not ([bool]$char)) {
+              $char = " "
+            }
             [void]$sb.Append($char)
             $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
             if ($nbBytes -gt 1) {
@@ -457,7 +473,6 @@ function Invoke-Winget {
           }
           $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
-
           $sb = $null
           $package.Add($col.Name, $field)
         }
@@ -499,7 +514,6 @@ function adjustCol {
   $field = ""
   while ($charcount -lt $len) {
     [char]$char = $col[$i]
-    #$field = $field, $char -join ""
     $field = $field + $char
     $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
     if ($nbBytes -gt 1) {
@@ -746,6 +760,7 @@ function Get-WGPackage {
     [switch]$update,
     [switch]$apply
   )
+  $title = ""
   if ($update) {
     $command = "winget update"
   }
@@ -771,6 +786,15 @@ function Get-WGPackage {
     }
   }
 
+  if ($update) {
+    $title = "⫷ Update ⫸"
+  }
+  else {
+    if ($uninstall) {
+      $title = "⫷ Uninstall ⫸"
+    }
+  }
+
   $list = Invoke-Winget $command
 
   if ($source) {
@@ -779,7 +803,7 @@ function Get-WGPackage {
   
   if ($interactive) {
     $data = @()
-    displayGrid -list $list -title "Packages List " -data ([ref]$data) -allowSearch $false
+    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false
     if ($apply) {
       $title = ""
       if ($data.length -gt 0) {
@@ -793,12 +817,18 @@ function Get-WGPackage {
             $expression = "winget upgrade --id $($id)"
             $title = "⚡ Upgrade $($id)"
           }
-          
+          [System.Console]::CursorVisible = $false
           Invoke-Expression2 -exp $expression -title $title
+          #Write-Host "Exit code : $($LASTEXITCODE)"
+          Write-Host "Name $($_.Name)"
+          [System.Console]::CursorVisible = $true
         }
       }
+      # display summary.
+
+    } else {
+      $data
     }
-    $data
   }
   else {
     $list
@@ -807,7 +837,6 @@ function Get-WGPackage {
 
 function Search-WGPackage {
   param(
-    [Parameter(Mandatory = $true)]
     [string]$package,
     [string]$source,
     [switch]$interactive,
@@ -815,27 +844,43 @@ function Search-WGPackage {
     [ValidateScript({ $interactive })]
     [switch]$install
   )
-  $command = "winget search '$package'"
-  $list = Invoke-Winget $command
-  if ($source) {
-    $list = $list |  Where-Object { $_.source -eq $source }
+  begin {
+    $terms = $package
+    if ($package.Trim() -eq "") {
+      $terms = getSearchTerms
+    }
   }
-  if ($interactive) {
-    $data = @()
-    displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
-    if ($install) {
-      if ($data.length -gt 0) {
-        $data | Out-Object | ForEach-Object {
-          $id = ($_.Id).Trim()
-          $expression = "winget install --id $($id)"
-          Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+  process {
+    if ($terms -ne "") {
+      $command = "winget search '$terms'"
+      $list = Invoke-Winget $command
+      if ($source) {
+        $list = $list |  Where-Object { $_.source -eq $source }
+      }
+      if ($interactive) {
+        $data = @()
+        displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+        if ($install) {
+          if ($data.length -gt 0) {
+            $data | Out-Object | ForEach-Object {
+              $id = ($_.Id).Trim()
+              $expression = "winget install --id $($id)"
+              [System.Console]::CursorVisible = $false
+              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+              #Write-Host "Exit code : $($LASTEXITCODE)"
+              [System.Console]::CursorVisible = $true
+            }
+          }
         }
+        $data
+      }
+      else {
+        $list
       }
     }
-    $data
-  }
-  else {
-    $list
+    else {
+      "Aborted"
+    }
   }
 }
 
