@@ -14,6 +14,10 @@ Function        Search-WGPackage                                   0.8.0      wi
 - Number of function reduced
 - Using animations for the long processing tasks
 - New parameters added
+(beta)
+- Using localized resources from winget repository
+- Polished animations
+- Minor bugfixes
 
 ## Installation
 ```
