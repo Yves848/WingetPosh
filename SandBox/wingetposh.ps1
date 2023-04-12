@@ -306,38 +306,35 @@ function Invoke-Expression2 {
   $sb = {
     $x = $statedata.X
     $y = $statedata.Y
-  
+    $spinner = '{"aesthetic": {
+      "interval": 80,
+      "frames": [
+        "▰▱▱▱▱▱▱",
+        "▰▰▱▱▱▱▱",
+        "▰▰▰▱▱▱▱",
+        "▰▰▰▰▱▱▱",
+        "▰▰▰▰▰▱▱",
+        "▰▰▰▰▰▰▱",
+        "▰▰▰▰▰▰▰",
+        "▰▱▱▱▱▱▱"
+      ]
+    }}'
+    $spinners = $spinner | ConvertFrom-Json 
+    $frameCount = $spinners.aesthetic.frames.count
+    $frameLength = $spinners.aesthetic.frames[0].Length
+    $frameInterval = $spinners.aesthetic.interval
 
     $i = 1
-    #Write-Host $statedata
     $string = "".PadRight(30, ".")
     $nav = "oOo"
     while ($true) {
-      if ($i -lt $nav.Length) {
-        $mobile = $nav.Substring($nav.Length - $i)
-        $string = $mobile.PadRight(30, '.')
-      }
-      else {
-        if ($i -gt 27) {
-          $nb = 30 - $i
-          $mobile = $nav.Substring(1, $nb)
-          $string = $mobile.PadLeft(30, '.')
-
-        }
-        else {
-          $left = "".PadLeft($i, '.')
-          $right = "".PadRight(27 - $i, '.')
-          $string = $left, $nav, $right -join ""
-        }
-      }
+      $e = "$([char]27)"
       [System.Console]::setcursorposition($X, $Y)
-      $str = "$($statedata.title) ", $string -join ""
-      [System.Console]::write($str)
+      $frame = $spinners.aesthetic.frames[$i % $frameCount]
+      $string = "$($e)[s","$e[u$frame"," $($statedata.title)" -join ""
+      [System.Console]::write($string)
+      Start-Sleep -Milliseconds $frameInterval
       $i++
-      if ($i -gt 30) {
-        $i = 1
-      }
-      Start-Sleep -Milliseconds 100
     }
 
 
@@ -804,8 +801,9 @@ function Get-WGPackage {
             $expression = "winget upgrade --id $($id)"
             $title = "⚡ Upgrade $($id)"
           }
-          
+          [System.Console]::CursorVisible = $false
           Invoke-Expression2 -exp $expression -title $title
+          [System.Console]::CursorVisible = $true
         }
       }
     }
@@ -846,7 +844,9 @@ function Search-WGPackage {
             $data | Out-Object | ForEach-Object {
               $id = ($_.Id).Trim()
               $expression = "winget install --id $($id)"
+              [System.Console]::CursorVisible = $false
               Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+              [System.Console]::CursorVisible = $true
             }
           }
         }
@@ -885,8 +885,8 @@ function Out-Object {
 
 #Search-WGPackage -search code
 #Install-WGPackage -install
-Get-WGPackage -interactive 
+#Get-WGPackage -interactive -uninstall -apply
 #Get-WGUpdatables
 #$list = Show-WGList
 #Update-WGPackage -update
-#Search-WGPackage -package 'notepad' -interactive -install -source winget
+Search-WGPackage -package 'notepad' -interactive -install -source winget
