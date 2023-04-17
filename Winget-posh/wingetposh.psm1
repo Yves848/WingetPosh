@@ -73,6 +73,7 @@ $baseFields = @{
   'SearchSource'= 'Source'
   'ShowVersion'= 'Version'
   'AvailableUpgrades'= 'upgrades available.'
+  "SearchMatch"= "Moniker"
 }
   
 class column {

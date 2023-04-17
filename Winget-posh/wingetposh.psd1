@@ -111,88 +111,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '0.5.1 : 
-        - Fixed the show-WGList bug when there is no updatable packages to show.
-        0.5.2 : 
-        - Removed the "-Interactive" switch to search-WGPackage.       
-        - Removed the search parameter from search-WGPackage.
-        - Allowing multiple selection in uninstall-WGPackage.
-        - Removing crash brug when no package is found in search-WGPackage.
-        - Removing the "-Interactive" switch to updage-WGPackage.  If no Object is passed through the pipeline, it will automatically display an interactive grid
-        - Update readme.md
-        
-        0.5.4 : 
-        - Addind a license file.
-
-        0.5.5 : 
-        - Adding licence acceptance.
-        
-        0.5.6 : 
-        - Adding headless functions : Get-WGList and Get-WGUpdatables
-
-        0.6.0 :
-        - Removing "Microsoft.PowerShell.ConsoleGuiTools" dependance to add Powershell 5.1 compatibility
-        - Rewriting the TUI in full powershell (some flickering still to fix)
-        - Adding "Invoke-Winget" funtion to add generic call to Winget
-        
-        0.6.1 : 
-        - Fix -Install switch of Install-WGPAckage
-        - Rename Show-WGUpdatables to Update-WGPackages
-        - Add a switch -Update to Update-WGPackages
-
-        0.6.2 :
-        - Fix flickering
-        - rename Update-WGPackages to Update-WGPackage for uniformity
-        - in Install-WGPackage, F3 allows to run a new search
-        - Version of the module shown in the window frame
-        
-        0.6.3 : 
-        - remove the module version of the window frame
-        
-        0.6.4 :
-        - Add "+" and "-" keys for selections in the grid
-        - Version of the module shown in the window frame (back)
-        - add "?" to display help
-        
-        0.6.5 :
-        - changing visuals, refining windows drawing
-        - add a "package" parameter to Install-WGPackage
-        
-        0.6.6 :
-        - Correctiong bugs in install, uninstall and update functions
-        - Fixing the order of the install-WGPackage parameters
-
-        0.7.0 :
-        - Changing search mode.  Now the search is on everything, not only the name
-        - Improving winget result parsing
-        - Every function now returns a hastable.  Faster, lighter
-        - Adding a "Out-Object" function to convert hashtable results in PsCustomObject arrays (if needed)
-        - Adding a "Search-WGPackage" to search without the graphical interface
-        
-        0.7.2 : 
-        - Minor bug fixes
-        
-        0.7.3 :
-        - fixing visual function (using hastables)
-        
-        0.7.4 :
-        - fixing bug with visual functions returning multiple objects
-        
-        0.7.5 :
-        - Fixing the update-wgpackage when multiple packages selected
-        
-        0.7.9 :
-        - Start Using runspaces to multitask the module.
-          First usage is for animating the waitings.
-          Last version before heavy code restucture / rewrite
-        - Small visual improvements
-        
-        0.8.0 : 
-        - .......'
+        ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/master/readme.md'
 
         
         # Prerelease string of this module
-        Prerelease = 'beta'
+        Prerelease = 'beta2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $true
