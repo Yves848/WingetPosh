@@ -5,11 +5,16 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
  \ V  V / | || | | || (_| ||  __/| |_ | |_) || (_) |\__ \| | | |
   \_/\_/  |_||_| |_| \__, | \___| \__|| .__/  \___/ |___/|_| |_|
                      |___/            |_|
+                 ___       ___       ___
+                / _ \     ( _ )     / _ \
+               | | | |    / _ \    | | | |
+               | |_| | _ | (_) | _ | |_| |
+                \___/ (_) \___/ (_) \___/
 ```
 ***
 
 ## Demo
-https://youtu.be/8hW1kMu2Dq8
+https://youtu.be/DmUAo6TDVvA
 
 
 A set of functions to help using winget.
@@ -19,6 +24,8 @@ Entirely written in __Powershell__, it has 2 types of functions : visuals and no
 No dependencies are used to ensure compatibility with Powershell 5.1
 
 The availablle functions are :
+- Get-WGPackage [-source] [-interactive] [-uninstall] [-update] [-apply]
+- Search-WGPackage "package" [-source] [-interactive] [-install] [-allowsearch]
 - Get-WGList                
 - Install-WGPackage [-Install] [-package]
 - Invoke-Winget 
@@ -119,13 +126,101 @@ Close and re-open the powershell 5.1 terminal to make changes effective.
           Last version before heavy code restucture / rewrite
         - Small visual improvements
 
+### 0.8.0 :
+        - Rewrite of the parsing module.
+        - Now, parsing successfuly multibytes characters (eg : kanji)
+        - Using more animations for the long running tasks (runspaces)
+        - More parameters to the functions and more error tracking.
+        - Using localized resources from winget repository
+        - Many bug fixes.
+        - No more fixes to the 0.7.9 => Merging 0.8.0 to master
+
 There is a "?" on the bottom of the window, for interactive commands.
 Pressing "?" displays a "help" in the context of the running command.
-### Examples
+
 ``` Powershell
    Get-Command -module wingetposh
 ```
 ![](./images/001.png)
+
+## Installation
+```
+  Install-module wingetposh -scope currentuser -allowprerelease
+```
+
+## Get-WGPackage
+
+```
+  Get-WGPackage [-source] [-interactive] [-uninstall] [-update] [-apply]
+```
+- -source : Specify the source to filter on
+- -interactive : Switch that command the display of the GUI
+- -uninstall : switch to specify if the selected packages will be uninstalled
+- -update : switch to specify if the selected packages will be updated
+- -apply : additionnal switch to confirm -uninstall & -update
+
+### Examples
+
+``` powershell
+  Get-WGPackage -source winget
+```
+Get a hashtable with the installed packages, filtered on the source "winget"
+
+``` powershell
+  Get-WGPackage -source winget | Out-Object
+```
+Get an Object (or an array of objects) with the installed packages, filtered on the source "winget"
+
+``` powershell
+  Get-WGPackage -interactive
+```
+Displays a grid with the installed packages.  If confirmed by "Enter", the function returns a hashtable of the selected packages.
+![](./images/A_01.png)
+![](./images/A_02.png)
+
+``` powershell
+  Get-WGPackage -interactive -uninstall -apply -source winget
+```
+Displays a grid with the installed packages, filtered on the source "winget".
+If confirmed by "Enter", the function will uninstall the selected packages and returns a hashtable with the uninstalled packages infos.
+
+![](./images/A_03.png)
+![](./images/A_04.png)
+
+To use the switches *-update* and *-uninstall*, **-interactive** is mandatory.
+
+To use the *-apply*, *-update* **or** *-uninstall* **and** *-interactive* are mandatory
+
+The function will warn the user if the correct switches are not used together.
+
+![](./images/A_05.png)
+![](./images/A_06.png)
+
+## Search-Package
+
+```
+  Search-WGPackage "package" [-source] [-interactive] [-install] [-allowsearch]
+```
+- -source : Specify the source to filter on
+- -interactive : Switch that command the display of the GUI
+- -install : Lauch the installation of the selected packages
+- -allowsearch : Allow to search on new keywords by pressing "F3" in the grid.
+
+### Examples
+
+``` powershell
+  Search-WGPackage notepad -source winget | Out-Object | Select-Object -Property id
+```
+
+![](./images/A_07.png)
+
+``` powershell
+  Search-WGPackage notepad -source winget -interactive -install -allowsearch
+```
+
+![](./images/A_08.png)
+![](./images/A_09.png)
+
 ``` Powershell
   Show-WGList
 ```
