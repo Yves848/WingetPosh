@@ -69,7 +69,16 @@ ScriptsToProcess = @('./wingetLocals.ps1')
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Get-WGPackage', 'Invoke-Winget', 'Out-Object', 'Search-WGPackage')
+FunctionsToExport = @('Get-WGPackage', 
+                      'Invoke-Winget', 
+                      'Out-Object', 
+                      'Search-WGPackage', 
+                      'Uninstall-WGPackage',
+                      'Update-WGPackage',
+                      'Install-WGPackage', 
+                      'Show-WGList',
+                      'Get-WGList',
+                      'Get-WGSources' )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -115,7 +124,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'beta2'
+        Prerelease = 'beta4'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $true

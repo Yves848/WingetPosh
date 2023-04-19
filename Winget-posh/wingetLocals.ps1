@@ -32,9 +32,9 @@ function getWingetLocals {
 }
 
 if (-not (test-path -Path ~/.config/.wingetposh)) {
-  new-item -Path ~/.config/.wingetposh -ItemType Directory
-  Remove-Item -Path ~/.config/.wingetposh/locals.json -ErrorAction Ignore
-  new-item -Path ~/.config/.wingetposh/locals.json
+  new-item -Path ~/.config/.wingetposh -ItemType Directory | Out-Null
+  Remove-Item -Path ~/.config/.wingetposh/locals.json -ErrorAction Ignore | Out-Null
+  new-item -Path ~/.config/.wingetposh/locals.json | Out-Null
 }
 
-getWingetLocals | ConvertTo-Json |Out-File -FilePath ~/.config/.wingetposh/locals.json -Force 
+getWingetLocals | ConvertTo-Json |Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null

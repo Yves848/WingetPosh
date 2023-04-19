@@ -1,11 +1,4 @@
-﻿[Flags()] enum Styles {
-  Normal = 0
-  Underline = 1
-  Bold = 2
-  Reversed = 3
-}
-
-class upgradeSoftware {
+﻿class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
   [string]$Id
@@ -19,6 +12,11 @@ class installSoftware {
   [string]$id
   [string]$Version
   [String]$Source
+}
+
+class wingetSource {
+  [string]$Name
+  [string]$Argument
 }
   
   
@@ -74,6 +72,8 @@ $baseFields = @{
   'ShowVersion'       = 'Version'
   'AvailableUpgrades' = 'upgrades available.'
   "SearchMatch"       = "Moniker"
+  "SourceListName"    = "Name"
+  "SourceListArg"     = "Argument"
 }
   
 class column {
@@ -368,6 +368,22 @@ function Invoke-Expression2 {
   $runspace.Dispose()
   [System.Console]::setcursorposition($statedata.X, $statedata.Y)
   [System.Console]::write("".PadRight($Host.UI.RawUI.BufferSize.Width, " "))
+}
+
+function Get-WGSources {
+  $cmd = "winget source list"
+  $result = Invoke-Expression -Command $cmd
+  $data = $false
+  $sources = [ordered]@{}
+  foreach($line in $result) {
+    if ($data) {
+      $name, $argument = $line -split "\s+"
+      $sources.Add($name,$argument)
+    } else {
+      $data = ($line.Contains('-----')) 
+    }
+  }
+  $sources
 }
 
 function Invoke-Winget {
@@ -778,6 +794,22 @@ function Get-WGPackage {
     [switch]$update,
     [switch]$apply
   )
+  if ($source) {
+    $sources = Get-WGSources 
+    if (-not $sources.Contains($source)) {
+      Clear-Host
+      Write-Host "⚠️ Source Unknown." -ForegroundColor DarkYellow
+      Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,"-") -ForegroundColor DarkYellow
+      Write-Host "Valid sources are : " -ForegroundColor Blue
+      $sources.keys | ForEach-Object {
+        Write-Host "  🔹 $($_)"
+      }
+      Write-Host ""
+      Write-Host "🛑 Operation Aborted"
+      return $null
+    }
+  }
+
   $title = ""
   if ($update) {
     $command = "winget update"
@@ -864,6 +896,20 @@ function Search-WGPackage {
     [switch]$install
   )
   begin {
+    if ($source) {
+      $sources = Get-WGSources 
+      if (-not $sources.Contains($source)) {
+        Clear-Host
+        Write-Host "⚠️ Source Unknown." -ForegroundColor DarkYellow
+        Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,"-") -ForegroundColor DarkYellow
+        Write-Host "Valid sources are : " -ForegroundColor Blue
+        $sources.keys | ForEach-Object {
+          Write-Host "  🔹 $($_)"
+        }
+        $terms = ""
+        return $null
+      }
+    }
     $terms = $package
     if ($package.Trim() -eq "") {
       $terms = getSearchTerms
@@ -898,7 +944,8 @@ function Search-WGPackage {
       }
     }
     else {
-      "Aborted"
+      Write-Host ""
+      Write-Host "🛑 Operation Aborted"
     }
   }
 }
@@ -980,14 +1027,13 @@ function Out-Object {
   }
 }
 
-
-
 #Search-WGPackage -search code
-#Install-WGPackage -source winget
+#Install-WGPackage -source $args
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
-#Get-WGList -source winget
-#Show-WGList -source winget
+#Get-WGList -source $args
+#Show-WGList -source $args
 #Update-WGPackage -apply
-#Search-WGPackage -package 'notepad++' 
-Uninstall-WGPackage -source winget -apply
+#Search-WGPackage -package 'notepad++' -source $args
+#Uninstall-WGPackage -source winget -apply
+#Get-WGSources
