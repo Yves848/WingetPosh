@@ -794,7 +794,7 @@ function Get-WGPackage {
     [switch]$update,
     [switch]$apply
   )
-  if ($source) {
+  if ($null -ne $source) {
     $sources = Get-WGSources 
     if (-not $sources.Contains($source)) {
       Clear-Host
@@ -896,7 +896,7 @@ function Search-WGPackage {
     [switch]$install
   )
   begin {
-    if ($source) {
+    if ($null -ne $source) {
       $sources = Get-WGSources 
       if (-not $sources.Contains($source)) {
         Clear-Host
@@ -1026,14 +1026,3 @@ function Out-Object {
     return $result
   }
 }
-
-#Search-WGPackage -search code
-#Install-WGPackage -source $args
-#Get-WGPackage -interactive -update
-#Get-WGUpdatables
-#Get-WGList -source $args
-#Show-WGList -source $args
-#Update-WGPackage -apply
-#Search-WGPackage -package 'notepad++' -source $args
-#Uninstall-WGPackage -source winget -apply
-#Get-WGSources
