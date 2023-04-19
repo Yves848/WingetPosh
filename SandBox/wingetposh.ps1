@@ -63,16 +63,17 @@ class Frame {
   
 $Single = [Frame]::new($false)
 $Double = [Frame]::new($true)
+  
 
 $baseFields = @{
-  'SearchName'= 'Name'
-  'SearchID'= 'Id'
-  'SearchVersion'= 'Version'
-  'AvailableHeader'= 'Available'
-  'SearchSource'= 'Source'
-  'ShowVersion'= 'Version'
-  'AvailableUpgrades'= 'upgrades available.'
-  "SearchMatch"= "Moniker"
+  'SearchName'        = 'Name'
+  'SearchID'          = 'Id'
+  'SearchVersion'     = 'Version'
+  'AvailableHeader'   = 'Available'
+  'SearchSource'      = 'Source'
+  'ShowVersion'       = 'Version'
+  'AvailableUpgrades' = 'upgrades available.'
+  "SearchMatch"       = "Moniker"
 }
   
 class column {
@@ -238,7 +239,7 @@ function getColumnsHeaders {
     [string]$columsLine   
   )
 
-  $fields = Get-Content C:\Users\yvesg\.config\.wingetposh\locals.json | ConvertFrom-Json
+  $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
   
   $tempCols = $columsLine.Split(" ")
   $cols = @()
@@ -263,11 +264,12 @@ function getColumnsHeaders {
     }
     $acolumn = [column]::new()
     # get EN Name
-    $base = $fields.psobject.Properties | Where-Object {$_.Value -eq $cols[$i]}
+    $base = $script:fields.psobject.Properties | Where-Object { $_.Value -eq $cols[$i] }
     if ($base.count -eq 1) {
       $BaseName = $base.Name
-    } else {
-      $BaseName = ($base | Where-Object {$_.Name.StartsWith("Search")}).Name
+    }
+    else {
+      $BaseName = ($base | Where-Object { $_.Name.StartsWith("Search") }).Name
     }
     $acolumn.Name = $baseFields[$BaseName]
     $acolumn.Position = $pos
@@ -350,7 +352,7 @@ function Invoke-Expression2 {
       $e = "$([char]27)"
       [System.Console]::setcursorposition($X, $Y)
       $frame = $spinners.aesthetic.frames[$i % $frameCount]
-      $string = "$($e)[s","$e[u$frame"," $($statedata.title)" -join ""
+      $string = "$($e)[s", "$e[u$frame", " $($statedata.title)" -join ""
       [System.Console]::write($string)
       Start-Sleep -Milliseconds $frameInterval
       $i++
@@ -386,7 +388,6 @@ function Invoke-Winget {
     $x = $statedata.X
     $y = $statedata.Y
     $i = 1
-    #Write-Host $statedata
     $string = "".PadRight(30, ".")
     $nav = "oOo"
     while ($true) {
@@ -447,36 +448,39 @@ function Invoke-Winget {
     else {
       if ($data) {
         $s = [string]$_
-        $package = [ordered]@{}
-        $i2 = 0
-        foreach ($col in $cols) {
-          [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
-          $charcount = 0
-          while ($charcount -lt $col.Len) {
-            [char]$char = $s[$i2]
-            if (-not ([bool]$char)) {
-              $char = " "
+        $regex = $script:Fields.AvailableUpgrades.Replace("{0}","")
+        if (-not $s.Contains($regex)) {
+          $package = [ordered]@{}
+          $i2 = 0
+          foreach ($col in $cols) {
+            [System.Text.StringBuilder]$sb = New-Object System.Text.StringBuilder $col.Len
+            $charcount = 0
+            while ($charcount -lt $col.Len) {
+              [char]$char = $s[$i2]
+              if (-not ([bool]$char)) {
+                $char = " "
+              }
+              [void]$sb.Append($char)
+              $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
+              if ($nbBytes -gt 1) {
+                $charcount += ($nbBytes - 1)
+              }
+              else {
+                $charcount += $nbBytes
+              }
+              $i2++
             }
-            [void]$sb.Append($char)
-            $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
-            if ($nbBytes -gt 1) {
-              $charcount += ($nbBytes - 1)
+            $field = $sb.ToString()
+            if ($field.Contains("…")) {
+              $i2++
             }
-            else {
-              $charcount += $nbBytes
-            }
-            $i2++
-          }
-          $field = $sb.ToString()
-          if ($field.Contains("…")) {
-            $i2++
-          }
-          $field = adjustCol -len $columns.$($col.Name)[1] -col $field
+            $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
-          $sb = $null
-          $package.Add($col.Name, $field)
+            $sb = $null
+            $package.Add($col.Name, $field)
+          }
+          $PackageList += $package
         }
-        $PackageList += $package
       }
     }
     $i++
@@ -610,11 +614,17 @@ function displayGrid {
     $win.page = $page
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     $row = 0
-    $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
-      $index = (($page - 1) * $nbLines) + $row
-      $checked = $list[$index].Selected
-      makelines $list[$index] $checked $row $selected $win.W-2
-      $row++
+    if ($list.length -eq 1) {
+      $checked = $list.Selected
+      $partlist = makelines $list $checked $row $selected $win.W-2
+    }
+    else {
+      $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
+        $index = (($page - 1) * $nbLines) + $row
+        $checked = $list[$index].Selected
+        makelines $list[$index] $checked $row $selected $win.W-2
+        $row++
+      }
     }
     $nbDisplay = $partlist.Length
     $sText = $partlist | Out-String 
@@ -669,9 +679,17 @@ function displayGrid {
         }
         if ($key.VirtualKeyCode -eq 32) {
           # key Space
-          $index = (($page - 1) * $nbLines) + $selected
-          $checked = $list[$index].Selected
-          $list[$index].Selected = -not $checked
+          if ($list.length -eq 1) {
+            #$index = (($page - 1) * $nbLines) + $selected
+            $checked = $list.Selected
+            $list.Selected = -not $checked
+          }
+          else {
+            $index = (($page - 1) * $nbLines) + $selected
+            $checked = $list[$index].Selected
+            $list[$index].Selected = -not $checked
+          }
+          
         }
         if ($key.VirtualKeyCode -eq 13) {
           # key Enter
@@ -810,11 +828,11 @@ function Get-WGPackage {
         $data | Out-Object | ForEach-Object {
           $id = ($_.Id).Trim()
           if ($uninstall) {
-            $expression = "winget uninstall --id $($_.Name)"
+            $expression = "winget uninstall --id $($id)"
             $title = "🗑️ Uninstall $($id)"
           }
           else {
-            $expression = "winget upgrade --id $($_.Name)"
+            $expression = "winget upgrade --id $($id)"
             $title = "⚡ Upgrade $($id)"
           }
           [System.Console]::CursorVisible = $false
@@ -826,7 +844,8 @@ function Get-WGPackage {
       }
       # display summary.
 
-    } else {
+    }
+    else {
       $data
     }
   }
@@ -866,7 +885,7 @@ function Search-WGPackage {
               $id = ($_.Id).Trim()
               $expression = "winget install --id $($id)"
               [System.Console]::CursorVisible = $false
-              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($_.Name)"
+              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
               #Write-Host "Exit code : $($LASTEXITCODE)"
               [System.Console]::CursorVisible = $true
             }
@@ -884,6 +903,63 @@ function Search-WGPackage {
   }
 }
 
+function Get-WGList {
+  param(
+    [string]$source
+  )
+  Get-WGPackage -source $source
+}
+
+function Show-WGList {
+  param(
+    [string]$source
+  )
+  Get-WGPackage -interactive -source $source
+}
+
+function Install-WGPackage {
+  param(
+    [string]$package,
+    [string]$source
+  )
+  $params = @{
+    Interactive = $true
+    Package = $package
+    Source = $source
+    Install = $true
+  }
+  Search-WGPackage @params
+}
+
+function Update-WGPackage {
+  param(
+    [string]$source,
+    [switch]$apply
+  )
+  $params=@{
+    Source= $source
+    Interactive = $true
+    Update = $true
+    Apply = $apply
+  }
+  
+  Get-WGPackage @params
+}
+
+function Uninstall-WGPackage {
+  param(
+    [string]$source,
+    [switch]$apply
+  )
+  $params = @{
+    Interactive = $true
+    Source = $source
+    Uninstall = $true
+    Apply = $apply
+  }
+  Get-WGPackage @params
+}
+
 function Out-Object {
   [CmdletBinding()]
   param (
@@ -892,7 +968,7 @@ function Out-Object {
     $Data
   )
   begin {
-    [pscustomobject[]]$result = @()
+    [PSCustomObject[]]$result = @()
   }
   process {
     foreach ($d in $data) {
@@ -905,10 +981,13 @@ function Out-Object {
 }
 
 
+
 #Search-WGPackage -search code
-#Install-WGPackage -install
-#Get-WGPackage -interactive | Out-Object
+#Install-WGPackage -source winget
+#Get-WGPackage -interactive -update
 #Get-WGUpdatables
-#$list = Show-WGList
-#Update-WGPackage -update
-Search-WGPackage -package 'notepad' -interactive -install -source winget
+#Get-WGList -source winget
+#Show-WGList -source winget
+#Update-WGPackage -apply
+#Search-WGPackage -package 'notepad++' 
+Uninstall-WGPackage -source winget -apply
