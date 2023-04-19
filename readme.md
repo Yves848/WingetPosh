@@ -41,11 +41,18 @@ The availablle functions are :
 ``` Powershell
   Install-Module -Name wingetposh -Scope CurrentUser
 ```
+# IMPORTANT 
+Don't forget to import the module after the installation !
+When it's imported, the localized resources are downloaded from the winget repository.
+
 ### Remark : 
 To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
 Install-Module PowerShellGet -AllowClobber -Force
 ```
+
+
+
 Close and re-open the powershell 5.1 terminal to make changes effective.
 ***
 
