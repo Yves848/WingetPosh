@@ -437,6 +437,7 @@ function Invoke-Winget {
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
+  [System.Console]::CursorVisible = $false
   $handle = $session.BeginInvoke()
   
   $PackageList = @()
@@ -503,6 +504,7 @@ function Invoke-Winget {
   }
   $session.Stop()
   $runspace.Dispose()
+  [System.Console]::CursorVisible = $true
   return $PackageList 
 } 
 
@@ -1032,8 +1034,8 @@ function Out-Object {
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
-#Show-WGList -source $args
+Show-WGList -source $args
 #Update-WGPackage -apply
-#Search-WGPackage -package 'notepad++' -source $args
+#Search-WGPackage -package 'notepad++' -source $args -interactive
 #Uninstall-WGPackage -source winget -apply
 #Get-WGSources
