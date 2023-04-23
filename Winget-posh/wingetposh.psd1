@@ -79,7 +79,9 @@ FunctionsToExport = @('Get-WGPackage',
                       'Show-WGList',
                       'Get-WGList',
                       'Get-WGSources',
-                      "Set-wingetPoshConfig" )
+                      "Set-WingetPoshConfig",
+                      "Get-WingetPoshConfig",
+                      "Reset-WingetposhConfig" )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -125,7 +127,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'beta5'
+        Prerelease = 'beta6'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $true
