@@ -632,7 +632,7 @@ function displayGrid {
   )
    
   $global:Host.UI.RawUI.FlushInputBuffer()
-  Get-Config
+  Get-WingetposhConfig
   $WinWidth = [System.Console]::WindowWidth
   $X = 0
   $Y = 0
@@ -1020,7 +1020,7 @@ function Install-WGPackage {
     source      = $source
     install     = $true
   }
-  Get-Config
+  Get-WingetposhConfig
   if ($silent) {
     $params.add("silent", $true)
   }
@@ -1057,7 +1057,7 @@ function Uninstall-WGPackage {
     Uninstall   = $true
     Apply       = $apply
   }
-  Get-Config
+  Get-WingetposhConfig
   if ($silent) {
     $params.add("silent", $true)
   }
@@ -1087,8 +1087,14 @@ function Out-Object {
   }
 }
 
-function Get-Config {
+function Get-WingetposhConfig {
+  param(
+    [switch]$display
+  )
   $script:config = Get-Content $env:USERPROFILE/.config/.wingetposh/config.json | ConvertFrom-Json
+  if ($display) {
+    $script:config
+  }
 }
 
 function Set-WingetposhConfig {
@@ -1097,7 +1103,11 @@ function Set-WingetposhConfig {
     [String]$param,
     $value
   )
-  Get-Config
+  Get-WingetposhConfig
   $script:config.$param = $value
   $script:config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+}
+
+function Reset-WingetposhConfig {
+  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 }

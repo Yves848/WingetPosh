@@ -214,7 +214,8 @@ $env:USERPROFILE/.config/.wingetposh/config.json
 ```
 ![image11](./images/012.png)
 
-To change an option, use the **Set-WingetposhConfig**
+## Set an option
+  Change the value of an option in the config file
 
 ## Example
 To allow the use of nerd font special characters in the grid, change the option "UseNerdFont" to true
@@ -226,3 +227,18 @@ To force silent installation of packages, set "SilentInstall" to true
 ``` powershell
   Set-WingetposhConfig -param SilentInstall -value $true
 ```
+
+## Reset the config file
+  Reset to default every options in the config file
+
+``` Powershell
+  Reset-WingetposhConfig
+```
+
+## Display the options of the confid file
+  Display the value of the options in the config file
+
+``` Powershell
+  Get-WingetposhConfig -display
+```
+![image13](./images/013.png)
