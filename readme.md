@@ -14,7 +14,7 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ***
 
 ## Demo
-https://youtu.be/DmUAo6TDVvA
+https://youtu.be/Zm-ytzGOzu8
 
 
 A set of functions to help using winget.
