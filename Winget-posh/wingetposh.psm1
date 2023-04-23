@@ -377,7 +377,7 @@ function Invoke-Expression2 {
       $i++
     }
   }
-  Write-Host $exp
+
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
