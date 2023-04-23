@@ -39,4 +39,4 @@ if (-not (test-path -Path ~/.config/.wingetposh)) {
 
 getWingetLocals | ConvertTo-Json |Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
 
-'{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false" }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+'{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
