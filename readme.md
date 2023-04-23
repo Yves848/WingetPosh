@@ -63,7 +63,7 @@ Close and re-open the powershell 5.1 terminal to make changes effective.
 ***
 
 ## History
-See [History.md]() for the complete module history.
+See [History.md](./history.md) for the complete module history.
 
 There is a "?" on the bottom of the window, for interactive commands.
 Pressing "?" displays a "help" in the context of the running command.
