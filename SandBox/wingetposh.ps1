@@ -377,6 +377,7 @@ function Invoke-Expression2 {
       $i++
     }
   }
+  Write-Host $exp
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
@@ -394,11 +395,12 @@ function Get-WGSources {
   $result = Invoke-Expression -Command $cmd
   $data = $false
   $sources = [ordered]@{}
-  foreach($line in $result) {
+  foreach ($line in $result) {
     if ($data) {
       $name, $argument = $line -split "\s+"
-      $sources.Add($name,$argument)
-    } else {
+      $sources.Add($name, $argument)
+    }
+    else {
       $data = ($line.Contains('-----')) 
     }
   }
@@ -484,7 +486,7 @@ function Invoke-Winget {
     else {
       if ($data) {
         $s = [string]$_
-        $regex = $script:Fields.AvailableUpgrades.Replace("{0}","")
+        $regex = $script:Fields.AvailableUpgrades.Replace("{0}", "")
         if (-not $s.Contains($regex)) {
           $package = [ordered]@{}
           $i2 = 0
@@ -588,7 +590,13 @@ function makelines {
     $esc = $([char]0x1b)
   }
   [string]$line = ""
-  $check = [char]::ConvertFromUtf32(0xf05d)
+  if ($script:config.UseNerdFont -eq $true) {
+    $check = [char]::ConvertFromUtf32(0xf05d)
+  }
+  else {
+    $check = "✓"
+  }
+  
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
     $line = $line, $col -join " "
@@ -624,6 +632,7 @@ function displayGrid {
   )
    
   $global:Host.UI.RawUI.FlushInputBuffer()
+  Get-Config
   $WinWidth = [System.Console]::WindowWidth
   $X = 0
   $Y = 0
@@ -816,14 +825,15 @@ function Get-WGPackage {
     [switch]$interactive,
     [switch]$uninstall,
     [switch]$update,
-    [switch]$apply
+    [switch]$apply,
+    [switch]$silent
   )
   if ($source) {
     $sources = Get-WGSources 
     if (-not $sources.Contains($source)) {
       Clear-Host
       Write-Host "⚠️ Source Unknown." -ForegroundColor DarkYellow
-      Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,"-") -ForegroundColor DarkYellow
+      Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, "-") -ForegroundColor DarkYellow
       Write-Host "Valid sources are : " -ForegroundColor Blue
       $sources.keys | ForEach-Object {
         Write-Host "  🔹 $($_)"
@@ -884,7 +894,11 @@ function Get-WGPackage {
         $data | Out-Object | ForEach-Object {
           $id = ($_.Id).Trim()
           if ($uninstall) {
-            $expression = "winget uninstall --id $($id)"
+            $expression = "winget uninstall "
+            if ($silent) {
+              $expression = $expression, "--silent --disable-interactivity" -join ""
+            }
+            $expression = $expression, " --id $($id)" -join ""
             $title = "🗑️ Uninstall $($id)"
           }
           else {
@@ -916,7 +930,8 @@ function Search-WGPackage {
     [string]$source,
     [switch]$interactive,
     [switch]$allowSearch,
-    [switch]$install
+    [switch]$install,
+    [switch]$silent
   )
   begin {
     if ($source) {
@@ -924,7 +939,7 @@ function Search-WGPackage {
       if (-not $sources.Contains($source)) {
         Clear-Host
         Write-Host "⚠️ Source Unknown." -ForegroundColor DarkYellow
-        Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,"-") -ForegroundColor DarkYellow
+        Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, "-") -ForegroundColor DarkYellow
         Write-Host "Valid sources are : " -ForegroundColor Blue
         $sources.keys | ForEach-Object {
           Write-Host "  🔹 $($_)"
@@ -951,8 +966,12 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
+              $expression = "winget install "
+              if ($silent) {
+                $expression = $expression, "--silent --disable-interactivity" -join ""
+              }
               $id = ($_.Id).Trim()
-              $expression = "winget install --id $($id)"
+              $expression = $expression, " --id $($id)" -join ""
               [System.Console]::CursorVisible = $false
               Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
               #Write-Host "Exit code : $($LASTEXITCODE)"
@@ -990,13 +1009,23 @@ function Show-WGList {
 function Install-WGPackage {
   param(
     [string]$package,
-    [string]$source
+    [string]$source,
+    [switch]$silent,
+    [switch]$acceptpackageagreements,
+    [switch]$acceptsourceagreements
   )
   $params = @{
     interactive = $true
-    package = $package
-    source = $source
-    install = $true
+    package     = $package
+    source      = $source
+    install     = $true
+  }
+  Get-Config
+  if ($silent) {
+    $params.add("silent", $true)
+  }
+  else {
+    $params.Add("silent", $script:config.SilentInstall)
   }
   Search-WGPackage @params
 }
@@ -1006,11 +1035,11 @@ function Update-WGPackage {
     [string]$source,
     [switch]$apply
   )
-  $params=@{
-    Source= $source
+  $params = @{
+    Source      = $source
     Interactive = $true
-    Update = $true
-    Apply = $apply
+    Update      = $true
+    Apply       = $apply
   }
   
   Get-WGPackage @params
@@ -1019,13 +1048,21 @@ function Update-WGPackage {
 function Uninstall-WGPackage {
   param(
     [string]$source,
-    [switch]$apply
+    [switch]$apply,
+    [switch]$silent
   )
   $params = @{
     Interactive = $true
-    Source = $source
-    Uninstall = $true
-    Apply = $apply
+    Source      = $source
+    Uninstall   = $true
+    Apply       = $apply
+  }
+  Get-Config
+  if ($silent) {
+    $params.add("silent", $true)
+  }
+  else {
+    $params.Add("silent", $script:config.SilentInstall)
   }
   Get-WGPackage @params
 }
@@ -1050,13 +1087,29 @@ function Out-Object {
   }
 }
 
+function Get-Config {
+  $script:config = Get-Content $env:USERPROFILE/.config/.wingetposh/config.json | ConvertFrom-Json
+}
+
+function Set-WingetposhConfig {
+  param(
+    [ValidateSet("UseNerdFont", "SilentInstall", "AcceptPackageAgreements", "AcceptSourceAgreements", "Force")]
+    [String]$param,
+    $value
+  )
+  Get-Config
+  $script:config.$param = $value
+  $script:config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+}
+
 #Search-WGPackage -search code
-Install-WGPackage -package notepad -source $args
+#Install-WGPackage -package cpu-z -source $args 
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
 #Show-WGList -source $args
 #Update-WGPackage -apply
 #Search-WGPackage -package 'notepad++' -source $args -interactive
-#Uninstall-WGPackage -source winget -apply
+Uninstall-WGPackage -source winget -apply
 #Get-WGSources
+#Set-WingetposhConfig -param UseNerdFont -value $args
