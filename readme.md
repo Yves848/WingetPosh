@@ -96,31 +96,6 @@ Get a hashtable with the installed packages, filtered on the source "winget"
 ```
 Get an Object (or an array of objects) with the installed packages, filtered on the source "winget"
 
-``` powershell
-  Get-WGPackage -interactive
-```
-Displays a grid with the installed packages.  If confirmed by "Enter", the function returns a hashtable of the selected packages.
-![](./images/A_01.png)
-![](./images/A_02.png)
-
-``` powershell
-  Get-WGPackage -interactive -uninstall -apply -source winget
-```
-Displays a grid with the installed packages, filtered on the source "winget".
-If confirmed by "Enter", the function will uninstall the selected packages and returns a hashtable with the uninstalled packages infos.
-
-![](./images/A_03.png)
-![](./images/A_04.png)
-
-To use the switches *-update* and *-uninstall*, **-interactive** is mandatory.
-
-To use the *-apply*, *-update* **or** *-uninstall* **and** *-interactive* are mandatory
-
-The function will warn the user if the correct switches are not used together.
-
-![](./images/A_05.png)
-![](./images/A_06.png)
-
 ## Search-Package
 
 ```
@@ -138,13 +113,6 @@ The function will warn the user if the correct switches are not used together.
 ```
 
 ![](./images/A_07.png)
-
-``` powershell
-  Search-WGPackage notepad -source winget -interactive -install -allowsearch
-```
-
-![](./images/A_08.png)
-![](./images/A_09.png)
 
 ``` Powershell
   Show-WGList
@@ -184,6 +152,7 @@ If omitted, wingetposh will display a popup to enter the packages to search.
   Search-WGPackage
 ```
 ![](./images/006-1.png)
+
 ***
 
 ## Converting results to PSCustomObject arrays
@@ -206,23 +175,26 @@ The source can be specified to limit the number of results.  EG : *-source winge
 
 ![image8](./images/007.png)
 
-![image8-1](./images/008.png)
+![image8-1](./images/006-2.png)
 
 ***
 
 ## Select and update an installed package
  
+ To confirm the update, the *-apply* switch must be provided.  Otherwise, the function will only return a list of the selected packages.
+ 
+
 ```Powershell
-  Update-WGPackage -update
+  Update-WGPackage -source winget -apply
 ```
 ![image9](./images/009.png)
 
 ***
 
 ## Select and uninstall an installed package
- 
+ To confirm the update, the *-apply* switch must be provided.  Otherwise, the function will only return a list of the selected packages.
 ``` Powershell
-  Uninstall-WGPackage
+  Uninstall-WGPackage -source winget -apply
 ```
 ![image10](./images/010.png)
 
@@ -232,3 +204,25 @@ The source can be specified to limit the number of results.  EG : *-source winge
   Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
 ```
 ![image11](./images/011.png)
+
+# Configuration
+
+Starting 0.8.0-beta5 version, a config file is used to store some global parameters.
+The file is stored in
+``` powershell
+$env:USERPROFILE/.config/.wingetposh/config.json
+```
+![image11](./images/012.png)
+
+To change an option, use the **Set-WingetposhConfig**
+
+## Example
+To allow the use of nerd font special characters in the grid, change the option "UseNerdFont" to true
+``` Powershell
+  Set-WingetposhConfig -param UseNerdFont -value $true
+```
+
+To force silent installation of packages, set "SilentInstall" to true
+``` powershell
+  Set-WingetposhConfig -param SilentInstall -value $true
+```
