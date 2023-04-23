@@ -47,15 +47,33 @@ class Frame {
       $this.LEFTSPLIT = "⊫"
     }
     else {
-      $this.UL = "┌"
-      $this.UR = "┐"
+      #$this.UL = "┌"
+      $this.UL = [char]::ConvertFromUtf32(0x256d)
+      #$this.UR = "┐"
+      $this.UR = [char]::ConvertFromUtf32(0x256e)
       $this.TOP = "─"
       $this.LEFT = "│"
       $this.RIGHT = "│"
-      $this.BL = "└"
-      $this.BR = "┘"
+      $this.BL = [char]::ConvertFromUtf32(0x2570)
+      #$this.BL = "└"
+      $this.BR = [char]::ConvertFromUtf32(0x256f)
+      #$this.BR = "┘"
       $this.BOTTOM = "─"
+      $this.LEFTSPLIT = [char]::ConvertFromUtf32(0x2524)
+      $this.RIGHTSPLIT = [char]::ConvertFromUtf32(0x251c)
     }
+  }
+}
+
+class Keys {
+  static [string] $enter
+  static [string] $space 
+  static [string] $escape
+
+  static Keys() {
+    [Keys]::enter = [char]::ConvertFromUtf32(0xf0311)
+    [Keys]::space = [char]::ConvertFromUtf32(0xf1050)
+    [Keys]::escape = [char]::ConvertFromUtf32(0xf12b7)
   }
 }
   
@@ -163,7 +181,7 @@ class window {
   
   
   [void] drawVersion() {
-    $version = $this.frameStyle.LEFT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHT -join ""
+    $version = $this.frameStyle.LEFTSPLIT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHTSPLIT -join ""
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
     [console]::write($version)
   }
@@ -172,13 +190,13 @@ class window {
     if ($this.title -ne "") {
       $local:X = $this.x + 2
       $this.setPosition($local:X, $this.Y)
-      Write-Host "| " -NoNewline -ForegroundColor $this.frameColor
+      Write-Host ($this.frameStyle.LEFTSPLIT, " " -join "") -NoNewline -ForegroundColor $this.frameColor
       $local:X = $local:X + 2
       $this.setPosition($local:X, $this.Y)
       Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
       $local:X = $local:X + $this.title.Length
       $this.setPosition($local:X, $this.Y)
-      Write-Host " |" -NoNewline -ForegroundColor $this.frameColor
+      Write-Host $this.frameStyle.RIGHTSPLIT -NoNewline -ForegroundColor $this.frameColor
     }
   }
   
@@ -191,7 +209,8 @@ class window {
       $local:x = $this.x + 2
       $local:Y = $this.Y + $this.h
       $this.setPosition($local:X, $local:Y)
-      [console]::write($this.footer)
+      $foot = $this.frameStyle.LEFTSPLIT, " ", $this.footer, " ", $this.frameStyle.RIGHTSPLIT -join ""
+      [console]::write($foot)
     }
   }
   
@@ -358,6 +377,7 @@ function Invoke-Expression2 {
       $i++
     }
   }
+
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
@@ -375,11 +395,12 @@ function Get-WGSources {
   $result = Invoke-Expression -Command $cmd
   $data = $false
   $sources = [ordered]@{}
-  foreach($line in $result) {
+  foreach ($line in $result) {
     if ($data) {
       $name, $argument = $line -split "\s+"
-      $sources.Add($name,$argument)
-    } else {
+      $sources.Add($name, $argument)
+    }
+    else {
       $data = ($line.Contains('-----')) 
     }
   }
@@ -437,6 +458,7 @@ function Invoke-Winget {
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
+  [System.Console]::CursorVisible = $false
   $handle = $session.BeginInvoke()
   
   $PackageList = @()
@@ -464,7 +486,7 @@ function Invoke-Winget {
     else {
       if ($data) {
         $s = [string]$_
-        $regex = $script:Fields.AvailableUpgrades.Replace("{0}","")
+        $regex = $script:Fields.AvailableUpgrades.Replace("{0}", "")
         if (-not $s.Contains($regex)) {
           $package = [ordered]@{}
           $i2 = 0
@@ -503,6 +525,7 @@ function Invoke-Winget {
   }
   $session.Stop()
   $runspace.Dispose()
+  [System.Console]::CursorVisible = $true
   return $PackageList 
 } 
 
@@ -518,7 +541,7 @@ function makeBlanks {
     $esc = $([char]0x1b)
   }
   $blanks = 1..$nblines | ForEach-Object {
-    "$esc[38;5;15m$($Single.LEFT)", "".PadLeft($Win.W - 2, " "), "$esc[38;5;15m$($Single.RIGHT)" -join ""
+    "$esc[38;5;15m$($Single.LEFT)", "".PadRight($Win.W - 2, " "), "$esc[38;5;15m$($Single.RIGHT)" -join ""
   }
   $blanks | Out-String
 }
@@ -567,25 +590,33 @@ function makelines {
     $esc = $([char]0x1b)
   }
   [string]$line = ""
+  if ($script:config.UseNerdFont -eq $true) {
+    $check = [char]::ConvertFromUtf32(0xf05d)
+  }
+  else {
+    $check = "✓"
+  }
+  
   foreach ($key in $columns.keys) {
     [string]$col = $list.$key
     $line = $line, $col -join " "
+  }
+  if ($checked) {
+    $line = "$esc[38;5;46m$check", $line -join ""
+  }
+  else {
+    $line = " ", $line -join ""
   }
   if ($row -eq $selected) {
     $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
   }
   if ($row % 2 -eq 0) {
-    $line = "$esc[38;5;7m$($line)"
+    $line = "$esc[38;5;252m$($line)"
   }
   else {
-    $line = "$esc[38;5;8m$($line)"
+    $line = "$esc[38;5;244m$($line)"
   }
-  if ($checked) {
-    $line = "$esc[38;5;46m$('✓')", $line -join ""
-  }
-  else {
-    $line = " ", $line -join ""
-  }
+  
 
   "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
 }
@@ -601,6 +632,7 @@ function displayGrid {
   )
    
   $global:Host.UI.RawUI.FlushInputBuffer()
+  Get-Config
   $WinWidth = [System.Console]::WindowWidth
   $X = 0
   $Y = 0
@@ -608,7 +640,7 @@ function displayGrid {
   $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
   $win.title = $title
   $Win.titleColor = "Green"
-  $win.footer = $Single.LEFT, "$(color "[?]" "red") : Help $(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit", $Single.RIGHT -join ""
+  $win.footer = "$(color "[?]" "red") : Help $(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit"
   $win.drawWindow();
   $win.drawVersion();
   $nbLines = $Win.h - 1
@@ -658,6 +690,7 @@ function displayGrid {
         if ($key.Character -eq '?') {
           # Help
           displayHelp $allowSearch
+          $redraw = $true
         }
         if ($key.character -eq 'q' -or $key.VirtualKeyCode -eq 27) {
           # Quit
@@ -760,7 +793,7 @@ function displayHelp {
   $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
   $win.title = "Help"
   $Win.titleColor = "Blue"
-  $win.footer = $Single.LEFT, "$(color "[Esc]" "red") : Close", $Single.RIGHT -join ""
+  $win.footer = "$(color "[Esc]" "red") : Close"
   $win.drawWindow();
 
   $buffer = "$(color "↑↓" "cyan") : Navigate `t`t`t`t $(color "← →" "cyan") Change page"
@@ -792,14 +825,15 @@ function Get-WGPackage {
     [switch]$interactive,
     [switch]$uninstall,
     [switch]$update,
-    [switch]$apply
+    [switch]$apply,
+    [switch]$silent
   )
   if ($source) {
     $sources = Get-WGSources 
     if (-not $sources.Contains($source)) {
       Clear-Host
       Write-Host "⚠️ Source Unknown." -ForegroundColor DarkYellow
-      Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,"-") -ForegroundColor DarkYellow
+      Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, "-") -ForegroundColor DarkYellow
       Write-Host "Valid sources are : " -ForegroundColor Blue
       $sources.keys | ForEach-Object {
         Write-Host "  🔹 $($_)"
@@ -860,7 +894,11 @@ function Get-WGPackage {
         $data | Out-Object | ForEach-Object {
           $id = ($_.Id).Trim()
           if ($uninstall) {
-            $expression = "winget uninstall --id $($id)"
+            $expression = "winget uninstall "
+            if ($silent) {
+              $expression = $expression, "--silent --disable-interactivity" -join ""
+            }
+            $expression = $expression, " --id $($id)" -join ""
             $title = "🗑️ Uninstall $($id)"
           }
           else {
@@ -892,8 +930,8 @@ function Search-WGPackage {
     [string]$source,
     [switch]$interactive,
     [switch]$allowSearch,
-    [ValidateScript({ $interactive })]
-    [switch]$install
+    [switch]$install,
+    [switch]$silent
   )
   begin {
     if ($source) {
@@ -901,7 +939,7 @@ function Search-WGPackage {
       if (-not $sources.Contains($source)) {
         Clear-Host
         Write-Host "⚠️ Source Unknown." -ForegroundColor DarkYellow
-        Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,"-") -ForegroundColor DarkYellow
+        Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, "-") -ForegroundColor DarkYellow
         Write-Host "Valid sources are : " -ForegroundColor Blue
         $sources.keys | ForEach-Object {
           Write-Host "  🔹 $($_)"
@@ -928,8 +966,12 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
+              $expression = "winget install "
+              if ($silent) {
+                $expression = $expression, "--silent --disable-interactivity" -join ""
+              }
               $id = ($_.Id).Trim()
-              $expression = "winget install --id $($id)"
+              $expression = $expression, " --id $($id)" -join ""
               [System.Console]::CursorVisible = $false
               Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
               #Write-Host "Exit code : $($LASTEXITCODE)"
@@ -967,13 +1009,23 @@ function Show-WGList {
 function Install-WGPackage {
   param(
     [string]$package,
-    [string]$source
+    [string]$source,
+    [switch]$silent,
+    [switch]$acceptpackageagreements,
+    [switch]$acceptsourceagreements
   )
   $params = @{
-    Interactive = $true
-    Package = $package
-    Source = $source
-    Install = $true
+    interactive = $true
+    package     = $package
+    source      = $source
+    install     = $true
+  }
+  Get-Config
+  if ($silent) {
+    $params.add("silent", $true)
+  }
+  else {
+    $params.Add("silent", $script:config.SilentInstall)
   }
   Search-WGPackage @params
 }
@@ -983,11 +1035,11 @@ function Update-WGPackage {
     [string]$source,
     [switch]$apply
   )
-  $params=@{
-    Source= $source
+  $params = @{
+    Source      = $source
     Interactive = $true
-    Update = $true
-    Apply = $apply
+    Update      = $true
+    Apply       = $apply
   }
   
   Get-WGPackage @params
@@ -996,13 +1048,21 @@ function Update-WGPackage {
 function Uninstall-WGPackage {
   param(
     [string]$source,
-    [switch]$apply
+    [switch]$apply,
+    [switch]$silent
   )
   $params = @{
     Interactive = $true
-    Source = $source
-    Uninstall = $true
-    Apply = $apply
+    Source      = $source
+    Uninstall   = $true
+    Apply       = $apply
+  }
+  Get-Config
+  if ($silent) {
+    $params.add("silent", $true)
+  }
+  else {
+    $params.Add("silent", $script:config.SilentInstall)
   }
   Get-WGPackage @params
 }
@@ -1027,13 +1087,29 @@ function Out-Object {
   }
 }
 
+function Get-Config {
+  $script:config = Get-Content $env:USERPROFILE/.config/.wingetposh/config.json | ConvertFrom-Json
+}
+
+function Set-WingetposhConfig {
+  param(
+    [ValidateSet("UseNerdFont", "SilentInstall", "AcceptPackageAgreements", "AcceptSourceAgreements", "Force")]
+    [String]$param,
+    $value
+  )
+  Get-Config
+  $script:config.$param = $value
+  $script:config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+}
+
 #Search-WGPackage -search code
-#Install-WGPackage -source $args
+#Install-WGPackage -package cpu-z -source $args 
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
 #Show-WGList -source $args
 #Update-WGPackage -apply
-#Search-WGPackage -package 'notepad++' -source $args
-#Uninstall-WGPackage -source winget -apply
+#Search-WGPackage -package 'notepad++' -source $args -interactive
+Uninstall-WGPackage -source winget -apply
 #Get-WGSources
+#Set-WingetposhConfig -param UseNerdFont -value $args
