@@ -33,7 +33,7 @@ The availablle functions are :
 - Show-WGList                 
 - Uninstall-WGPackage         
 - Update-WGPackage [-Update] 
-- Search-WGPackage
+- Set-WingetposhConfig -param -value
   
   
 ***
