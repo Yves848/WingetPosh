@@ -14,7 +14,7 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
 ***
 
 ## Demo
-https://youtu.be/DmUAo6TDVvA
+https://youtu.be/Zm-ytzGOzu8
 
 
 A set of functions to help using winget.
@@ -25,9 +25,9 @@ No dependencies are used to ensure compatibility with Powershell 5.1
 
 The availablle functions are :
 - Get-WGPackage [-source] [-interactive] [-uninstall] [-update] [-apply]
-- Search-WGPackage "package" [-source] [-interactive] [-install] [-allowsearch]
-- Get-WGList                
-- Install-WGPackage [-Install] [-package]
+- Search-WGPackage [-package "search terms"] [-source "source"] [-interactive] [-install] [-allowsearch]
+- Get-WGList [-source "source"]
+- Install-WGPackage [-package] [-source] [-silent]
 - Invoke-Winget 
 - Out-Object              
 - Show-WGList                 
@@ -38,8 +38,14 @@ The availablle functions are :
   
 ***
 ## Installation
+### Stable (0.7.9)
 ``` Powershell
   Install-Module -Name wingetposh -Scope CurrentUser
+```
+
+### Beta 
+``` Powershell
+  Install-module wingetposh -scope currentuser -allowprerelease
 ```
 # IMPORTANT 
 Don't forget to import the module after the installation !
@@ -57,90 +63,7 @@ Close and re-open the powershell 5.1 terminal to make changes effective.
 ***
 
 ## History
-### 0.5.1 : 
-- Fixed the show-WGList bug when there is no updatable packages to show.
-### 0.5.2 : 
-- Removed the "-Interactive" switch to search-WGPackage.       
-- Removed the search parameter from search-WGPackage.
-- Allowing multiple selection in uninstall-WGPackage.
-- Removing crash brug when no package is found in search-WGPackage.
-- Removing the "-Interactive" switch to updage-WGPackage.  If no Object is passed through the pipeline, it will automatically display an interactive grid
-- Update readme.md
-
-### 0.5.4 : 
-- Addind a license file.
-
-### 0.5.5 : 
-- Adding license acceptance when installing module
-
-### 0.5.6 : 
-        - Adding headless functions : Get-WGList and Get-WGUpdatables
-
-### 0.6.0 :
-        - Removing "Microsoft.PowerShell.ConsoleGuiTools" dependance to add Powershell 5.1 compatibility
-        - Rewriting the TUI in full powershell (some flickering still to fix)
-        - Adding "Invoke-Winget" funtion to add generic call to Winget
-
-### 0.6.1 : 
-        - Fix -Install switch of Install-WGPAckage
-        - Rename Show-WGUpdatables to Update-WGPackages
-        - Add a switch -Update to Update-WGPackages
-
-### 0.6.2 :
-        - Fix flickering
-        - rename Update-WGPackages to Update-WGPackage for uniformity
-        - in Install-WGPackage, F3 allows to run a new search
-        - Version of the module shown in the window frame
-        
-### 0.6.3 : 
-        - remove the module version of the window frame
-
-### 0.6.4 :
-        - Add '+' and '-' keys for selections in the grid
-        - Version of the module shown in the window frame (back)
-        - add "?" to display help
-
-### 0.6.5 :
-        - refine windows drawing
-        - add a "package" parameter to Install-WGPackage
-
-### 0.6.6 :
-        - Correctiong bugs in install, uninstall and update functions
-        - Fixing the order of the install-WGPackage parameters
-
-### 0.7.0 :
-        - Changing search mode.  Now the search is on everything, not only the name
-        - Improving winget result parsing
-        - Every function now returns a hastable.  Faster, lighter
-        - Adding a "Out-Object" function to convert hashtable results in PsCustomObject arrays (if needed)
-        - Adding a "Search-WGPackage" to search without the graphical interface
-  
-### 0.7.2 : 
-        - Minor bug fixes
-        
-### 0.7.3 :
-        - fixing visual function (using hastables)
-
-### 0.7.4 :
-        - fixing bug with visual functions returning multiple objects
-
-### 0.7.5 :
-        - Fixing the update-wgpackage when multiple packages selected
-
-### 0.7.9 :
-        - Start Using runspaces to multitask the module.
-          First usage is for animating the waitings.
-          Last version before heavy code restucture / rewrite
-        - Small visual improvements
-
-### 0.8.0 :
-        - Rewrite of the parsing module.
-        - Now, parsing successfuly multibytes characters (eg : kanji)
-        - Using more animations for the long running tasks (runspaces)
-        - More parameters to the functions and more error tracking.
-        - Using localized resources from winget repository
-        - Many bug fixes.
-        - No more fixes to the 0.7.9 => Merging 0.8.0 to master
+See [History.md](./history.md) for the complete module history.
 
 There is a "?" on the bottom of the window, for interactive commands.
 Pressing "?" displays a "help" in the context of the running command.
@@ -149,11 +72,6 @@ Pressing "?" displays a "help" in the context of the running command.
    Get-Command -module wingetposh
 ```
 ![](./images/001.png)
-
-## Installation
-```
-  Install-module wingetposh -scope currentuser -allowprerelease
-```
 
 ## Get-WGPackage
 
@@ -178,31 +96,6 @@ Get a hashtable with the installed packages, filtered on the source "winget"
 ```
 Get an Object (or an array of objects) with the installed packages, filtered on the source "winget"
 
-``` powershell
-  Get-WGPackage -interactive
-```
-Displays a grid with the installed packages.  If confirmed by "Enter", the function returns a hashtable of the selected packages.
-![](./images/A_01.png)
-![](./images/A_02.png)
-
-``` powershell
-  Get-WGPackage -interactive -uninstall -apply -source winget
-```
-Displays a grid with the installed packages, filtered on the source "winget".
-If confirmed by "Enter", the function will uninstall the selected packages and returns a hashtable with the uninstalled packages infos.
-
-![](./images/A_03.png)
-![](./images/A_04.png)
-
-To use the switches *-update* and *-uninstall*, **-interactive** is mandatory.
-
-To use the *-apply*, *-update* **or** *-uninstall* **and** *-interactive* are mandatory
-
-The function will warn the user if the correct switches are not used together.
-
-![](./images/A_05.png)
-![](./images/A_06.png)
-
 ## Search-Package
 
 ```
@@ -220,13 +113,6 @@ The function will warn the user if the correct switches are not used together.
 ```
 
 ![](./images/A_07.png)
-
-``` powershell
-  Search-WGPackage notepad -source winget -interactive -install -allowsearch
-```
-
-![](./images/A_08.png)
-![](./images/A_09.png)
 
 ``` Powershell
   Show-WGList
@@ -259,11 +145,14 @@ And, of course, we can pipe this result to perform additionnal operations .....
 
 ***
 ## Search Packages
-The -Package parameter is mandatory.
+The -Package parameter is not mandatory.
+If omitted, wingetposh will display a popup to enter the packages to search.
 
 ``` Powershell
-  Search-WGPackage -Package code
+  Search-WGPackage
 ```
+![](./images/006-1.png)
+
 ***
 
 ## Converting results to PSCustomObject arrays
@@ -276,32 +165,36 @@ The -Package parameter is mandatory.
 
 ## Search and install a package
 
-The (optionnal) **-Install** parameter will launch the installation of the selected package(s).
 If no **-package** parameter is specified, the function will popup a window to enter the terms to search.
 
+The source can be specified to limit the number of results.  EG : *-source winget*
+
 ``` Powershell
-  Install-WGPackage -Install
+  Install-WGPackage
 ```
 
 ![image8](./images/007.png)
 
-![image8-1](./images/008.png)
+![image8-1](./images/006-2.png)
 
 ***
 
 ## Select and update an installed package
  
+ To confirm the update, the *-apply* switch must be provided.  Otherwise, the function will only return a list of the selected packages.
+ 
+
 ```Powershell
-  Update-WGPackage -update
+  Update-WGPackage -source winget -apply
 ```
 ![image9](./images/009.png)
 
 ***
 
 ## Select and uninstall an installed package
- 
+ To confirm the update, the *-apply* switch must be provided.  Otherwise, the function will only return a list of the selected packages.
 ``` Powershell
-  Uninstall-WGPackage
+  Uninstall-WGPackage -source winget -apply
 ```
 ![image10](./images/010.png)
 
@@ -311,3 +204,25 @@ If no **-package** parameter is specified, the function will popup a window to e
   Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
 ```
 ![image11](./images/011.png)
+
+# Configuration
+
+Starting 0.8.0-beta5 version, a config file is used to store some global parameters.
+The file is stored in
+``` powershell
+$env:USERPROFILE/.config/.wingetposh/config.json
+```
+![image11](./images/012.png)
+
+To change an option, use the **Set-WingetposhConfig**
+
+## Example
+To allow the use of nerd font special characters in the grid, change the option "UseNerdFont" to true
+``` Powershell
+  Set-WingetposhConfig -param UseNerdFont -value $true
+```
+
+To force silent installation of packages, set "SilentInstall" to true
+``` powershell
+  Set-WingetposhConfig -param SilentInstall -value $true
+```
