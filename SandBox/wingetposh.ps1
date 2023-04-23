@@ -1051,7 +1051,7 @@ function Out-Object {
 }
 
 #Search-WGPackage -search code
-Install-WGPackage -package node -source $args
+Install-WGPackage -package notepad -source $args
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
