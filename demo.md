@@ -1,5 +1,7 @@
 get-command -module wingetposh
 show-wglist
+Set-WingetposhConfig -param UseNerdFont -value $true
+show-wglist
 show-wglist | out-object
 show-wglist | out-object | Select-Object -Property id
 get-wglist
@@ -12,6 +14,7 @@ Search-WGPackage -package code | Out-Object | Select-Object -Property id
 Install-WGPackage
 Install-WGPackage -package -source winget
 Get-WGSources
+Set-WingetposhConfig -param SilentInstall -value $true
 Install-WGPackage -package notepad
 Uninstall-WGPackage -source winget -apply
 Update-WGPackage
