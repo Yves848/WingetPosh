@@ -916,7 +916,6 @@ function Search-WGPackage {
     [string]$source,
     [switch]$interactive,
     [switch]$allowSearch,
-    [ValidateScript({ $interactive })]
     [switch]$install
   )
   begin {
@@ -994,10 +993,10 @@ function Install-WGPackage {
     [string]$source
   )
   $params = @{
-    Interactive = $true
-    Package = $package
-    Source = $source
-    Install = $true
+    interactive = $true
+    package = $package
+    source = $source
+    install = $true
   }
   Search-WGPackage @params
 }
@@ -1052,11 +1051,11 @@ function Out-Object {
 }
 
 #Search-WGPackage -search code
-#Install-WGPackage -source $args
+Install-WGPackage -package node -source $args
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
-Show-WGList -source $args
+#Show-WGList -source $args
 #Update-WGPackage -apply
 #Search-WGPackage -package 'notepad++' -source $args -interactive
 #Uninstall-WGPackage -source winget -apply
