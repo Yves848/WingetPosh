@@ -240,12 +240,24 @@ function getSearchTerms {
   $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
   $win.title = "Search"
   $Win.titleColor = "Green"
-  $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Ctrl-C]" "red") : Abort"
+  $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
   $win.drawWindow();
   $win.setPosition($X + 2, $Y + 2);
   [System.Console]::Write('Package : ')
   [system.console]::CursorVisible = $true
-  $pack = [ System.Console]::ReadLine()
+  try {
+    [Microsoft.PowerShell.PSConsoleReadLineOptions]$option = Get-PSReadLineOption
+    $save = $option.PredictionSource
+    Set-PSReadLineKeyHandler -key Escape -Function CancelLine
+    Set-PSReadLineOption -PredictionSource None
+    $pack = PSConsoleHostReadLine  
+  }
+  finally {
+    Remove-PSReadlineKeyHandler -Key Escape
+    Write-Host $option.PredictionSource
+    Set-PSReadLineOption -PredictionSource $save
+  }
+  
   return $pack
 }
   
@@ -986,6 +998,7 @@ function Search-WGPackage {
       }
     }
     else {
+      #Clear-Host
       Write-Host ""
       Write-Host "🛑 Operation Aborted"
     }
@@ -1120,7 +1133,7 @@ function Reset-WingetposhConfig {
 #Get-WGList -source $args
 #Show-WGList -source $args
 #Update-WGPackage -apply
-#Search-WGPackage -package 'notepad++' -source $args -interactive
-Uninstall-WGPackage -source winget -apply
+Search-WGPackage -source $args -interactive
+#Uninstall-WGPackage -source winget -apply
 #Get-WGSources
 #Set-WingetposhConfig -param UseNerdFont -value $args

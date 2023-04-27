@@ -193,7 +193,6 @@ class window {
       if ($key.VirtualKeyCode -eq 9) {
         [InputBox]($this.controls["control$($local:control)"]).draw()
         $key = {}
-         
         $local:control ++
         if ($local:control -gt ($this.controls.count - 1)) {
           $local:control = 0
@@ -240,8 +239,6 @@ class InputBox {
     $local:X = $this.parent.X + $this.X
     $local:Y = $this.parent.Y + $this.Y
     $local:stop = $false
-    $this.parent.title = $this.name
-    $this.parent.drawTitle()
     while (-not $local:stop) {
       [console]::setcursorposition($local:X, $local:Y)
       [console]::write($this.buffer)
@@ -255,7 +252,7 @@ class InputBox {
       if ($key.VirtualKeyCode -eq 27) {
         $local:stop = $true
       }
-      if ($key.Character  -match "[\w+]") {      
+      if ($key.Character  -match "[\w+]") {
         $this.buffer = $this.buffer + $key.Character
       }
     }
@@ -272,7 +269,56 @@ function testWindow {
   $win.addInputBox("searchkey", 1, 1, 30)
   $win.addInputBox("text", 10, 10, 40)
   $win.runWindow()
-  Write-Host $win.controls
+  Clear-Host
+  $win.controls.GetEnumerator() | ForEach-Object {
+    "$($([InputBox]$_.Value).Name) | $($([InputBox]$_.Value).buffer)"
+  }
 }
 
-testWindow
+
+function Read-HostPlus()   
+{
+    param 
+    ( 
+        $CancelString = "x",    
+        $MaxLen = 60            
+    )     
+    $result = ""
+    $cursor = New-Object System.Management.Automation.Host.Coordinates
+    while ($true)
+    {
+        While (!$host.UI.RawUI.KeyAvailable ){}
+        $key = $host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown")
+        
+        switch ($key.virtualkeycode) 
+        {
+            27 { While (!$host.UI.RawUI.KeyAvailable ){}; return $CancelString }
+            13 { While (!$host.UI.RawUI.KeyAvailable ){}; return $result }   
+            8  
+            {
+                if ($result.length -gt 0)
+                {
+                    $cursor = $host.UI.RawUI.CursorPosition                    
+                    $width = $host.UI.RawUI.MaxWindowSize.Width
+                    if ( $cursor.x -gt 0) {  $cursor.x--  }
+                    else {  $cursor.x = $width -1; $cursor.y--  }
+                    $Host.UI.RawUI.CursorPosition = $cursor  ;   write-host " "  ;  $Host.UI.RawUI.CursorPosition = $cursor
+                    $result = $result.substring(0,$result.length - 1 )                  
+                }
+            }            
+            Default 
+            {
+                $key_char = $key.character  
+                if(  [byte][char]$key_char -ne 0  -and  [byte][char]$key_char -gt 31 -and ($result + $key_char).Length -le $MaxLen  )
+                {                                      
+                    $result += $key_char 
+                    $cursor.x = $host.UI.RawUI.CursorPosition.X                              
+                    Write-Host $key_char -NoNewline
+                    if ($cursor.X -eq $host.UI.RawUI.MaxWindowSize.Width-1 ) {write-host " `b" -NoNewline }    
+                }
+            }
+        }        
+    }
+}
+
+#testWindow
