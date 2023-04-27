@@ -5,14 +5,15 @@ __      __(_) _ __    __ _   ___ | |_  _ __    ___   ___ | |__
  \ V  V / | || | | || (_| ||  __/| |_ | |_) || (_) |\__ \| | | |
   \_/\_/  |_||_| |_| \__, | \___| \__|| .__/  \___/ |___/|_| |_|
                      |___/            |_|
-                 ___       ___       ___
-                / _ \     ( _ )     / _ \
-               | | | |    / _ \    | | | |
-               | |_| | _ | (_) | _ | |_| |
-                \___/ (_) \___/ (_) \___/
+                     ___       ___      _
+                    / _ \     ( _ )    / |
+                   | | | |    / _ \    | |
+                   | |_| | _ | (_) | _ | |
+                    \___/ (_) \___/ (_)|_|
+
+
 ```
 ***
-
 ## Demo
 https://youtu.be/Zm-ytzGOzu8
 
@@ -27,7 +28,7 @@ The availablle functions are :
 - Get-WGPackage [-source] [-interactive] [-uninstall] [-update] [-apply]
 - Search-WGPackage [-package "search terms"] [-source "source"] [-interactive] [-install] [-allowsearch]
 - Get-WGList [-source "source"]
-- Install-WGPackage [-package] [-source] [-silent]
+- Install-WGPackage [-package] [-source] [-silent] [-acceptpackageagreements] [acceptsourceagreements]
 - Invoke-Winget 
 - Out-Object              
 - Show-WGList                 

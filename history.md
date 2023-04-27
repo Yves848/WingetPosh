@@ -82,3 +82,9 @@
         - Using localized resources from winget repository
         - Many bug fixes.
         - No more fixes to the 0.7.9 => Merging 0.8.0 to master
+### 8.0.1 :
+        - Using function from PSReadLine for the texts inputs.
+        - Small visual changes to the interactive parts
+        - in grids, **F2** cycles instantly through the sources availables
+        - '?' displays a small help message on the screen
+        - Intrudution of an config file and a "localization" file.

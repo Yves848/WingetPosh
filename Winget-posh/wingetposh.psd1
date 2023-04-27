@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.8.0'
+ModuleVersion = '0.8.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -111,7 +111,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('winget','helper','powershell', 'TUI')
+        Tags = @('winget','helper','powershell', 'TUI', 'Package', 'Manager')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/Yves848/WingetPosh/blob/master/licence.txt'
@@ -127,7 +127,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'RC1'
+        #Prerelease = 'RC3'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $true
