@@ -196,7 +196,7 @@ class window {
       Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
       $local:X = $local:X + $this.title.Length
       $this.setPosition($local:X, $this.Y)
-      Write-Host $this.frameStyle.RIGHTSPLIT -NoNewline -ForegroundColor $this.frameColor
+      Write-Host (" ",$this.frameStyle.RIGHTSPLIT -join "") -NoNewline -ForegroundColor $this.frameColor
     }
   }
   
@@ -254,8 +254,8 @@ function getSearchTerms {
   }
   finally {
     Remove-PSReadlineKeyHandler -Key Escape
-    Write-Host $option.PredictionSource
     Set-PSReadLineOption -PredictionSource $save
+    [console]::CursorVisible = $false
   }
   
   return $pack
@@ -267,7 +267,8 @@ function getColumnsHeaders {
     [parameter (
       Mandatory
     )]
-    [string]$columsLine   
+    [string]$columsLine,
+    [int]$width
   )
 
   $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
@@ -286,7 +287,7 @@ function getColumnsHeaders {
     $pos = $columsLine.IndexOf($Cols[$i])
     if ($i -eq $Cols.Length - 1) {
       #Last Column
-      $len = $columsLine.Length - $pos
+      $len = $width - $pos
     }
     else {
       #Not Last Column
@@ -423,19 +424,28 @@ function Invoke-Winget {
   param (
     [string]$cmd
   )
+  [console]::clear()
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $statedata.X = 1
-  $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
+  #$statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
+  
   $runspace = [runspacefactory]::CreateRunspace()
   $runspace.Open()
   $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
-  
-  
+  [window]$win = [window]::new($statedata.X, $statedata.Y, 33, 2, $false, "White")
+  $win.titleColor = "Red"
+  $win.title = '⏳ Getting the data '
+  $win.drawWindow()
+  $win.drawTitle()
+  $statedata.X ++
+  $statedata.Y ++
   $sb = {
     $x = $statedata.X
     $y = $statedata.Y
+    
     $i = 1
     $string = "".PadRight(30, ".")
     $nav = "oOo"
@@ -457,8 +467,7 @@ function Invoke-Winget {
         }
       }
       [System.Console]::setcursorposition($X, $Y)
-      $str = '⏳ Getting the data ', $string -join ""
-      [System.Console]::write($str)
+      [System.Console]::write($string)
       $i++
       if ($i -gt 30) {
         $i = 1
@@ -479,7 +488,7 @@ function Invoke-Winget {
   $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
     if ($_.StartsWith('---')) {
       $lWidth = $_.Length
-      $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1]
+      $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1] -width $lWidth
       $columns.Clear()
       $i = 1
       foreach ($col in [column[]]$cols) {
@@ -998,7 +1007,7 @@ function Search-WGPackage {
       }
     }
     else {
-      #Clear-Host
+      Clear-Host
       Write-Host ""
       Write-Host "🛑 Operation Aborted"
     }
@@ -1133,7 +1142,7 @@ function Reset-WingetposhConfig {
 #Get-WGList -source $args
 #Show-WGList -source $args
 #Update-WGPackage -apply
-Search-WGPackage -source $args -interactive
+Search-WGPackage -source $args -interactive -allowSearch
 #Uninstall-WGPackage -source winget -apply
 #Get-WGSources
 #Set-WingetposhConfig -param UseNerdFont -value $args
