@@ -163,13 +163,13 @@ class window {
     [System.Console]::CursorVisible = $false
     $this.setPosition($this.X, $this.Y)
     $bloc1 = $this.frameStyle.UL, "".PadLeft($this.W - 2, $this.frameStyle.TOP), $this.frameStyle.UR -join ""
-    $blank = "$esc[38;5;15m$($this.frameStyle.LEFT)", "".PadLeft($this.W - 2, " "), "$esc[38;5;15m$($this.frameStyle.RIGHT)" -join ""
+    $blank = $this.frameStyle.LEFT, "".PadLeft($this.W - 2, " "), $this.frameStyle.RIGHT -join ""
     Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
     for ($i = 1; $i -lt $this.H; $i++) {
       $Y2 = $this.Y + $i
       $X3 = $this.X 
       $this.setPosition($X3, $Y2)
-      Write-Host $blank     
+      Write-Host $blank -ForegroundColor $this.frameColor    
     }
     $Y2 = $this.Y + $this.H
     $this.setPosition( $this.X, $Y2)
@@ -196,7 +196,7 @@ class window {
       Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
       $local:X = $local:X + $this.title.Length
       $this.setPosition($local:X, $this.Y)
-      Write-Host $this.frameStyle.RIGHTSPLIT -NoNewline -ForegroundColor $this.frameColor
+      Write-Host (" ",$this.frameStyle.RIGHTSPLIT -join "") -NoNewline -ForegroundColor $this.frameColor
     }
   }
   
@@ -240,12 +240,54 @@ function getSearchTerms {
   $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
   $win.title = "Search"
   $Win.titleColor = "Green"
-  $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Ctrl-C]" "red") : Abort"
+  $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
   $win.drawWindow();
   $win.setPosition($X + 2, $Y + 2);
   [System.Console]::Write('Package : ')
   [system.console]::CursorVisible = $true
-  $pack = [ System.Console]::ReadLine()
+  try {
+    [Microsoft.PowerShell.PSConsoleReadLineOptions]$option = Get-PSReadLineOption
+    $save = $option.PredictionSource
+    Set-PSReadLineKeyHandler -key Escape -Function CancelLine
+    Set-PSReadLineOption -PredictionSource None
+    $pack = PSConsoleHostReadLine  
+  }
+  finally {
+    Remove-PSReadlineKeyHandler -Key Escape
+    Set-PSReadLineOption -PredictionSource $save
+    [console]::CursorVisible = $false
+  }
+  
+  return $pack
+}
+
+function getFilterSource {
+  $WinWidth = [System.Console]::WindowWidth
+  $X = 0
+  $Y = [System.Console]::WindowHeight - 6
+  $WinHeigt = 4
+  
+  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
+  $win.title = "Source Filter"
+  $Win.titleColor = "Green"
+  $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
+  $win.drawWindow();
+  $win.setPosition($X + 2, $Y + 2);
+  [System.Console]::Write('Source : ')
+  [system.console]::CursorVisible = $true
+  try {
+    [Microsoft.PowerShell.PSConsoleReadLineOptions]$option = Get-PSReadLineOption
+    $save = $option.PredictionSource
+    Set-PSReadLineKeyHandler -key Escape -Function CancelLine
+    Set-PSReadLineOption -PredictionSource None
+    $pack = PSConsoleHostReadLine  
+  }
+  finally {
+    Remove-PSReadlineKeyHandler -Key Escape
+    Set-PSReadLineOption -PredictionSource $save
+    [console]::CursorVisible = $false
+  }
+  
   return $pack
 }
   
@@ -255,7 +297,8 @@ function getColumnsHeaders {
     [parameter (
       Mandatory
     )]
-    [string]$columsLine   
+    [string]$columsLine,
+    [int]$width
   )
 
   $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
@@ -274,7 +317,7 @@ function getColumnsHeaders {
     $pos = $columsLine.IndexOf($Cols[$i])
     if ($i -eq $Cols.Length - 1) {
       #Last Column
-      $len = $columsLine.Length - $pos
+      $len = $width - $pos
     }
     else {
       #Not Last Column
@@ -411,19 +454,28 @@ function Invoke-Winget {
   param (
     [string]$cmd
   )
+  [console]::clear()
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $statedata.X = 1
-  $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
+  #$statedata.Y = $Host.UI.RawUI.CursorPosition.Y
+  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
+  
   $runspace = [runspacefactory]::CreateRunspace()
   $runspace.Open()
   $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
-  
-  
+  [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
+  $win.titleColor = "Red"
+  $win.title = '⏳ Getting the data '
+  $win.drawWindow()
+  $win.drawTitle()
+  $statedata.X ++
+  $statedata.Y ++
   $sb = {
     $x = $statedata.X
     $y = $statedata.Y
+    
     $i = 1
     $string = "".PadRight(30, ".")
     $nav = "oOo"
@@ -445,8 +497,7 @@ function Invoke-Winget {
         }
       }
       [System.Console]::setcursorposition($X, $Y)
-      $str = '⏳ Getting the data ', $string -join ""
-      [System.Console]::write($str)
+      [System.Console]::write($string)
       $i++
       if ($i -gt 30) {
         $i = 1
@@ -467,7 +518,7 @@ function Invoke-Winget {
   $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
     if ($_.StartsWith('---')) {
       $lWidth = $_.Length
-      $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1]
+      $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1] -width $lWidth
       $columns.Clear()
       $i = 1
       foreach ($col in [column[]]$cols) {
@@ -630,7 +681,8 @@ function displayGrid {
     [ref]$data, 
     $allowSearch = $false
   )
-   
+  $sources = $(Get-WGSources).keys
+  $sourceIdx = -1
   $global:Host.UI.RawUI.FlushInputBuffer()
   Get-WingetposhConfig
   $WinWidth = [System.Console]::WindowWidth
@@ -651,8 +703,10 @@ function displayGrid {
   $statedata.X = ($win.X + 3)
   $statedata.Y = ($win.Y + 1)
  
+  $displayList = $list
+
   $skip = 0
-  $nbPages = [math]::Ceiling($list.count / $nbLines)
+  $nbPages = [math]::Ceiling($displayList.count / $nbLines)
   $win.nbpages = $nbPages
   $page = 1
   $selected = 0
@@ -662,20 +716,20 @@ function displayGrid {
     $win.page = $page
     [System.Console]::setcursorposition($win.X, $win.Y + 1)
     $row = 0
-    if ($list.length -eq 1) {
-      $checked = $list.Selected
-      $partlist = makelines $list $checked $row $selected $win.W-2
+    if ($displayList.length -eq 1) {
+      $checked = $displayList.Selected
+      $partdisplayList = makelines $displayList $checked $row $selected $win.W-2
     }
     else {
-      $partlist = $list | Select-Object -First $nblines -Skip $skip | ForEach-Object {
+      $partdisplayList = $displayList | Select-Object -First $nblines -Skip $skip | ForEach-Object {
         $index = (($page - 1) * $nbLines) + $row
-        $checked = $list[$index].Selected
-        makelines $list[$index] $checked $row $selected $win.W-2
+        $checked = $displayList[$index].Selected
+        makelines $displayList[$index] $checked $row $selected $win.W-2
         $row++
       }
     }
-    $nbDisplay = $partlist.Length
-    $sText = $partlist | Out-String 
+    $nbDisplay = $partdisplayList.Length
+    $sText = $partdisplayList | Out-String 
     if ($redraw) {
       [System.Console]::setcursorposition($win.X, $win.Y + 1)
       [system.console]::write($blanks)
@@ -728,22 +782,22 @@ function displayGrid {
         }
         if ($key.VirtualKeyCode -eq 32) {
           # key Space
-          if ($list.length -eq 1) {
+          if ($displayList.length -eq 1) {
             #$index = (($page - 1) * $nbLines) + $selected
-            $checked = $list.Selected
-            $list.Selected = -not $checked
+            $checked = $displayList.Selected
+            $displayList.Selected = -not $checked
           }
           else {
             $index = (($page - 1) * $nbLines) + $selected
-            $checked = $list[$index].Selected
-            $list[$index].Selected = -not $checked
+            $checked = $displayList[$index].Selected
+            $displayList[$index].Selected = -not $checked
           }
           
         }
         if ($key.VirtualKeyCode -eq 13) {
           # key Enter
           Clear-Host
-          $data.value = $data.value = $list | Where-Object { $_.Selected }
+          $data.value = $data.value = $displayList | Where-Object { $_.Selected }
           $stop = $true
         }
         if ($key.VirtualKeyCode -eq 114) {
@@ -753,24 +807,43 @@ function displayGrid {
             [System.Console]::CursorVisible = $false
             $term = '"', $term, '"' -join ''
             $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
-            $list = Invoke-Command -ScriptBlock $sb
+            $displayList = Invoke-Command -ScriptBlock $sb
             $skip = 0
-            $nbPages = [math]::Ceiling($list.count / $nbLines)
+            $nbPages = [math]::Ceiling($displayList.count / $nbLines)
             $win.nbpages = $nbPages
             $page = 1
             $selected = 0
             $redraw = $true
           }
         }
+        if ($key.VirtualKeyCode -eq 113) {
+          # key F2
+          $sourceIdx ++
+          if ($sourceIdx -gt $sources.count -1) {
+            $displayList = $list
+            $sourceIdx = -1
+          } else {
+            $displayList = $list | Where-Object {$_.source.trim() -eq $sources[$sourceIdx]}
+            if ($displayList.count -eq 0) {
+              $displayList = $list
+            }
+          }
+          $skip = 0
+            $nbPages = [math]::Ceiling($displayList.count / $nbLines)
+            $win.nbpages = $nbPages
+            $page = 1
+            $selected = 0
+            $redraw = $true
+        }
         if ($key.character -eq "+") {
           # key +
           $checked = $true
-          $list | ForEach-Object { $_.Selected = $checked }
+          $displayList | ForEach-Object { $_.Selected = $checked }
         }
         if ($key.character -eq "-") {
           # key -
           $checked = $false
-          $list | ForEach-Object { $_.Selected = $checked }
+          $displayList | ForEach-Object { $_.Selected = $checked }
         }
         break
       }
@@ -790,21 +863,28 @@ function displayHelp {
   $X = 2
   $Y = 10
   $WinHeigt = 6
-  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
+  $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "red");
   $win.title = "Help"
   $Win.titleColor = "Blue"
   $win.footer = "$(color "[Esc]" "red") : Close"
   $win.drawWindow();
 
   $buffer = "$(color "↑↓" "cyan") : Navigate `t`t`t`t $(color "← →" "cyan") Change page"
-  [System.Console]::setcursorposition($win.X + 2, $win.Y + 1)
+  $y = 11
+  [System.Console]::setcursorposition($win.X + 2, $Y)
   [system.console]::write($buffer)
   $buffer = "$(color "Space" "cyan") : Select / Unselect package `t`t $(color "+/-" "cyan") Select All/None "
-  [System.Console]::setcursorposition($win.X + 2, $win.Y + 2)
+  $Y ++
+  [System.Console]::setcursorposition($win.X + 2, $Y)
+  [system.console]::write($buffer)
+  $Y ++
+  $buffer = "$(color "F2" "cyan") Cycle Sources"
+  [System.Console]::setcursorposition($win.X + 2, $Y)
   [system.console]::write($buffer)
   if ($allowSearch) {
+    $y++
     $buffer = "$(color "F3" "cyan") : Enter Package Name"
-    [System.Console]::setcursorposition($win.X + 2, $win.Y + 3)
+    [System.Console]::setcursorposition($win.X + 2, $Y)
     [system.console]::write($buffer)
   }
   $stop = $false;
@@ -986,6 +1066,7 @@ function Search-WGPackage {
       }
     }
     else {
+      Clear-Host
       Write-Host ""
       Write-Host "🛑 Operation Aborted"
     }
@@ -1118,9 +1199,10 @@ function Reset-WingetposhConfig {
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
-#Show-WGList -source $args
+#Show-WGList
 #Update-WGPackage -apply
-#Search-WGPackage -package 'notepad++' -source $args -interactive
-Uninstall-WGPackage -source winget -apply
+#Search-WGPackage -source $args -interactive -allowSearch
+#Uninstall-WGPackage -source winget -apply
 #Get-WGSources
 #Set-WingetposhConfig -param UseNerdFont -value $args
+Install-WGPackage 

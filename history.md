@@ -74,7 +74,7 @@
           Last version before heavy code restucture / rewrite
         - Small visual improvements
 
-### 0.8.0 :
+### 0.8.0 (beta):
         - Rewrite of the parsing module.
         - Now, parsing successfuly multibytes characters (eg : kanji)
         - Using more animations for the long running tasks (runspaces)
@@ -82,3 +82,9 @@
         - Using localized resources from winget repository
         - Many bug fixes.
         - No more fixes to the 0.7.9 => Merging 0.8.0 to master
+### 0.8.1 :
+        - Using function from PSReadLine for the texts inputs (Allows 'Esc' to cancel editing)
+        - Small visual changes to the interactive parts
+        - in grids, **F2** cycles instantly through the sources availables
+        - '?' displays a small help message on the screen
+        - Introdution of an config file and a "localization" file. (~/.config/.wingetposh)
