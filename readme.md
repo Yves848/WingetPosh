@@ -24,10 +24,20 @@ Entirely written in __Powershell__, it has 2 types of functions : visuals and no
 
 No dependencies are used to ensure compatibility with Powershell 5.1
 
+***
+## Remaks :
+  The goal of this module is not really the same as *Microsoft.WinGet.Client* (still in alpha)
+
+  Basically, it was focused on the "graphical interface" aspect. The "parsing" part was added naturally.
+  Unlike the official module, it is 100% written in Powershell in order to be compatible with version 5.1 and requires NO external dependency.
+
+  But, in the end, it offers the same functionalities, new ones will be added to it as time goes on. (Scoop support, .....)
+***
 The availablle functions are :
 - Get-WGPackage [-source] [-interactive] [-uninstall] [-update] [-apply]
 - Search-WGPackage [-package "search terms"] [-source "source"] [-interactive] [-install] [-allowsearch]
 - Get-WGList [-source "source"]
+- Get-WGSources
 - Install-WGPackage [-package] [-source] [-silent] [-acceptpackageagreements] [acceptsourceagreements]
 - Invoke-Winget 
 - Out-Object              
@@ -35,21 +45,18 @@ The availablle functions are :
 - Uninstall-WGPackage         
 - Update-WGPackage [-Update] 
 - Set-WingetposhConfig -param -value
-  
+- Get-WingetposhConfig [-display]
+- Reset-WingetposhConfig
   
 ***
 ## Installation
-### Stable (0.7.9)
+
 ``` Powershell
   Install-Module -Name wingetposh -Scope CurrentUser
 ```
-
-### Beta 
-``` Powershell
-  Install-module wingetposh -scope currentuser -allowprerelease
-```
 # IMPORTANT 
 Don't forget to import the module after the installation !
+*Ideally, put it in your profile file ($PROFILE)*
 When it's imported, the localized resources are downloaded from the winget repository.
 
 ### Remark : 
@@ -57,8 +64,6 @@ To install in powershell 5.1, you need to install the latest "PowershellGet"
 ``` Powershell
 Install-Module PowerShellGet -AllowClobber -Force
 ```
-
-
 
 Close and re-open the powershell 5.1 terminal to make changes effective.
 ***
