@@ -950,11 +950,11 @@ function Get-WGPackage {
   }
 
   if ($update) {
-    $title = "⫷ Update ⫸"
+    $title = "[ Update ]"
   }
   else {
     if ($uninstall) {
-      $title = "⫷ Uninstall ⫸"
+      $title = "[ Uninstall ]"
     }
   }
 
