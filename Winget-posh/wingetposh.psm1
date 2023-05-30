@@ -898,7 +898,6 @@ function displayHelp {
   }
 }
   
-   
 function Get-WGPackage {
   param(
     [string]$source,
@@ -926,7 +925,7 @@ function Get-WGPackage {
 
   $title = ""
   if ($update) {
-    $command = "winget update"
+    $command = "winget update --include-unknown"
   }
   else {
     $command = "winget list"
