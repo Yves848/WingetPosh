@@ -1,3 +1,6 @@
 {
-  "crosshair.enabled": true
+  "crosshair.enabled": true,
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "master"
+  ]
 }
