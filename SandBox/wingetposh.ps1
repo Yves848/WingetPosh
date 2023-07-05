@@ -677,6 +677,7 @@ function displayGrid {
   param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
     $list,
+    [string]$source,
     [string]$title, 
     [ref]$data, 
     $allowSearch = $false
@@ -703,7 +704,17 @@ function displayGrid {
   $statedata.X = ($win.X + 3)
   $statedata.Y = ($win.Y + 1)
  
-  $displayList = $list
+  if ($source) {
+    $displayList = $list | Where-Object {$_.source.trim() -eq $source}
+    if ($displayList.count -eq 0) {
+      $displayList = $list
+    }
+  }
+  else {
+    $displayList = $list
+  }
+
+  #$displayList = $list
 
   $skip = 0
   $nbPages = [math]::Ceiling($displayList.count / $nbLines)
@@ -950,11 +961,11 @@ function Get-WGPackage {
   }
 
   if ($update) {
-    $title = "[ Update ]"
+    $title = "⫷ Update ⫸"
   }
   else {
     if ($uninstall) {
-      $title = "[ Uninstall ]"
+      $title = "⫷ Uninstall ⫸"
     }
   }
 
@@ -1036,12 +1047,9 @@ function Search-WGPackage {
     if ($terms -ne "") {
       $command = "winget search '$terms'"
       $list = Invoke-Winget $command
-      if ($source) {
-        $list = $list |  Where-Object { $_.source -eq $source }
-      }
       if ($interactive) {
         $data = @()
-        displayGrid -list $list -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+        displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
@@ -1192,14 +1200,15 @@ function Reset-WingetposhConfig {
   '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 }
 
+# CUT HERE #
 
 #Search-WGPackage -search code
-#Install-WGPackage -package cpu-z -source $args 
+Install-WGPackage code -source $args
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
 #Show-WGList
-Update-WGPackage -apply
+#Update-WGPackage -apply
 #Search-WGPackage -source $args -interactive -allowSearch
 #Uninstall-WGPackage -source winget -apply
 #Get-WGSources
