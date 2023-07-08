@@ -1,5 +1,6 @@
 function getWingetLocals {
-  $language = (Get-UICulture).Name
+  $culture = ((Get-WinUserLanguageList).LanguageTag -split "-")[0]
+  $language = $culture, ([string]$culture).ToUpper() -join "-"
   $version = Invoke-Expression "winget --version" | Out-String -NoNewline
   $languageData = $(
     $hash = @{}
