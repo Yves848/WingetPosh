@@ -88,3 +88,6 @@
         - in grids, **F2** cycles instantly through the sources availables
         - '?' displays a small help message on the screen
         - Introdution of an config file and a "localization" file. (~/.config/.wingetposh)
+
+### 0.9.1 :
+        - Fixing bug when downloading localized resources on non English Windows.
