@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.2'
+ModuleVersion = '0.9.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -120,7 +120,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/Yves848/WingetPosh'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/icon.ico'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/master/readme.md'
