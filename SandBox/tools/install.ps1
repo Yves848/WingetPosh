@@ -69,3 +69,6 @@ $init.GetEnumerator() | ForEach-Object {
 $config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 $version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
 Write-Host "Wingetposh version $version installed successfully 👌"
+Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,'—')
+Write-Host "🗒️ Go to http://github.com/yves848/wingetposh for help and infos."
+Write-Host "📨 Please report bugs and requests at wingetposh@gmail.com"
