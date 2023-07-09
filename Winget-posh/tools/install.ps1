@@ -1,6 +1,8 @@
 function getWingetLocals {
+  #$language = (Get-UICulture).Name
   $culture = ((Get-WinUserLanguageList).LanguageTag -split "-")[0]
   $language = $culture, ([string]$culture).ToUpper() -join "-"
+  Write-Host "⏳ Downloading resources for $language"
   $version = Invoke-Expression "winget --version" | Out-String -NoNewline
   $languageData = $(
     $hash = @{}
@@ -32,6 +34,8 @@ function getWingetLocals {
   return $languageData
 }
 
+
+Write-Host "🚧 Parsing resources and writing config files."
 if (-not (test-path -Path ~/.config/.wingetposh)) {
   new-item -Path ~/.config/.wingetposh -ItemType Directory | Out-Null
   Remove-Item -Path ~/.config/.wingetposh/locals.json -ErrorAction Ignore | Out-Null
@@ -63,3 +67,8 @@ $init.GetEnumerator() | ForEach-Object {
 }
 
 $config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+$version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+Write-Host "Wingetposh version $version installed successfully 👌"
+Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,'—')
+Write-Host "🗒️ Go to http://github.com/yves848/wingetposh for help and infos."
+Write-Host "📨 Please report bugs and requests at wingetposh@gmail.com"
