@@ -688,14 +688,14 @@ function displayGrid {
   }
 
   function  drawHeader {
-    [System.Console]::setcursorposition($win.X+2, $win.Y + 1)
-    $H = ""
+    [System.Console]::setcursorposition($win.X+1, $win.Y + 1)
+    $H = " "
     foreach ($key in $columns.keys) {
-      $len = $columns[$key][2]
+      $len = $columns[$key][1]
       [string]$col = $key.PadRight($len," ")
-      $H = $H, $col -join ""
+      $H = $H, $col -join " "
     }
-    $header = $H.PadRight($win.w-3,' ')
+    $header = $H.PadRight($win.w-2,' ')
     [System.Console]::write("$esc[4m$esc[38;5;11m$($header)$esc[0m")
   }
 
@@ -1081,7 +1081,7 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
-              $expression = "winget install "
+              $expression = "winget install --accept-source-agreement "
               if ($silent) {
                 $expression = $expression, "--silent --disable-interactivity" -join ""
               }
@@ -1235,8 +1235,8 @@ function Reset-WingetposhConfig {
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
-Show-WGList
-#Update-WGPackage -apply
+#Show-WGList
+Update-WGPackage -apply
 #Search-WGPackage -source $args -interactive -allowSearch
 #Uninstall-WGPackage -source winget -apply
 #Get-WGSources
