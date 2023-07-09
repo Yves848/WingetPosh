@@ -120,7 +120,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/Yves848/WingetPosh'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/icon.ico'
+        IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/wingetposh.ico'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/master/readme.md'
