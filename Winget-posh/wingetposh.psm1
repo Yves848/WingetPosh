@@ -1090,7 +1090,7 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
-              $expression = "winget install --accept-source-agreement "
+              $expression = "winget install "
               if ($silent) {
                 $expression = $expression, "--silent --disable-interactivity" -join ""
               }
