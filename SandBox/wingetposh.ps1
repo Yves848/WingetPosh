@@ -702,8 +702,17 @@ function displayGrid {
   function drawFooter {
 
     [System.Console]::setcursorposition($win.X+1, $win.H -1)
-    $footer = " Selected : $nbChecked ".PadRight($win.w-2,' ')
-    [System.Console]::write("$esc[48;5;19m$esc[38;5;15m$($footer)$esc[0m")
+    
+    if ($sourceIdx -eq -1) {
+      $s = $sources -join ","
+    } else {
+      $s = $sources[$sourceIdx]
+    }
+    $footerL = " Selected : $nbChecked"
+    $footerR = "Source : [ $s ] "
+    $fill = $win.w-2 - $footerL.Length - $footerR.Length
+    $f = $footerL,"".PadRight($fill,' '),$footerR -join ""
+    [System.Console]::write("$esc[48;5;19m$esc[38;5;15m$($f)$esc[0m")
   }
 
   $sources = $(Get-WGSources).keys
@@ -1231,12 +1240,12 @@ function Reset-WingetposhConfig {
 # CUT HERE #
 
 #Search-WGPackage -search code
-#Install-WGPackage code -source $args
+Install-WGPackage
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
 #Show-WGList
-Update-WGPackage -apply
+#Update-WGPackage -apply
 #Search-WGPackage -source $args -interactive -allowSearch
 #Uninstall-WGPackage -source winget -apply
 #Get-WGSources
