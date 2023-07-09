@@ -626,51 +626,7 @@ function adjustCol {
   return $field
 }
 
-function makelines {
-  param (
-    $list,
-    $checked,
-    $row,
-    $selected,
-    $W
-  ) 
-  if ($iscoreclr) {
-    $esc = "`e"
-  }
-  else {
-    $esc = $([char]0x1b)
-  }
-  [string]$line = ""
-  if ($script:config.UseNerdFont -eq $true) {
-    $check = [char]::ConvertFromUtf32(0xf05d)
-  }
-  else {
-    $check = "✓"
-  }
-  
-  foreach ($key in $columns.keys) {
-    [string]$col = $list.$key
-    $line = $line, $col -join " "
-  }
-  if ($checked) {
-    $line = "$esc[38;5;46m$check", $line -join ""
-  }
-  else {
-    $line = " ", $line -join ""
-  }
-  if ($row -eq $selected) {
-    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
-  }
-  if ($row % 2 -eq 0) {
-    $line = "$esc[38;5;252m$($line)"
-  }
-  else {
-    $line = "$esc[38;5;244m$($line)"
-  }
-  
 
-  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
-}
   
 
 function displayGrid {
@@ -683,13 +639,67 @@ function displayGrid {
     $allowSearch = $false
   )
 
-  function drawFooter {
-    if ($iscoreclr) {
-      $esc = "`e"
+  if ($iscoreclr) {
+    $esc = "`e"
+  }
+  else {
+    $esc = $([char]0x1b)
+  }
+
+  function makelines {
+    param (
+      $list,
+      $checked,
+      $row,
+      $selected,
+      $W
+    ) 
+    
+    [string]$line = ""
+    if ($script:config.UseNerdFont -eq $true) {
+      $check = [char]::ConvertFromUtf32(0xf05d)
     }
     else {
-      $esc = $([char]0x1b)
+      $check = "✓"
     }
+    
+    foreach ($key in $columns.keys) {
+      [string]$col = $list.$key
+      $line = $line, $col -join " "
+    }
+    if ($checked) {
+      $line = "$esc[38;5;46m$check", $line -join ""
+    }
+    else {
+      $line = " ", $line -join ""
+    }
+    if ($row -eq $selected) {
+      $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
+    }
+    if ($row % 2 -eq 0) {
+      $line = "$esc[38;5;252m$($line)"
+    }
+    else {
+      $line = "$esc[38;5;244m$($line)"
+    }
+    
+  
+    "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
+  }
+
+  function  drawHeader {
+    [System.Console]::setcursorposition($win.X+2, $win.Y + 1)
+    $H = ""
+    foreach ($key in $columns.keys) {
+      $len = $columns[$key][2]
+      [string]$col = $key.PadRight($len," ")
+      $H = $H, $col -join ""
+    }
+    $header = $H.PadRight($win.w-3,' ')
+    [System.Console]::write("$esc[4m$esc[38;5;11m$($header)$esc[0m")
+  }
+
+  function drawFooter {
 
     [System.Console]::setcursorposition($win.X+1, $win.H -1)
     $footer = " Selected : $nbChecked ".PadRight($win.w-2,' ')
@@ -761,6 +771,7 @@ function displayGrid {
     }
     [System.Console]::setcursorposition($win.X, $win.Y + 2)
     [system.console]::write($sText.Substring(0, $sText.Length - 2))
+    drawHeader
     drawFooter
     $win.drawPagination()
     while (-not $stop) {
@@ -1220,11 +1231,11 @@ function Reset-WingetposhConfig {
 # CUT HERE #
 
 #Search-WGPackage -search code
-Install-WGPackage code -source $args
+#Install-WGPackage code -source $args
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
-#Show-WGList
+Show-WGList
 #Update-WGPackage -apply
 #Search-WGPackage -source $args -interactive -allowSearch
 #Uninstall-WGPackage -source winget -apply
