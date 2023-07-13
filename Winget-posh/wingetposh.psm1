@@ -1090,7 +1090,7 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
-              $expression = "winget install "
+              $expression = "winget install  "
               if ($silent) {
                 $expression = $expression, "--silent --disable-interactivity" -join ""
               }
@@ -1115,6 +1115,24 @@ function Search-WGPackage {
       Write-Host "🛑 Operation Aborted"
     }
   }
+}
+
+function Get-WGPVersion {
+  param(
+    [ValidateSet("Winget", "WGP", "All")]
+    [String]$param="WGP"
+  )
+
+  if ($param -in ("Winget","All")) {
+    $v = Invoke-Expression "winget -v" | Out-String -NoNewline
+    Write-Host "Winget version : $v"
+  }
+
+  if ($param -in ("WGP","All")) {
+    $v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+    Write-Host "Wingetposh version : $v"
+  }
+
 }
 
 function Get-WGList {

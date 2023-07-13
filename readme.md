@@ -8,16 +8,16 @@
                         __/ |        | |
                        |___/         |_|
                        
-                    ___   ___  _  _
-                   / _ \ / _ \| || |
-                  | | | | (_) | || |_
-                  | | | |\__, |__   _|
-                  | |_| |_ / /_  | |
-                  \___/(_)_/(_) |_|
+                    ___   ___  ______
+                   / _ \ / _ \|____  |
+                  | | | | (_) |   / /
+                  | | | |\__, |  / /
+                  | |_| |_ / /_ / /
+                  \___/(_)_/(_)_/
 ```
 ***
 ## Demo
-https://youtu.be/jWGACFf1HCY
+https://youtu.be/o7I0A_7Y4kY
 
 
 A set of functions to help using winget.
@@ -49,6 +49,7 @@ The availablle functions are :
 - Set-WingetposhConfig -param -value
 - Get-WingetposhConfig [-display]
 - Reset-WingetposhConfig
+- Get-WGPVersions [-param]
   
 ***
 ## Installation
@@ -209,7 +210,7 @@ The source can be specified to limit the number of results.  EG : *-source winge
 ## Generic function to convert winget results to PSCustomObject
 
 ``` Powershell
-  Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
+  Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Name -like "*code*"}
 ```
 ![image11](./images/011.png)
 
@@ -250,3 +251,11 @@ To force silent installation of packages, set "SilentInstall" to true
   Get-WingetposhConfig -display
 ```
 ![image13](./images/013.png)
+
+## Get-WGPVersions -param All
+  Display Winget and WingetPosh versions
+  Available parameters : "All", "Winget", "WGP"
+  ``` Powershell
+  Get-WGPVersions -param All
+```
+![image14](./images/014.png)

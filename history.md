@@ -91,3 +91,9 @@
 
 ### 0.9.1 :
         - Fixing bug when downloading localized resources on non English Windows.
+
+### 0.9.7 :
+        - Removing licence acceptance at installation
+        - Only download ressource once for a version.
+        - Add function **Get-WGPVersions" to display Winget and/or WGP versions.
+        - Updating Readme and screenshots.
