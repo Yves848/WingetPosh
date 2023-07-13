@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.4'
+ModuleVersion = '0.9.7'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -81,7 +81,9 @@ FunctionsToExport = @('Get-WGPackage',
                       'Get-WGSources',
                       "Set-WingetPoshConfig",
                       "Get-WingetPoshConfig",
-                      "Reset-WingetposhConfig" )
+                      "Reset-WingetposhConfig",
+                      "Get-WingetposhConfig",
+                      "Get-WGPVersion" )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -100,7 +102,6 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-    'wingetposh.psd1'
     'wingetposh.psm1',
     'wingetLocals.ps1'
 )

@@ -1117,6 +1117,24 @@ function Search-WGPackage {
   }
 }
 
+function Get-WGPVersion {
+  param(
+    [ValidateSet("Winget", "WGP", "All")]
+    [String]$param="WGP"
+  )
+
+  if ($param -in ("Winget","All")) {
+    $v = Invoke-Expression "winget -v" | Out-String -NoNewline
+    Write-Host "Winget version : $v"
+  }
+
+  if ($param -in ("WGP","All")) {
+    $v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+    Write-Host "Wingetposh version : $v"
+  }
+
+}
+
 function Get-WGList {
   param(
     [string]$source
@@ -1240,7 +1258,7 @@ function Reset-WingetposhConfig {
 # CUT HERE #
 
 #Search-WGPackage -search code
-Install-WGPackage
+#Install-WGPackage
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
@@ -1251,3 +1269,4 @@ Install-WGPackage
 #Get-WGSources
 #Set-WingetposhConfig -param UseNerdFont -value $args
 #Install-WGPackage 
+Get-WGPVersion -param All
