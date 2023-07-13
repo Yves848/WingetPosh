@@ -25,5 +25,3 @@ Invoke-Winget "winget list"
 Invoke-Winget "winget list" | Out-Object
 Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
 clear
-
-
