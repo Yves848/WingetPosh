@@ -120,7 +120,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/Yves848/WingetPosh'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/wingetposh.ico'
+        IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/wingetposh2.ico'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/master/readme.md'
@@ -130,7 +130,7 @@ PrivateData = @{
         #Prerelease = 'alpha'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        RequireLicenseAcceptance = $true
+        # RequireLicenseAcceptance = $true
 
         # External dependent modules of this module
         # ExternalModuleDependencies = @()
