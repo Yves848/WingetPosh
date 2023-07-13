@@ -34,41 +34,46 @@ function getWingetLocals {
   return $languageData
 }
 
+$version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) { 
 
-Write-Host "🚧 Parsing resources and writing config files."
-if (-not (test-path -Path ~/.config/.wingetposh)) {
-  new-item -Path ~/.config/.wingetposh -ItemType Directory | Out-Null
-  Remove-Item -Path ~/.config/.wingetposh/locals.json -ErrorAction Ignore | Out-Null
-  new-item -Path ~/.config/.wingetposh/locals.json | Out-Null
-}
+  Write-Host "🚧 Parsing resources and writing config files."
+  if (-not (Test-Path -Path ~/.config/.wingetposh)) {
+    New-Item -Path ~/.config/.wingetposh -ItemType Directory | Out-Null
+    Remove-Item -Path ~/.config/.wingetposh/locals.json -ErrorAction Ignore | Out-Null
+    New-Item -Path ~/.config/.wingetposh/locals.json | Out-Null
+  }
 
-getWingetLocals | ConvertTo-Json |Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
+  getWingetLocals | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
 
-$init = @{}
-(
+  $init = @{}
+  (
   ('UseNerdFont', $false),
   ('SilentInstall', $false),
   ('AcceptPackageAgreements', $true),
   ('AcceptSourceAgreements', $true),
   ('Force', $false)
-) | ForEach-Object { $init[$_[0]] = $_[1] }
+  ) | ForEach-Object { $init[$_[0]] = $_[1] }
 
-$config =  @{}
-if (Test-Path -Path ~/.config/.wingetposh/config.json) {
+  $config = @{}
+  if (Test-Path -Path ~/.config/.wingetposh/config.json) {
   (Get-Content $env:USERPROFILE/.config/.wingetposh/config.json | ConvertFrom-Json).psobject.Properties | ForEach-Object {
-    $config[$_.Name] = $_.Value
+      $config[$_.Name] = $_.Value
+    }
   }
-}
-" "
-$init.GetEnumerator() | ForEach-Object {
-  if (-not $config.ContainsKey($_.key)) {
-      $config.Add($_.key,$_.Value)
+  " "
+  $init.GetEnumerator() | ForEach-Object {
+    if (-not $config.ContainsKey($_.key)) {
+      $config.Add($_.key, $_.Value)
+    }
   }
-}
 
-$config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
-$version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
-Write-Host "Wingetposh version $version installed successfully 👌"
-Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width,'—')
-Write-Host "🗒️ Go to http://github.com/yves848/wingetposh for help and infos."
-Write-Host "📨 Please report bugs and requests at wingetposh@gmail.com"
+
+  $config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+  "ok" | Out-File -filepath "~/.config/.wingetposh/params.$version" | Out-Null
+
+  Write-Host "Wingetposh version $version installed successfully 👌"
+  Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, '—')
+  Write-Host "🗒️ Go to http://github.com/yves848/wingetposh for help and infos."
+  Write-Host "📨 Please report bugs and requests at wingetposh@gmail.com"
+}
