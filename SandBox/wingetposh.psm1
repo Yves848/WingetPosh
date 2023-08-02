@@ -450,16 +450,30 @@ function Get-WGSources {
   $sources
 }
 
+function Get-ScoopStatus {
+  Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+}
+
+function Invoke-Scoop {
+  param (
+    [string]$cmd,
+    [array]$list
+  )
+  $SearchResult = Invoke-Expression $cmd 
+  $SearchResult | ForEach-Object {
+    $_.Name
+  }
+}
+
 function Invoke-Winget {
   param (
     [string]$cmd
   )
-  [console]::clear()
+  #[console]::clear()
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
-  #$statedata.Y = $Host.UI.RawUI.CursorPosition.Y
   $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
   
   $runspace = [runspacefactory]::CreateRunspace()
@@ -626,51 +640,7 @@ function adjustCol {
   return $field
 }
 
-function makelines {
-  param (
-    $list,
-    $checked,
-    $row,
-    $selected,
-    $W
-  ) 
-  if ($iscoreclr) {
-    $esc = "`e"
-  }
-  else {
-    $esc = $([char]0x1b)
-  }
-  [string]$line = ""
-  if ($script:config.UseNerdFont -eq $true) {
-    $check = [char]::ConvertFromUtf32(0xf05d)
-  }
-  else {
-    $check = "✓"
-  }
-  
-  foreach ($key in $columns.keys) {
-    [string]$col = $list.$key
-    $line = $line, $col -join " "
-  }
-  if ($checked) {
-    $line = "$esc[38;5;46m$check", $line -join ""
-  }
-  else {
-    $line = " ", $line -join ""
-  }
-  if ($row -eq $selected) {
-    $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
-  }
-  if ($row % 2 -eq 0) {
-    $line = "$esc[38;5;252m$($line)"
-  }
-  else {
-    $line = "$esc[38;5;244m$($line)"
-  }
-  
 
-  "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
-}
   
 
 function displayGrid {
@@ -682,6 +652,82 @@ function displayGrid {
     [ref]$data, 
     $allowSearch = $false
   )
+
+  if ($iscoreclr) {
+    $esc = "`e"
+  }
+  else {
+    $esc = $([char]0x1b)
+  }
+
+  function makelines {
+    param (
+      $list,
+      $checked,
+      $row,
+      $selected,
+      $W
+    ) 
+    
+    [string]$line = ""
+    if ($script:config.UseNerdFont -eq $true) {
+      $check = [char]::ConvertFromUtf32(0xf05d)
+    }
+    else {
+      $check = "✓"
+    }
+    
+    foreach ($key in $columns.keys) {
+      [string]$col = $list.$key
+      $line = $line, $col -join " "
+    }
+    if ($checked) {
+      $line = "$esc[38;5;46m$check", $line -join ""
+    }
+    else {
+      $line = " ", $line -join ""
+    }
+    if ($row -eq $selected) {
+      $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
+    }
+    if ($row % 2 -eq 0) {
+      $line = "$esc[38;5;252m$($line)"
+    }
+    else {
+      $line = "$esc[38;5;244m$($line)"
+    }
+    
+    "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
+  }
+
+  function  drawHeader {
+    [System.Console]::setcursorposition($win.X+1, $win.Y + 1)
+    $H = " "
+    foreach ($key in $columns.keys) {
+      $len = $columns[$key][1]
+      [string]$col = $key.PadRight($len," ")
+      $H = $H, $col -join " "
+    }
+    $header = $H.PadRight($win.w-2,' ')
+    [System.Console]::write("$esc[4m$esc[38;5;11m$($header)$esc[0m")
+  }
+
+  function drawFooter {
+
+    [System.Console]::setcursorposition($win.X+1, $win.H -1)
+    
+    if ($sourceIdx -eq -1) {
+      $s = $sources -join ","
+    } else {
+      $s = $sources[$sourceIdx]
+    }
+    $footerL = " Selected : $nbChecked"
+    $footerR = "Source : [ $s ] "
+    $fill = $win.w-2 - $footerL.Length - $footerR.Length
+    $f = $footerL,"".PadRight($fill,' '),$footerR -join ""
+    [System.Console]::write("$esc[48;5;19m$esc[38;5;15m$($f)$esc[0m")
+  }
+
   $sources = $(Get-WGSources).keys
   $sourceIdx = -1
   $global:Host.UI.RawUI.FlushInputBuffer()
@@ -693,10 +739,10 @@ function displayGrid {
   $win = [window]::new($X, $Y, $WinWidth, $WinHeigt, $false, "White");
   $win.title = $title
   $Win.titleColor = "Green"
-  $win.footer = "$(color "[?]" "red") : Help $(color "[Space]" "red") : Select/Unselect $(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Quit"
+  $win.footer = "$(color "[?]" "red") Help $(color "[F2]" "red") Source $(color "[Space]" "red") Select/Unselect $(color "[Enter]" "red") Accept $(color "[Esc]" "red") Quit"
   $win.drawWindow();
   $win.drawVersion();
-  $nbLines = $Win.h - 1
+  $nbLines = $Win.h - 3
   $blanks = makeBlanks $nblines $win
 
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
@@ -714,18 +760,17 @@ function displayGrid {
     $displayList = $list
   }
 
-  #$displayList = $list
-
   $skip = 0
   $nbPages = [math]::Ceiling($displayList.count / $nbLines)
   $win.nbpages = $nbPages
   $page = 1
   $selected = 0
+  $nbChecked = 0
   [System.Console]::CursorVisible = $false
   $redraw = $true
   while (-not $stop) {
     $win.page = $page
-    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    [System.Console]::setcursorposition($win.X, $win.Y + 2)
     $row = 0
     if ($displayList.length -eq 1) {
       $checked = $displayList.Selected
@@ -742,12 +787,14 @@ function displayGrid {
     $nbDisplay = $partdisplayList.Length
     $sText = $partdisplayList | Out-String 
     if ($redraw) {
-      [System.Console]::setcursorposition($win.X, $win.Y + 1)
+      [System.Console]::setcursorposition($win.X, $win.Y + 2)
       [system.console]::write($blanks)
       $redraw = $false
     }
-    [System.Console]::setcursorposition($win.X, $win.Y + 1)
+    [System.Console]::setcursorposition($win.X, $win.Y + 2)
     [system.console]::write($sText.Substring(0, $sText.Length - 2))
+    drawHeader
+    drawFooter
     $win.drawPagination()
     while (-not $stop) {
       if ($global:Host.UI.RawUI.KeyAvailable) { 
@@ -794,7 +841,6 @@ function displayGrid {
         if ($key.VirtualKeyCode -eq 32) {
           # key Space
           if ($displayList.length -eq 1) {
-            #$index = (($page - 1) * $nbLines) + $selected
             $checked = $displayList.Selected
             $displayList.Selected = -not $checked
           }
@@ -803,8 +849,9 @@ function displayGrid {
             $checked = $displayList[$index].Selected
             $displayList[$index].Selected = -not $checked
           }
-          
+          if ($checked) {$nbChecked--} else {$nbChecked++}
         }
+
         if ($key.VirtualKeyCode -eq 13) {
           # key Enter
           Clear-Host
@@ -817,6 +864,7 @@ function displayGrid {
             $term = getSearchTerms
             [System.Console]::CursorVisible = $false
             $term = '"', $term, '"' -join ''
+            # Todo : re-run original search
             $sb = { Invoke-Winget "winget search --name $term" | Where-Object { $_.source -eq "winget" } }
             $displayList = Invoke-Command -ScriptBlock $sb
             $skip = 0
@@ -849,12 +897,14 @@ function displayGrid {
         if ($key.character -eq "+") {
           # key +
           $checked = $true
-          $displayList | ForEach-Object { $_.Selected = $checked }
+          $nbChecked = 0
+          $displayList | ForEach-Object { $_.Selected = $checked; $nbChecked++ }
         }
         if ($key.character -eq "-") {
           # key -
           $checked = $false
           $displayList | ForEach-Object { $_.Selected = $checked }
+          $nbChecked = 0
         }
         break
       }
@@ -939,7 +989,7 @@ function Get-WGPackage {
     $command = "winget update --include-unknown"
   }
   else {
-    $command = "winget list"
+    $command = "winget list --scope user"
   }
   
   if ($apply) {
@@ -970,6 +1020,11 @@ function Get-WGPackage {
   }
 
   $list = Invoke-Winget $command
+  Clear-Host
+  # Include scoop search if configured
+  if (Get-ScoopStatus) {
+    Invoke-Scoop -cmd "scoop list" -list $list
+  }
 
   if ($source) {
     $list = $list |  Where-Object { $_.source -eq $source }
@@ -1053,7 +1108,7 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
-              $expression = "winget install "
+              $expression = "winget install  "
               if ($silent) {
                 $expression = $expression, "--silent --disable-interactivity" -join ""
               }
@@ -1078,6 +1133,24 @@ function Search-WGPackage {
       Write-Host "🛑 Operation Aborted"
     }
   }
+}
+
+function Get-WGPVersion {
+  param(
+    [ValidateSet("Winget", "WGP", "All")]
+    [String]$param="WGP"
+  )
+
+  if ($param -in ("Winget","All")) {
+    $v = Invoke-Expression "winget -v" | Out-String -NoNewline
+    Write-Host "Winget version : $v"
+  }
+
+  if ($param -in ("WGP","All")) {
+    $v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+    Write-Host "Wingetposh version : $v"
+  }
+
 }
 
 function Get-WGList {
