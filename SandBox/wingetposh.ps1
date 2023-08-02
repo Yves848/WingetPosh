@@ -450,16 +450,27 @@ function Get-WGSources {
   $sources
 }
 
+function Get-ScoopStatus {
+  Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+}
+
+function Invoke-Scoop {
+  param (
+    [string]$cmd
+  )
+  $PackageList = @()
+  $SearchResult = Invoke-Expression $cmd
+}
+
 function Invoke-Winget {
   param (
     [string]$cmd
   )
-  [console]::clear()
+  #[console]::clear()
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
-  #$statedata.Y = $Host.UI.RawUI.CursorPosition.Y
   $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
   
   $runspace = [runspacefactory]::CreateRunspace()
@@ -658,17 +669,20 @@ function displayGrid {
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
       $check = [char]::ConvertFromUtf32(0xf05d)
+      $source = "⁂"
     }
     else {
       $check = "✓"
+      $source = "⁑"
     }
-    
+    $line = "$esc[38;5;46m$source", $line -join ""
     foreach ($key in $columns.keys) {
       [string]$col = $list.$key
       $line = $line, $col -join " "
     }
+
     if ($checked) {
-      $line = "$esc[38;5;46m$check", $line -join ""
+      $line = $check, $line -join ""
     }
     else {
       $line = " ", $line -join ""
@@ -689,7 +703,7 @@ function displayGrid {
 
   function  drawHeader {
     [System.Console]::setcursorposition($win.X+1, $win.Y + 1)
-    $H = " "
+    $H = "  "
     foreach ($key in $columns.keys) {
       $len = $columns[$key][1]
       [string]$col = $key.PadRight($len," ")
@@ -976,7 +990,7 @@ function Get-WGPackage {
     $command = "winget update --include-unknown"
   }
   else {
-    $command = "winget list"
+    $command = "winget list --scope user"
   }
   
   if ($apply) {
@@ -1007,6 +1021,8 @@ function Get-WGPackage {
   }
 
   $list = Invoke-Winget $command
+  # Include scoop search if configured
+  $list2 = Invode-Scoop $command
 
   if ($source) {
     $list = $list |  Where-Object { $_.source -eq $source }
@@ -1257,7 +1273,7 @@ function Reset-WingetposhConfig {
 
 # CUT HERE #
 
-#Search-WGPackage -search code
+#Search-WGPackage -interactive -search git
 #Install-WGPackage
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
@@ -1269,4 +1285,5 @@ function Reset-WingetposhConfig {
 #Get-WGSources
 #Set-WingetposhConfig -param UseNerdFont -value $args
 #Install-WGPackage 
-Get-WGPVersion -param All
+#Get-WGPVersion -param All
+Get-ScoopStatus
