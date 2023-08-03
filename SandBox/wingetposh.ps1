@@ -191,6 +191,9 @@ class window {
   
   [void] drawVersion() {
     $version = $this.frameStyle.LEFTSPLIT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHTSPLIT -join ""
+    if ($version -or $version.ToString().Trim() -eq "") {
+      $version = $this.frameStyle.LEFTSPLIT, "Dev.", $this.frameStyle.RIGHTSPLIT -join ""
+    }
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
     [console]::write($version)
   }
@@ -448,8 +451,9 @@ function Get-WGSources {
   $data = $false
   $sources = [ordered]@{}
   if (Get-ScoopStatus) {
-    $sources.Add("Scoop", "")
+    $sources.Add("scoop", "")
   }
+  $sources.Add("none", "")
   foreach ($line in $result) {
     if ($data) {
       $name, $argument = $line -split "\s+"
@@ -841,7 +845,15 @@ function displayGrid {
             $sourceIdx = -1
           }
           else {
-            $displayList = $list | Where-Object { $_.source.trim() -eq $sources[$sourceIdx] }
+            $src = @()
+            if ($sources[$sourceIdx].trim() -in ("none","msstore")) {
+              $src += ""
+              $src += "msstore"
+            }
+            else {
+              $src += $sources[$sourceIdx]
+            }
+            $displayList = $list | Where-Object { $src.Contains($_.source.trim()) }
             if ($displayList.count -eq 0) {
               $displayList = $list
             }
@@ -1054,7 +1066,7 @@ function Get-WGPackage {
       $package.add("Name",$_.Name.PadRight($columns["Name"][1]," "))
       $package.add("Id",$_.Name.PadRight($columns["Id"][1]," "))
       $package.add("Version",$_.Version.PadRight($columns["Version"][1]," "))
-      $package.add("Source","Scoop".PadRight($columns["Source"][1]," "))
+      $package.add("Source","scoop".PadRight($columns["Source"][1]," "))
       $list+=$package
     }
   }
@@ -1312,7 +1324,7 @@ function Reset-WingetposhConfig {
 #Search-WGPackage -package git
 #Get-WGPackage
 #Search-WGPackage -interactive -search git
-#Install-WGPackage
+#Install-WGPackage -package git
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
