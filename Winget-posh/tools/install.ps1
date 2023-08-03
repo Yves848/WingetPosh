@@ -34,6 +34,10 @@ function getWingetLocals {
   return $languageData
 }
 
+function Get-ScoopStatus {
+  Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+}
+
 $version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
 if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) { 
 
@@ -45,7 +49,7 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
   }
 
   getWingetLocals | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
-
+  [bool]$scoop = Get-ScoopStatus
   $init = @{}
   (
   ('UseNerdFont', $false),
@@ -53,7 +57,7 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
   ('AcceptPackageAgreements', $true),
   ('AcceptSourceAgreements', $true),
   ('Force', $false),
-  ('IncludeScoop', $false)
+  ('IncludeScoop', $scoop)
   ) | ForEach-Object { $init[$_[0]] = $_[1] }
 
   $config = @{}
@@ -75,6 +79,12 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
 
   Write-Host "Wingetposh version $version installed successfully 👌"
   Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, '—')
+  if (Get-ScoopStatus) {
+    Write-Host "Scoop Installed.  Support activated."
+    Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, '—')
+  }
+
+  
   Write-Host "🗒️ Go to http://github.com/yves848/wingetposh for help and infos."
   Write-Host "📨 Please report bugs and requests at wingetposh@gmail.com"
 }

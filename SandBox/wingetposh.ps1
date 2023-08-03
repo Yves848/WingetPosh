@@ -451,7 +451,7 @@ function Invoke-Expression2 {
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
   $handle = $session.BeginInvoke()
-  $result = Invoke-Expression -Command $exp
+  $result = Invoke-Expression -Command $exp 
 
   $session.Stop()
   $runspace.Dispose()
@@ -963,7 +963,7 @@ function openSpinner {
   $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
   [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
   $win.titleColor = "Red"
-  $win.title = '⏳ Getting Winget data '
+  $win.title = '⏳ Fetching Winget data '
   $win.drawWindow()
   $win.drawTitle()
   $statedata.X ++
@@ -1176,7 +1176,7 @@ function Search-WGPackage {
       $list = Invoke-Winget $command
 
       if (Get-ScoopStatus) {
-        $win.title = '⏳ Getting Scoop data '
+        $win.title = '⏳ Fetching Scoop data '
         $win.drawWindow()
         $win.drawTitle()
         [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
@@ -1214,20 +1214,30 @@ function Search-WGPackage {
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
-              $expression = "winget install  "
-              if ($silent) {
-                $expression = $expression, "--silent --disable-interactivity" -join ""
+              if ($_.source.trim() -eq "scoop") {
+                $expression = "scoop install  "
+                $expression = $expression, "  $($_.Name)" -join ""
+                [System.Console]::CursorVisible = $false
+                Invoke-Expression2 -exp $expression -title "⚡Invoking scoop for $($_.Name)"
+                #Write-Host "Exit code : $($LASTEXITCODE)"
+                [System.Console]::CursorVisible = $true
               }
-              $id = ($_.Id).Trim()
-              $expression = $expression, " --id $($id)" -join ""
-              [System.Console]::CursorVisible = $false
-              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
-              #Write-Host "Exit code : $($LASTEXITCODE)"
-              [System.Console]::CursorVisible = $true
+              else {
+                $expression = "winget install  "
+                if ($silent) {
+                  $expression = $expression, "--silent --disable-interactivity" -join ""
+                }
+                $id = ($_.Id).Trim()
+                $expression = $expression, " --id $($id)" -join ""
+                [System.Console]::CursorVisible = $false
+                Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+                #Write-Host "Exit code : $($LASTEXITCODE)"
+                [System.Console]::CursorVisible = $true
+              }
             }
           }
         }
-        $data
+        #$data
       }
       else {
         $list
@@ -1383,7 +1393,7 @@ function Reset-WingetposhConfig {
 #Search-WGPackage -package git
 #Get-WGPackage
 #Search-WGPackage -interactive -search git
-Install-WGPackage -package obs
+Install-WGPackage -package git
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
