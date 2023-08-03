@@ -30,6 +30,13 @@ class scoopSearch {
 
 }
 
+class scoopBuckets {
+  [string]$Name
+  [string]$Source
+  [string]$Updated
+  [int]$Manifests
+}
+
 class wingetSource {
   [string]$Name
   [string]$Argument
@@ -473,8 +480,13 @@ function Get-WGSources {
   $sources
 }
 
+function Get-ScoopBuckets {
+  [scoopBuckets[]]$buckets = Invoke-Scoop "scoop bucket list"
+  return $buckets
+}
+
 function Get-ScoopStatus {
-  Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+  $script:config.IncludeScoop -and (Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\")
 }
 
 function Invoke-Scoop {
@@ -588,11 +600,11 @@ function adjustCol {
   $i = 0
   $field = ""
   while ($charcount -lt $len) {
-    if ($charcount -gt ($col.Length -1)) {
+    if ($charcount -gt ($col.Length - 1)) {
       [char]$char = " "
     }
     else {
-       [char]$char = $col[$i]
+      [char]$char = $col[$i]
     }
     $field = $field + $char
     $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
@@ -857,7 +869,7 @@ function displayGrid {
           }
           else {
             $src = @()
-            if ($sources[$sourceIdx].trim() -in ("none","msstore")) {
+            if ($sources[$sourceIdx].trim() -in ("none", "msstore")) {
               $src += ""
               $src += "msstore"
             }
@@ -941,7 +953,7 @@ function displayHelp {
   }
 }
 
-function openSpinner{
+function openSpinner {
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
   $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
@@ -951,12 +963,13 @@ function openSpinner{
   $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
   [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
   $win.titleColor = "Red"
-  $win.title = '⏳ Getting the data '
+  $win.title = '⏳ Getting Winget data '
   $win.drawWindow()
   $win.drawTitle()
   $statedata.X ++
   $statedata.Y ++
   $sb = {
+    [System.Console]::CursorVisible = $false
     $x = $statedata.X
     $y = $statedata.Y
     
@@ -988,22 +1001,22 @@ function openSpinner{
       }
       Start-Sleep -Milliseconds 100
     }
-  
   }
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
   $null = $session.BeginInvoke()
-  return $Session, $runspace
+  return $Session, $runspace, $win
 }
 
-function closeSpinner{
+function closeSpinner {
   param(
     $Session,
     $Runspace
   )
   $null = $session.Stop()
   $null = $runspace.dispose() 
+  [System.Console]::CursorVisible = $true
 }
   
 function Get-WGPackage {
@@ -1074,11 +1087,11 @@ function Get-WGPackage {
     [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
     $list2 | ForEach-Object {
       $package = [ordered]@{}
-      $package.add("Name",$_.Name.PadRight($columns["Name"][1]," "))
-      $package.add("Id",$_.Name.PadRight($columns["Id"][1]," "))
-      $package.add("Version",$_.Version.PadRight($columns["Version"][1]," "))
-      $package.add("Source","scoop".PadRight($columns["Source"][1]," "))
-      $list+=$package
+      $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+      $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+      $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+      $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+      $list += $package
     }
   }
   closeSpinner -Session $Session -Runspace $Runspace
@@ -1158,23 +1171,43 @@ function Search-WGPackage {
   }
   process {
     if ($terms -ne "") {
+      $Session, $Runspace, $win = openSpinner
       $command = "winget search '$terms'"
       $list = Invoke-Winget $command
 
       if (Get-ScoopStatus) {
+        $win.title = '⏳ Getting Scoop data '
+        $win.drawWindow()
+        $win.drawTitle()
         [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
+        closeSpinner -Session $Session -Runspace $Runspace
+        Clear-Host
+        $buckets = @()
+        
+        Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $list2 | ForEach-Object {
-          $pkg = [ordered]@{}
-          $pkg.add("Name",$_.Name.PadRight($columns["Name"][1]," "))
-          $pkg.add("Id",$_.Name.PadRight($columns["Id"][1]," "))
-          $version = $_.Version.PadRight($columns["Version"][1]," ")
-          $pkg.add("Version",$version.Substring(0,$columns["Version"][1]))
-          $pkg.add("Moniker","".PadRight($columns["Moniker"][1],"▨"))
-          $pkg.add("Source","scoop".PadRight($columns["Source"][1]," "))
-          $list+=$pkg
+          if ($buckets.contains($_.Source)) {
+            $pkg = [ordered]@{}
+            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+            $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+            $version = $_.Version.PadRight($columns["Version"][1], " ")
+            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+          } 
+          else {
+            $pkg = [ordered]@{}
+            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+            $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
+            $version = $_.Source.PadRight($columns["Version"][1], " ")
+            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+          }
+          
+          $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+          $list += $pkg
         }
       }
-
+      
       if ($interactive) {
         $data = @()
         displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
@@ -1350,7 +1383,7 @@ function Reset-WingetposhConfig {
 #Search-WGPackage -package git
 #Get-WGPackage
 #Search-WGPackage -interactive -search git
-Install-WGPackage -package git
+Install-WGPackage -package obs
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
@@ -1363,3 +1396,4 @@ Install-WGPackage -package git
 #Install-WGPackage 
 #Get-WGPVersion -param All
 #Get-ScoopStatus
+#Get-ScoopBuckets
