@@ -460,9 +460,7 @@ function Invoke-Scoop {
     [array]$list
   )
   $SearchResult = Invoke-Expression $cmd 
-  $SearchResult | ForEach-Object {
-    $_.Name
-  }
+  return $SearchResult
 }
 
 function Invoke-Winget {
@@ -1020,11 +1018,11 @@ function Get-WGPackage {
   }
 
   $list = Invoke-Winget $command
-  Clear-Host
   # Include scoop search if configured
   if (Get-ScoopStatus) {
-    Invoke-Scoop -cmd "scoop list" -list $list
+    $list2 = Invoke-Scoop -cmd "scoop list"
   }
+  
 
   if ($source) {
     $list = $list |  Where-Object { $_.source -eq $source }
