@@ -14,12 +14,19 @@ class installSoftware {
   [String]$Source
 }
 
-class scoopRecord {
+class scoopList {
   [string]$Info
   [string]$Name
   [string]$Version
   [string]$Source
   [datetime]$Updated
+
+}
+class scoopSearch {
+  [string]$Name
+  [string]$Version
+  [string]$Source
+  [string]$Binaries
 
 }
 
@@ -192,7 +199,7 @@ class window {
   [void] drawVersion() {
     $version = $this.frameStyle.LEFTSPLIT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHTSPLIT -join ""
     if ($version -or $version.ToString().Trim() -eq "") {
-      $version = $this.frameStyle.LEFTSPLIT, "Dev.", $this.frameStyle.RIGHTSPLIT -join ""
+      $version = $this.frameStyle.LEFTSPLIT, "Debug", $this.frameStyle.RIGHTSPLIT -join ""
     }
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
     [console]::write($version)
@@ -472,8 +479,7 @@ function Get-ScoopStatus {
 
 function Invoke-Scoop {
   param (
-    [string]$cmd,
-    [array]$list
+    [string]$cmd
   )
   $SearchResult = Invoke-Expression $cmd 
   return $SearchResult
@@ -582,7 +588,12 @@ function adjustCol {
   $i = 0
   $field = ""
   while ($charcount -lt $len) {
-    [char]$char = $col[$i]
+    if ($charcount -gt ($col.Length -1)) {
+      [char]$char = " "
+    }
+    else {
+       [char]$char = $col[$i]
+    }
     $field = $field + $char
     $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
     if ($nbBytes -gt 1) {
@@ -1060,7 +1071,7 @@ function Get-WGPackage {
   $list = Invoke-Winget $command
   # Include scoop search if configured
   if (Get-ScoopStatus) {
-    [scoopRecord[]]$list2 = Invoke-Scoop -cmd "scoop list"
+    [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
     $list2 | ForEach-Object {
       $package = [ordered]@{}
       $package.add("Name",$_.Name.PadRight($columns["Name"][1]," "))
@@ -1149,6 +1160,21 @@ function Search-WGPackage {
     if ($terms -ne "") {
       $command = "winget search '$terms'"
       $list = Invoke-Winget $command
+
+      if (Get-ScoopStatus) {
+        [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
+        $list2 | ForEach-Object {
+          $pkg = [ordered]@{}
+          $pkg.add("Name",$_.Name.PadRight($columns["Name"][1]," "))
+          $pkg.add("Id",$_.Name.PadRight($columns["Id"][1]," "))
+          $version = $_.Version.PadRight($columns["Version"][1]," ")
+          $pkg.add("Version",$version.Substring(0,$columns["Version"][1]))
+          $pkg.add("Moniker","".PadRight($columns["Moniker"][1],"▨"))
+          $pkg.add("Source","scoop".PadRight($columns["Source"][1]," "))
+          $list+=$pkg
+        }
+      }
+
       if ($interactive) {
         $data = @()
         displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
@@ -1307,7 +1333,7 @@ function Get-WingetposhConfig {
 
 function Set-WingetposhConfig {
   param(
-    [ValidateSet("UseNerdFont", "SilentInstall", "AcceptPackageAgreements", "AcceptSourceAgreements", "Force")]
+    [ValidateSet("UseNerdFont", "SilentInstall", "AcceptPackageAgreements", "AcceptSourceAgreements", "Force", "IncludeScoop")]
     [String]$param,
     $value
   )
@@ -1317,18 +1343,18 @@ function Set-WingetposhConfig {
 }
 
 function Reset-WingetposhConfig {
-  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false, "IncludeScoop": False }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 }
 # CUT HERE #
 
 #Search-WGPackage -package git
 #Get-WGPackage
 #Search-WGPackage -interactive -search git
-#Install-WGPackage -package git
+Install-WGPackage -package git
 #Get-WGPackage -interactive -update
 #Get-WGUpdatables
 #Get-WGList -source $args
-Show-WGList
+#Show-WGList
 #Update-WGPackage -apply
 #Search-WGPackage -source $args -interactive -allowSearch
 #Uninstall-WGPackage -source winget -apply
