@@ -124,7 +124,7 @@ PrivateData = @{
         IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/wingetposh2.ico'
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/master/readme.md'
+        ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/0.9.8-(scoop-integration)/readme.md'
 
         
         # Prerelease string of this module
