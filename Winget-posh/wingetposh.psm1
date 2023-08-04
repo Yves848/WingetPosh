@@ -1051,7 +1051,7 @@ function Get-WGPackage {
     $command = "winget update --include-unknown"
   }
   else {
-    $command = "winget list --scope user"
+    $command = "winget list"
   }
   
   if ($apply) {
@@ -1092,6 +1092,7 @@ function Get-WGPackage {
       $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
       $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
       $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+      $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
       $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
       $list += $package
     }
