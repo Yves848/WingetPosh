@@ -486,6 +486,7 @@ function Get-ScoopBuckets {
 }
 
 function Get-ScoopStatus {
+  Get-WingetposhConfig
   $script:config.IncludeScoop -and (Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\")
 }
 
@@ -1028,6 +1029,7 @@ function Get-WGPackage {
     [switch]$apply,
     [switch]$silent
   )
+  Get-WingetposhConfig
   if ($source) {
     $sources = Get-WGSources 
     if (-not $sources.Contains($source)) {
@@ -1079,7 +1081,7 @@ function Get-WGPackage {
     }
   }
 
-  $Session, $Runspace = openSpinner
+  $Session, $Runspace, $win = openSpinner
 
   $list = Invoke-Winget $command
   # Include scoop search if configured
@@ -1150,6 +1152,7 @@ function Search-WGPackage {
     [switch]$silent
   )
   begin {
+    Get-WingetposhConfig
     if ($source) {
       $sources = Get-WGSources 
       if (-not $sources.Contains($source)) {

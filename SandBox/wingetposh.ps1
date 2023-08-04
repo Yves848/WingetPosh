@@ -1,4 +1,8 @@
-﻿class upgradeSoftware {
+﻿param (
+  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus","Test-Scoop")]$func
+)
+
+class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
   [string]$Id
@@ -486,6 +490,7 @@ function Get-ScoopBuckets {
 }
 
 function Get-ScoopStatus {
+  Get-WingetposhConfig
   $script:config.IncludeScoop -and (Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\")
 }
 
@@ -1028,6 +1033,7 @@ function Get-WGPackage {
     [switch]$apply,
     [switch]$silent
   )
+  Get-WingetposhConfig
   if ($source) {
     $sources = Get-WGSources 
     if (-not $sources.Contains($source)) {
@@ -1079,7 +1085,7 @@ function Get-WGPackage {
     }
   }
 
-  $Session, $Runspace = openSpinner
+  $Session, $Runspace, $win = openSpinner
 
   $list = Invoke-Winget $command
   # Include scoop search if configured
@@ -1150,6 +1156,7 @@ function Search-WGPackage {
     [switch]$silent
   )
   begin {
+    Get-WingetposhConfig
     if ($source) {
       $sources = Get-WGSources 
       if (-not $sources.Contains($source)) {
@@ -1390,20 +1397,33 @@ function Reset-WingetposhConfig {
 }
 # CUT HERE #
 
-#Search-WGPackage -package git
-#Get-WGPackage
-#Search-WGPackage -interactive -search git
-Install-WGPackage -package obs
-#Get-WGPackage -interactive -update
-#Get-WGUpdatables
-#Get-WGList -source $args
-#Show-WGList
-#Update-WGPackage -apply
-#Search-WGPackage -source $args -interactive -allowSearch
-#Uninstall-WGPackage -source winget -apply
-#Get-WGSources
-#Set-WingetposhConfig -param UseNerdFont -value $args
-#Install-WGPackage 
-#Get-WGPVersion -param All
-#Get-ScoopStatus
-#Get-ScoopBuckets
+switch ($func) {
+  "Get-ScoopStatus" { Get-ScoopStatus }
+  "Show-WGList" { Show-WGList}
+  "Install-WGPackage" {Install-WGPackage}
+  "Search-WGPackage" {Search-WGPackage}
+  "Test-Scoop" {
+    Get-WingetposhConfig
+    $script:config.IncludeScoop 
+    Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+  }
+  Default {
+    #Search-WGPackage -package git
+    #Get-WGPackage
+    #Search-WGPackage -interactive -search git
+    #Install-WGPackage -package obs
+    #Get-WGPackage -interactive -update
+    #Get-WGUpdatables
+    #Get-WGList -source $args
+    #Show-WGList
+    #Update-WGPackage -apply
+    #Search-WGPackage -source $args -interactive -allowSearch
+    #Uninstall-WGPackage -source winget -apply
+    #Get-WGSources
+    #Set-WingetposhConfig -param UseNerdFont -value $args
+    #Install-WGPackage 
+    #Get-WGPVersion -param All
+    #Get-ScoopStatus
+    #Get-ScoopBuckets
+  }
+}
