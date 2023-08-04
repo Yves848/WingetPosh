@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.7'
+ModuleVersion = '0.9.8'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -128,7 +128,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        #Prerelease = 'alpha'
+        Prerelease = 'alpha2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
