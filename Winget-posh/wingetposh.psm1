@@ -1184,11 +1184,9 @@ function Search-WGPackage {
         $win.drawWindow()
         $win.drawTitle()
         [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
-        closeSpinner -Session $Session -Runspace $Runspace
+        
         Clear-Host
         $buckets = @()
-        
-        Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $list2 | ForEach-Object {
           if ($buckets.contains($_.Source)) {
             $pkg = [ordered]@{}
@@ -1211,8 +1209,10 @@ function Search-WGPackage {
           $list += $pkg
         }
       }
+      closeSpinner -Session $Session -Runspace $Runspace
       
       if ($interactive) {
+        Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()
         displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
         if ($install) {
