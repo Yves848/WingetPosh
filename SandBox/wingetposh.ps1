@@ -2,6 +2,10 @@
   [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus","Test-Scoop")]$func
 )
 
+$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
+
+. "$include\visuals.ps1"
+
 class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
@@ -46,52 +50,6 @@ class wingetSource {
   [string]$Argument
 }
   
-  
-class Frame {
-  [char]$UL
-  [char]$UR
-  [char]$TOP
-  [char]$LEFT
-  [char]$RIGHT
-  [char]$BL
-  [char]$BR
-  [char]$BOTTOM
-  [char]$LEFTSPLIT
-  [char]$RIGHTSPLIT
-  
-  Frame (
-    [bool]$Double
-  ) {
-    if ($Double) {
-      $this.UL = "╔"
-      $this.UR = "╗"
-      $this.TOP = "═"
-      $this.LEFT = "║"
-      $this.RIGHT = "║"
-      $this.BL = "╚"
-      $this.BR = "╝"
-      $this.BOTTOM = "═"
-      $this.LEFTSPLIT = "⊫"
-    }
-    else {
-      #$this.UL = "┌"
-      $this.UL = [char]::ConvertFromUtf32(0x256d)
-      #$this.UR = "┐"
-      $this.UR = [char]::ConvertFromUtf32(0x256e)
-      $this.TOP = "─"
-      $this.LEFT = "│"
-      $this.RIGHT = "│"
-      $this.BL = [char]::ConvertFromUtf32(0x2570)
-      #$this.BL = "└"
-      $this.BR = [char]::ConvertFromUtf32(0x256f)
-      #$this.BR = "┘"
-      $this.BOTTOM = "─"
-      $this.LEFTSPLIT = [char]::ConvertFromUtf32(0x2524)
-      $this.RIGHTSPLIT = [char]::ConvertFromUtf32(0x251c)
-    }
-  }
-}
-
 class Keys {
   static [string] $enter
   static [string] $space 
@@ -1412,11 +1370,11 @@ switch ($func) {
     #Search-WGPackage -package git
     #Get-WGPackage
     #Search-WGPackage -interactive -search git
-    Install-WGPackage -package obs
+    #Install-WGPackage -package obs
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
-    #Show-WGList
+    Show-WGList
     #Update-WGPackage -apply
     #Search-WGPackage -source $args -interactive -allowSearch
     #Uninstall-WGPackage -source winget -apply
