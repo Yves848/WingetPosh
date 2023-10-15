@@ -1,4 +1,12 @@
-﻿class upgradeSoftware {
+﻿param (
+  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus","Test-Scoop")]$func
+)
+
+$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
+
+. "$include\visuals.ps1"
+
+class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
   [string]$Id
@@ -14,57 +22,34 @@ class installSoftware {
   [String]$Source
 }
 
+class scoopList {
+  [string]$Info
+  [string]$Name
+  [string]$Version
+  [string]$Source
+  [datetime]$Updated
+
+}
+class scoopSearch {
+  [string]$Name
+  [string]$Version
+  [string]$Source
+  [string]$Binaries
+
+}
+
+class scoopBuckets {
+  [string]$Name
+  [string]$Source
+  [string]$Updated
+  [int]$Manifests
+}
+
 class wingetSource {
   [string]$Name
   [string]$Argument
 }
   
-  
-class Frame {
-  [char]$UL
-  [char]$UR
-  [char]$TOP
-  [char]$LEFT
-  [char]$RIGHT
-  [char]$BL
-  [char]$BR
-  [char]$BOTTOM
-  [char]$LEFTSPLIT
-  [char]$RIGHTSPLIT
-  
-  Frame (
-    [bool]$Double
-  ) {
-    if ($Double) {
-      $this.UL = "╔"
-      $this.UR = "╗"
-      $this.TOP = "═"
-      $this.LEFT = "║"
-      $this.RIGHT = "║"
-      $this.BL = "╚"
-      $this.BR = "╝"
-      $this.BOTTOM = "═"
-      $this.LEFTSPLIT = "⊫"
-    }
-    else {
-      #$this.UL = "┌"
-      $this.UL = [char]::ConvertFromUtf32(0x256d)
-      #$this.UR = "┐"
-      $this.UR = [char]::ConvertFromUtf32(0x256e)
-      $this.TOP = "─"
-      $this.LEFT = "│"
-      $this.RIGHT = "│"
-      $this.BL = [char]::ConvertFromUtf32(0x2570)
-      #$this.BL = "└"
-      $this.BR = [char]::ConvertFromUtf32(0x256f)
-      #$this.BR = "┘"
-      $this.BOTTOM = "─"
-      $this.LEFTSPLIT = [char]::ConvertFromUtf32(0x2524)
-      $this.RIGHTSPLIT = [char]::ConvertFromUtf32(0x251c)
-    }
-  }
-}
-
 class Keys {
   static [string] $enter
   static [string] $space 
@@ -100,134 +85,7 @@ class column {
   [Int16]$Len
 }
     
-class window {
-  [int]$X
-  [int]$Y
-  [int]$W
-  [int]$H
-  [Frame]$frameStyle
-  [System.ConsoleColor]$frameColor
-  [string]$title = ""
-  [System.ConsoleColor]$titleColor
-  [string]$footer = ""
-  [int]$page = 1
-  [int]$nbPages = 1
-  
-  window(
-    [int]$X,
-    [int]$y,
-    [int]$w,
-    [int]$h,
-    [bool]$Double,
-    [System.ConsoleColor]$color = "White"
-  ) {
-    $this.X = $X
-    $this.Y = $y
-    $this.W = $W
-    $this.H = $H
-    $this.frameStyle = [Frame]::new($Double)
-    $this.frameColor = $color
-      
-  }
-  
-  window(
-    [int]$X,
-    [int]$y,
-    [int]$w,
-    [int]$h,
-    [bool]$Double,
-    [System.ConsoleColor]$color = "White",
-    [string]$title = "",
-    [System.ConsoleColor]$titlecolor = "Blue"
-  ) {
-    $this.X = $X
-    $this.Y = $y
-    $this.W = $W
-    $this.H = $H
-    $this.frameStyle = [Frame]::new($Double)
-    $this.frameColor = $color
-    $this.title = $title
-    $this.titleColor = $titlecolor
-  }
-  
-  [void] setPosition(
-    [int]$X,
-    [int]$Y
-  ) {
-    [System.Console]::SetCursorPosition($X, $Y)
-  }
-  
-  [void] drawWindow() {
-    $esc = $([char]0x1b)
 
-    [System.Console]::CursorVisible = $false
-    $this.setPosition($this.X, $this.Y)
-    $bloc1 = $this.frameStyle.UL, "".PadLeft($this.W - 2, $this.frameStyle.TOP), $this.frameStyle.UR -join ""
-    $blank = $this.frameStyle.LEFT, "".PadLeft($this.W - 2, " "), $this.frameStyle.RIGHT -join ""
-    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-    for ($i = 1; $i -lt $this.H; $i++) {
-      $Y2 = $this.Y + $i
-      $X3 = $this.X 
-      $this.setPosition($X3, $Y2)
-      Write-Host $blank -ForegroundColor $this.frameColor    
-    }
-    $Y2 = $this.Y + $this.H
-    $this.setPosition( $this.X, $Y2)
-    $bloc1 = $this.frameStyle.BL, "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM), $this.frameStyle.BR -join ""
-    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-    $this.drawTitle()
-    $this.drawFooter()
-  }
-  
-  
-  [void] drawVersion() {
-    $version = $this.frameStyle.LEFTSPLIT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHTSPLIT -join ""
-    [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
-    [console]::write($version)
-  }
-  
-  [void] drawTitle() {
-    if ($this.title -ne "") {
-      $local:X = $this.x + 2
-      $this.setPosition($local:X, $this.Y)
-      Write-Host ($this.frameStyle.LEFTSPLIT, " " -join "") -NoNewline -ForegroundColor $this.frameColor
-      $local:X = $local:X + 2
-      $this.setPosition($local:X, $this.Y)
-      Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
-      $local:X = $local:X + $this.title.Length
-      $this.setPosition($local:X, $this.Y)
-      Write-Host (" ",$this.frameStyle.RIGHTSPLIT -join "") -NoNewline -ForegroundColor $this.frameColor
-    }
-  }
-  
-  [void] drawFooter() {
-    $Y2 = $this.Y + $this.H
-    $this.setPosition( $this.X, $Y2)
-    $bloc1 = $this.frameStyle.BL, "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM), $this.frameStyle.BR -join ""
-    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-    if ($this.footer -ne "") {
-      $local:x = $this.x + 2
-      $local:Y = $this.Y + $this.h
-      $this.setPosition($local:X, $local:Y)
-      $foot = $this.frameStyle.LEFTSPLIT, " ", $this.footer, " ", $this.frameStyle.RIGHTSPLIT -join ""
-      [console]::write($foot)
-    }
-  }
-  
-  [void] drawPagination() {
-    $sPages = ('Page {0}/{1}' -f ($this.page, $this.nbPages))
-    [System.Console]::setcursorposition($this.W - ($sPages.Length + 6), $this.Y + $this.H)
-    [console]::write($sPages)
-  }
-  
-  [void] clearWindow() {
-    $local:blank = "".PadLeft($this.W, " ") 
-    for ($i = 1; $i -lt $this.H; $i++) {
-      $this.setPosition(($this.X), ($this.Y + $i))
-      Write-Host $blank 
-    } 
-  }
-}
   
 $columns = [ordered]@{}
   
@@ -253,7 +111,7 @@ function getSearchTerms {
     $pack = PSConsoleHostReadLine  
   }
   finally {
-    Remove-PSReadlineKeyHandler -Key Escape
+    Remove-PSReadLineKeyHandler -Key Escape
     Set-PSReadLineOption -PredictionSource $save
     [console]::CursorVisible = $false
   }
@@ -283,7 +141,7 @@ function getFilterSource {
     $pack = PSConsoleHostReadLine  
   }
   finally {
-    Remove-PSReadlineKeyHandler -Key Escape
+    Remove-PSReadLineKeyHandler -Key Escape
     Set-PSReadLineOption -PredictionSource $save
     [console]::CursorVisible = $false
   }
@@ -425,7 +283,7 @@ function Invoke-Expression2 {
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
   $handle = $session.BeginInvoke()
-  $result = Invoke-Expression -Command $exp
+  $result = Invoke-Expression -Command $exp 
 
   $session.Stop()
   $runspace.Dispose()
@@ -438,6 +296,10 @@ function Get-WGSources {
   $result = Invoke-Expression -Command $cmd
   $data = $false
   $sources = [ordered]@{}
+  if (Get-ScoopStatus) {
+    $sources.Add("scoop", "")
+  }
+  $sources.Add("none", "")
   foreach ($line in $result) {
     if ($data) {
       $name, $argument = $line -split "\s+"
@@ -450,16 +312,22 @@ function Get-WGSources {
   $sources
 }
 
+function Get-ScoopBuckets {
+  [scoopBuckets[]]$buckets = Invoke-Scoop "scoop bucket list"
+  return $buckets
+}
+
 function Get-ScoopStatus {
-  Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+  Get-WingetposhConfig
+  $script:config.IncludeScoop -and (Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\")
 }
 
 function Invoke-Scoop {
   param (
     [string]$cmd
   )
-  $PackageList = @()
-  $SearchResult = Invoke-Expression $cmd
+  $SearchResult = Invoke-Expression $cmd 
+  return $SearchResult
 }
 
 function Invoke-Winget {
@@ -467,62 +335,11 @@ function Invoke-Winget {
     [string]$cmd
   )
   #[console]::clear()
-  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   $TerminalWidth = $Host.UI.RawUI.BufferSize.Width - 2
-  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
-  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
   
-  $runspace = [runspacefactory]::CreateRunspace()
-  $runspace.Open()
-  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
-  [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
-  $win.titleColor = "Red"
-  $win.title = '⏳ Getting the data '
-  $win.drawWindow()
-  $win.drawTitle()
-  $statedata.X ++
-  $statedata.Y ++
-  $sb = {
-    $x = $statedata.X
-    $y = $statedata.Y
-    
-    $i = 1
-    $string = "".PadRight(30, ".")
-    $nav = "oOo"
-    while ($true) {
-      if ($i -lt $nav.Length) {
-        $mobile = $nav.Substring($nav.Length - $i)
-        $string = $mobile.PadRight(30, '.')
-      }
-      else {
-        if ($i -gt 27) {
-          $nb = 30 - $i
-          $mobile = $nav.Substring(1, $nb)
-          $string = $mobile.PadLeft(30, '.')
-        }
-        else {
-          $left = "".PadLeft($i, '.')
-          $right = "".PadRight(27 - $i, '.')
-          $string = $left, $nav, $right -join ""
-        }
-      }
-      [System.Console]::setcursorposition($X, $Y)
-      [System.Console]::write($string)
-      $i++
-      if ($i -gt 30) {
-        $i = 1
-      }
-      Start-Sleep -Milliseconds 100
-    }
-  
-  }
-  $session = [powershell]::create()
-  $null = $session.AddScript($sb)
-  $session.Runspace = $runspace
   [System.Console]::CursorVisible = $false
-  $handle = $session.BeginInvoke()
-  
+
   $PackageList = @()
   $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth -Stream 
 
@@ -585,8 +402,6 @@ function Invoke-Winget {
     }
     $i++
   }
-  $session.Stop()
-  $runspace.Dispose()
   [System.Console]::CursorVisible = $true
   return $PackageList 
 } 
@@ -618,7 +433,12 @@ function adjustCol {
   $i = 0
   $field = ""
   while ($charcount -lt $len) {
-    [char]$char = $col[$i]
+    if ($charcount -gt ($col.Length - 1)) {
+      [char]$char = " "
+    }
+    else {
+      [char]$char = $col[$i]
+    }
     $field = $field + $char
     $nbBytes = [Text.Encoding]::UTF8.GetByteCount($char)
     if ($nbBytes -gt 1) {
@@ -669,20 +489,17 @@ function displayGrid {
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
       $check = [char]::ConvertFromUtf32(0xf05d)
-      $source = "⁂"
     }
     else {
       $check = "✓"
-      $source = "⁑"
     }
-    $line = "$esc[38;5;46m$source", $line -join ""
+    
     foreach ($key in $columns.keys) {
       [string]$col = $list.$key
       $line = $line, $col -join " "
     }
-
     if ($checked) {
-      $line = $check, $line -join ""
+      $line = "$esc[38;5;46m$check", $line -join ""
     }
     else {
       $line = " ", $line -join ""
@@ -697,35 +514,35 @@ function displayGrid {
       $line = "$esc[38;5;244m$($line)"
     }
     
-  
     "$esc[38;5;15m$($Single.LEFT)$($line)$esc[0m"
   }
 
   function  drawHeader {
-    [System.Console]::setcursorposition($win.X+1, $win.Y + 1)
-    $H = "  "
+    [System.Console]::setcursorposition($win.X + 1, $win.Y + 1)
+    $H = " "
     foreach ($key in $columns.keys) {
       $len = $columns[$key][1]
-      [string]$col = $key.PadRight($len," ")
+      [string]$col = $key.PadRight($len, " ")
       $H = $H, $col -join " "
     }
-    $header = $H.PadRight($win.w-2,' ')
+    $header = $H.PadRight($win.w - 2, ' ')
     [System.Console]::write("$esc[4m$esc[38;5;11m$($header)$esc[0m")
   }
 
   function drawFooter {
 
-    [System.Console]::setcursorposition($win.X+1, $win.H -1)
+    [System.Console]::setcursorposition($win.X + 1, $win.H - 1)
     
     if ($sourceIdx -eq -1) {
       $s = $sources -join ","
-    } else {
+    }
+    else {
       $s = $sources[$sourceIdx]
     }
     $footerL = " Selected : $nbChecked"
     $footerR = "Source : [ $s ] "
-    $fill = $win.w-2 - $footerL.Length - $footerR.Length
-    $f = $footerL,"".PadRight($fill,' '),$footerR -join ""
+    $fill = $win.w - 2 - $footerL.Length - $footerR.Length
+    $f = $footerL, "".PadRight($fill, ' '), $footerR -join ""
     [System.Console]::write("$esc[48;5;19m$esc[38;5;15m$($f)$esc[0m")
   }
 
@@ -752,7 +569,7 @@ function displayGrid {
   $statedata.Y = ($win.Y + 1)
  
   if ($source) {
-    $displayList = $list | Where-Object {$_.source.trim() -eq $source}
+    $displayList = $list | Where-Object { $_.source.trim() -eq $source }
     if ($displayList.count -eq 0) {
       $displayList = $list
     }
@@ -850,7 +667,7 @@ function displayGrid {
             $checked = $displayList[$index].Selected
             $displayList[$index].Selected = -not $checked
           }
-          if ($checked) {$nbChecked--} else {$nbChecked++}
+          if ($checked) { $nbChecked-- } else { $nbChecked++ }
         }
 
         if ($key.VirtualKeyCode -eq 13) {
@@ -879,21 +696,30 @@ function displayGrid {
         if ($key.VirtualKeyCode -eq 113) {
           # key F2
           $sourceIdx ++
-          if ($sourceIdx -gt $sources.count -1) {
+          if ($sourceIdx -gt $sources.count - 1) {
             $displayList = $list
             $sourceIdx = -1
-          } else {
-            $displayList = $list | Where-Object {$_.source.trim() -eq $sources[$sourceIdx]}
+          }
+          else {
+            $src = @()
+            if ($sources[$sourceIdx].trim() -in ("none", "msstore")) {
+              $src += ""
+              $src += "msstore"
+            }
+            else {
+              $src += $sources[$sourceIdx]
+            }
+            $displayList = $list | Where-Object { $src.Contains($_.source.trim()) }
             if ($displayList.count -eq 0) {
               $displayList = $list
             }
           }
           $skip = 0
-            $nbPages = [math]::Ceiling($displayList.count / $nbLines)
-            $win.nbpages = $nbPages
-            $page = 1
-            $selected = 0
-            $redraw = $true
+          $nbPages = [math]::Ceiling($displayList.count / $nbLines)
+          $win.nbpages = $nbPages
+          $page = 1
+          $selected = 0
+          $redraw = $true
         }
         if ($key.character -eq "+") {
           # key +
@@ -959,6 +785,72 @@ function displayHelp {
     }
   }
 }
+
+function openSpinner {
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
+  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
+  
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
+  $win.titleColor = "Red"
+  $win.title = '⏳ Fetching Winget data '
+  $win.drawWindow()
+  $win.drawTitle()
+  $statedata.X ++
+  $statedata.Y ++
+  $sb = {
+    [System.Console]::CursorVisible = $false
+    $x = $statedata.X
+    $y = $statedata.Y
+    
+    $i = 1
+    $string = "".PadRight(30, ".")
+    $nav = "oOo"
+    while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight(30, '.')
+      }
+      else {
+        if ($i -gt 27) {
+          $nb = 30 - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft(30, '.')
+        }
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight(27 - $i, '.')
+          $string = $left, $nav, $right -join ""
+        }
+      }
+      [System.Console]::setcursorposition($X, $Y)
+      [System.Console]::write($string)
+      $i++
+      if ($i -gt 30) {
+        $i = 1
+      }
+      Start-Sleep -Milliseconds 100
+    }
+  }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $null = $session.BeginInvoke()
+  return $Session, $runspace, $win
+}
+
+function closeSpinner {
+  param(
+    $Session,
+    $Runspace
+  )
+  $null = $session.Stop()
+  $null = $runspace.dispose() 
+  [System.Console]::CursorVisible = $true
+}
   
 function Get-WGPackage {
   param(
@@ -969,6 +861,7 @@ function Get-WGPackage {
     [switch]$apply,
     [switch]$silent
   )
+  Get-WingetposhConfig
   if ($source) {
     $sources = Get-WGSources 
     if (-not $sources.Contains($source)) {
@@ -990,7 +883,7 @@ function Get-WGPackage {
     $command = "winget update --include-unknown"
   }
   else {
-    $command = "winget list --scope user"
+    $command = "winget list"
   }
   
   if ($apply) {
@@ -1020,9 +913,24 @@ function Get-WGPackage {
     }
   }
 
+  $Session, $Runspace, $win = openSpinner
+
   $list = Invoke-Winget $command
   # Include scoop search if configured
-  $list2 = Invode-Scoop $command
+  if (Get-ScoopStatus) {
+    [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
+    $list2 | ForEach-Object {
+      $package = [ordered]@{}
+      $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+      $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+      $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+      $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
+      $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+      $list += $package
+    }
+  }
+  closeSpinner -Session $Session -Runspace $Runspace
+  
 
   if ($source) {
     $list = $list |  Where-Object { $_.source -eq $source }
@@ -1059,11 +967,11 @@ function Get-WGPackage {
 
     }
     else {
-      $data
+      return $data
     }
   }
   else {
-    $list
+    return $list
   }
 }
 
@@ -1077,6 +985,7 @@ function Search-WGPackage {
     [switch]$silent
   )
   begin {
+    Get-WingetposhConfig
     if ($source) {
       $sources = Get-WGSources 
       if (-not $sources.Contains($source)) {
@@ -1098,28 +1007,73 @@ function Search-WGPackage {
   }
   process {
     if ($terms -ne "") {
+      $Session, $Runspace, $win = openSpinner
       $command = "winget search '$terms'"
       $list = Invoke-Winget $command
+
+      if (Get-ScoopStatus) {
+        $win.title = '⏳ Fetching Scoop data '
+        $win.drawWindow()
+        $win.drawTitle()
+        [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
+        
+        Clear-Host
+        $buckets = @()
+        $list2 | ForEach-Object {
+          if ($buckets.contains($_.Source)) {
+            $pkg = [ordered]@{}
+            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+            $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+            $version = $_.Version.PadRight($columns["Version"][1], " ")
+            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+          } 
+          else {
+            $pkg = [ordered]@{}
+            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+            $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
+            $version = $_.Source.PadRight($columns["Version"][1], " ")
+            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+          }
+          
+          $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+          $list += $pkg
+        }
+      }
+      closeSpinner -Session $Session -Runspace $Runspace
+
       if ($interactive) {
+        Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()
         displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
-              $expression = "winget install  "
-              if ($silent) {
-                $expression = $expression, "--silent --disable-interactivity" -join ""
+              if ($_.source.trim() -eq "scoop") {
+                $expression = "scoop install  "
+                $expression = $expression, "  $($_.Name)" -join ""
+                [System.Console]::CursorVisible = $false
+                Invoke-Expression2 -exp $expression -title "⚡Invoking scoop for $($_.Name)"
+                #Write-Host "Exit code : $($LASTEXITCODE)"
+                [System.Console]::CursorVisible = $true
               }
-              $id = ($_.Id).Trim()
-              $expression = $expression, " --id $($id)" -join ""
-              [System.Console]::CursorVisible = $false
-              Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
-              #Write-Host "Exit code : $($LASTEXITCODE)"
-              [System.Console]::CursorVisible = $true
+              else {
+                $expression = "winget install  "
+                if ($silent) {
+                  $expression = $expression, "--silent --disable-interactivity" -join ""
+                }
+                $id = ($_.Id).Trim()
+                $expression = $expression, " --id $($id)" -join ""
+                [System.Console]::CursorVisible = $false
+                Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
+                #Write-Host "Exit code : $($LASTEXITCODE)"
+                [System.Console]::CursorVisible = $true
+              }
             }
           }
         }
-        $data
+        #$data
       }
       else {
         $list
@@ -1136,15 +1090,15 @@ function Search-WGPackage {
 function Get-WGPVersion {
   param(
     [ValidateSet("Winget", "WGP", "All")]
-    [String]$param="WGP"
+    [String]$param = "WGP"
   )
 
-  if ($param -in ("Winget","All")) {
+  if ($param -in ("Winget", "All")) {
     $v = Invoke-Expression "winget -v" | Out-String -NoNewline
     Write-Host "Winget version : $v"
   }
 
-  if ($param -in ("WGP","All")) {
+  if ($param -in ("WGP", "All")) {
     $v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
     Write-Host "Wingetposh version : $v"
   }
@@ -1258,7 +1212,7 @@ function Get-WingetposhConfig {
 
 function Set-WingetposhConfig {
   param(
-    [ValidateSet("UseNerdFont", "SilentInstall", "AcceptPackageAgreements", "AcceptSourceAgreements", "Force")]
+    [ValidateSet("UseNerdFont", "SilentInstall", "AcceptPackageAgreements", "AcceptSourceAgreements", "Force", "IncludeScoop")]
     [String]$param,
     $value
   )
@@ -1268,22 +1222,37 @@ function Set-WingetposhConfig {
 }
 
 function Reset-WingetposhConfig {
-  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false, "IncludeScoop": False }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 }
-
 # CUT HERE #
 
-#Search-WGPackage -interactive -search git
-#Install-WGPackage
-#Get-WGPackage -interactive -update
-#Get-WGUpdatables
-#Get-WGList -source $args
-#Show-WGList
-#Update-WGPackage -apply
-#Search-WGPackage -source $args -interactive -allowSearch
-#Uninstall-WGPackage -source winget -apply
-#Get-WGSources
-#Set-WingetposhConfig -param UseNerdFont -value $args
-#Install-WGPackage 
-#Get-WGPVersion -param All
-Get-ScoopStatus
+switch ($func) {
+  "Get-ScoopStatus" { Get-ScoopStatus }
+  "Show-WGList" { Show-WGList}
+  "Install-WGPackage" {Install-WGPackage}
+  "Search-WGPackage" {Search-WGPackage}
+  "Test-Scoop" {
+    Get-WingetposhConfig
+    $script:config.IncludeScoop 
+    Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+  }
+  Default {
+    #Search-WGPackage -package git
+    #Get-WGPackage
+    #Search-WGPackage -interactive -search git
+    #Install-WGPackage -package obs
+    #Get-WGPackage -interactive -update
+    #Get-WGUpdatables
+    #Get-WGList -source $args
+    Show-WGList
+    #Update-WGPackage -apply
+    #Search-WGPackage -source $args -interactive -allowSearch
+    #Uninstall-WGPackage -source winget -apply
+    #Get-WGSources
+    #Set-WingetposhConfig -param UseNerdFont -value $args
+    #Install-WGPackage 
+    #Get-WGPVersion -param All
+    #Get-ScoopStatus
+    #Get-ScoopBuckets
+  }
+}

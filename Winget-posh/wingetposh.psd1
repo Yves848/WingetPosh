@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.7'
+ModuleVersion = '0.9.8'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -118,17 +118,17 @@ PrivateData = @{
         LicenseUri = 'https://github.com/Yves848/WingetPosh/blob/master/licence.txt'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/Yves848/WingetPosh'
+        ProjectUri = 'https://github.com/Yves848/WingetPosh/tree/0.9.8-(scoop-integration)'
 
         # A URL to an icon representing this module.
         IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/wingetposh2.ico'
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/master/readme.md'
+        ReleaseNotes = 'https://github.com/Yves848/WingetPosh/blob/0.9.8-(scoop-integration)/readme.md'
 
         
         # Prerelease string of this module
-        #Prerelease = 'alpha'
+        Prerelease = 'alpha9'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
