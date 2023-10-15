@@ -30,7 +30,7 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
   }
 
   $l = getWingetLocals
-  $l[1] | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
+  $l | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
 
   $init = @{}
   (
