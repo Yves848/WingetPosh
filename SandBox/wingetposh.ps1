@@ -1,5 +1,5 @@
 ﻿param (
-  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus","Test-Scoop")]$func
+  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus", "Test-Scoop")]$func
 )
 
 $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
@@ -547,7 +547,7 @@ function displayGrid {
   }
 
   $sources = $(Get-WGSources).keys
-  $sourceIdx = -1
+  $sourceIdx = $sources.IndexOf("winget");
   $global:Host.UI.RawUI.FlushInputBuffer()
   Get-WingetposhConfig
   $WinWidth = [System.Console]::WindowWidth
@@ -575,7 +575,18 @@ function displayGrid {
     }
   }
   else {
-    $displayList = $list
+    $src = @()
+    if ($sources[$sourceIdx].trim() -in ("none", "msstore")) {
+      $src += ""
+      $src += "msstore"
+    }
+    else {
+      $src += $sources[$sourceIdx]
+    }
+    $displayList = $list | Where-Object { $src.Contains($_.source.trim()) }
+    if ($displayList.count -eq 0) {
+      $displayList = $list
+    }
   }
 
   $skip = 0
@@ -919,14 +930,16 @@ function Get-WGPackage {
   # Include scoop search if configured
   if (Get-ScoopStatus) {
     [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
-    $list2 | ForEach-Object {
-      $package = [ordered]@{}
-      $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-      $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-      $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
-      $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
-      $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-      $list += $package
+    if ($list2) {
+      $list2 | ForEach-Object {
+        $package = [ordered]@{}
+        $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+        $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+        $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+        $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
+        $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+        $list += $package
+      }
     }
   }
   closeSpinner -Session $Session -Runspace $Runspace
@@ -1228,9 +1241,9 @@ function Reset-WingetposhConfig {
 
 switch ($func) {
   "Get-ScoopStatus" { Get-ScoopStatus }
-  "Show-WGList" { Show-WGList}
-  "Install-WGPackage" {Install-WGPackage}
-  "Search-WGPackage" {Search-WGPackage}
+  "Show-WGList" { Show-WGList }
+  "Install-WGPackage" { Install-WGPackage }
+  "Search-WGPackage" { Search-WGPackage }
   "Test-Scoop" {
     Get-WingetposhConfig
     $script:config.IncludeScoop 
