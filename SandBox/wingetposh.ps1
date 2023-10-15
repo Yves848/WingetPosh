@@ -1028,29 +1028,30 @@ function Search-WGPackage {
         $win.drawWindow()
         $win.drawTitle()
         [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
-        
-        Clear-Host
-        $buckets = @()
-        $list2 | ForEach-Object {
-          if ($buckets.contains($_.Source)) {
-            $pkg = [ordered]@{}
-            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-            $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-            $version = $_.Version.PadRight($columns["Version"][1], " ")
-            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-          } 
-          else {
-            $pkg = [ordered]@{}
-            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-            $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
-            $version = $_.Source.PadRight($columns["Version"][1], " ")
-            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-          }
+        if ($list2) {
+          Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
+          Clear-Host
+          $list2 | ForEach-Object {
+            if ($buckets.contains($_.Source)) {
+              $pkg = [ordered]@{}
+              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+              $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+              $version = $_.Version.PadRight($columns["Version"][1], " ")
+              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+            } 
+            else {
+              $pkg = [ordered]@{}
+              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+              $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
+              $version = $_.Source.PadRight($columns["Version"][1], " ")
+              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+            }
           
-          $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-          $list += $pkg
+            $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+            $list += $pkg
+          }
         }
       }
       closeSpinner -Session $Session -Runspace $Runspace
@@ -1252,11 +1253,11 @@ switch ($func) {
     #Search-WGPackage -package git
     #Get-WGPackage
     #Search-WGPackage -interactive -search git
-    #Install-WGPackage -package obs
+    Install-WGPackage -package obs
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
-    Show-WGList
+    #Show-WGList
     #Update-WGPackage -apply
     #Search-WGPackage -source $args -interactive -allowSearch
     #Uninstall-WGPackage -source winget -apply
