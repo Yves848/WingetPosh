@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.8'
+ModuleVersion = '0.9.9'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -102,8 +102,8 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-    'wingetposh.psm1',
-    'wingetLocals.ps1'
+    'visuals.ps1',
+    'wingetposh.psm1'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
@@ -128,7 +128,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        #Prerelease = 'alpha9'
+        Prerelease = 'beta02'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true

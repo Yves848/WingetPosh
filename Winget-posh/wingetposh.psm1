@@ -1,4 +1,8 @@
-﻿class upgradeSoftware {
+﻿$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
+
+. "$include\visuals.ps1"
+
+class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
   [string]$Id
@@ -42,52 +46,6 @@ class wingetSource {
   [string]$Argument
 }
   
-  
-class Frame {
-  [char]$UL
-  [char]$UR
-  [char]$TOP
-  [char]$LEFT
-  [char]$RIGHT
-  [char]$BL
-  [char]$BR
-  [char]$BOTTOM
-  [char]$LEFTSPLIT
-  [char]$RIGHTSPLIT
-  
-  Frame (
-    [bool]$Double
-  ) {
-    if ($Double) {
-      $this.UL = "╔"
-      $this.UR = "╗"
-      $this.TOP = "═"
-      $this.LEFT = "║"
-      $this.RIGHT = "║"
-      $this.BL = "╚"
-      $this.BR = "╝"
-      $this.BOTTOM = "═"
-      $this.LEFTSPLIT = "⊫"
-    }
-    else {
-      #$this.UL = "┌"
-      $this.UL = [char]::ConvertFromUtf32(0x256d)
-      #$this.UR = "┐"
-      $this.UR = [char]::ConvertFromUtf32(0x256e)
-      $this.TOP = "─"
-      $this.LEFT = "│"
-      $this.RIGHT = "│"
-      $this.BL = [char]::ConvertFromUtf32(0x2570)
-      #$this.BL = "└"
-      $this.BR = [char]::ConvertFromUtf32(0x256f)
-      #$this.BR = "┘"
-      $this.BOTTOM = "─"
-      $this.LEFTSPLIT = [char]::ConvertFromUtf32(0x2524)
-      $this.RIGHTSPLIT = [char]::ConvertFromUtf32(0x251c)
-    }
-  }
-}
-
 class Keys {
   static [string] $enter
   static [string] $space 
@@ -123,137 +81,7 @@ class column {
   [Int16]$Len
 }
     
-class window {
-  [int]$X
-  [int]$Y
-  [int]$W
-  [int]$H
-  [Frame]$frameStyle
-  [System.ConsoleColor]$frameColor
-  [string]$title = ""
-  [System.ConsoleColor]$titleColor
-  [string]$footer = ""
-  [int]$page = 1
-  [int]$nbPages = 1
-  
-  window(
-    [int]$X,
-    [int]$y,
-    [int]$w,
-    [int]$h,
-    [bool]$Double,
-    [System.ConsoleColor]$color = "White"
-  ) {
-    $this.X = $X
-    $this.Y = $y
-    $this.W = $W
-    $this.H = $H
-    $this.frameStyle = [Frame]::new($Double)
-    $this.frameColor = $color
-      
-  }
-  
-  window(
-    [int]$X,
-    [int]$y,
-    [int]$w,
-    [int]$h,
-    [bool]$Double,
-    [System.ConsoleColor]$color = "White",
-    [string]$title = "",
-    [System.ConsoleColor]$titlecolor = "Blue"
-  ) {
-    $this.X = $X
-    $this.Y = $y
-    $this.W = $W
-    $this.H = $H
-    $this.frameStyle = [Frame]::new($Double)
-    $this.frameColor = $color
-    $this.title = $title
-    $this.titleColor = $titlecolor
-  }
-  
-  [void] setPosition(
-    [int]$X,
-    [int]$Y
-  ) {
-    [System.Console]::SetCursorPosition($X, $Y)
-  }
-  
-  [void] drawWindow() {
-    $esc = $([char]0x1b)
 
-    [System.Console]::CursorVisible = $false
-    $this.setPosition($this.X, $this.Y)
-    $bloc1 = $this.frameStyle.UL, "".PadLeft($this.W - 2, $this.frameStyle.TOP), $this.frameStyle.UR -join ""
-    $blank = $this.frameStyle.LEFT, "".PadLeft($this.W - 2, " "), $this.frameStyle.RIGHT -join ""
-    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-    for ($i = 1; $i -lt $this.H; $i++) {
-      $Y2 = $this.Y + $i
-      $X3 = $this.X 
-      $this.setPosition($X3, $Y2)
-      Write-Host $blank -ForegroundColor $this.frameColor    
-    }
-    $Y2 = $this.Y + $this.H
-    $this.setPosition( $this.X, $Y2)
-    $bloc1 = $this.frameStyle.BL, "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM), $this.frameStyle.BR -join ""
-    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-    $this.drawTitle()
-    $this.drawFooter()
-  }
-  
-  
-  [void] drawVersion() {
-    $version = $this.frameStyle.LEFTSPLIT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHTSPLIT -join ""
-    if ($version -or $version.ToString().Trim() -eq "") {
-      $version = $this.frameStyle.LEFTSPLIT, "Debug", $this.frameStyle.RIGHTSPLIT -join ""
-    }
-    [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
-    [console]::write($version)
-  }
-  
-  [void] drawTitle() {
-    if ($this.title -ne "") {
-      $local:X = $this.x + 2
-      $this.setPosition($local:X, $this.Y)
-      Write-Host ($this.frameStyle.LEFTSPLIT, " " -join "") -NoNewline -ForegroundColor $this.frameColor
-      $local:X = $local:X + 2
-      $this.setPosition($local:X, $this.Y)
-      Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
-      $local:X = $local:X + $this.title.Length
-      $this.setPosition($local:X, $this.Y)
-      Write-Host (" ", $this.frameStyle.RIGHTSPLIT -join "") -NoNewline -ForegroundColor $this.frameColor
-    }
-  }
-  
-  [void] drawFooter() {
-    $Y2 = $this.Y + $this.H
-    $this.setPosition( $this.X, $Y2)
-    $bloc1 = $this.frameStyle.BL, "".PadLeft($this.W - 2, $this.frameStyle.BOTTOM), $this.frameStyle.BR -join ""
-    Write-Host $bloc1 -ForegroundColor $this.frameColor -NoNewline
-    if ($this.footer -ne "") {
-      $local:x = $this.x + 2
-      $local:Y = $this.Y + $this.h
-      $this.setPosition($local:X, $local:Y)
-      $foot = $this.frameStyle.LEFTSPLIT, " ", $this.footer, " ", $this.frameStyle.RIGHTSPLIT -join ""
-      [console]::write($foot)
-    }
-  }
-  
-  [void] drawPagination() {
-    $sPages = ('Page {0}/{1}' -f ($this.page, $this.nbPages))
-    [System.Console]::setcursorposition($this.W - ($sPages.Length + 6), $this.Y + $this.H)
-    [console]::write($sPages)
-  }
-  
-  [void] clearWindow() {
-    $local:blank = "".PadLeft($this.W, " ") 
-    for ($i = 1; $i -lt $this.H; $i++) {
-      $this.setPosition(($this.X), ($this.Y + $i))
-      Write-Host $blank 
-    } 
-  }
-}
   
 $columns = [ordered]@{}
   
@@ -715,7 +543,7 @@ function displayGrid {
   }
 
   $sources = $(Get-WGSources).keys
-  $sourceIdx = -1
+  $sourceIdx = $sources.IndexOf("winget");
   $global:Host.UI.RawUI.FlushInputBuffer()
   Get-WingetposhConfig
   $WinWidth = [System.Console]::WindowWidth
@@ -743,7 +571,18 @@ function displayGrid {
     }
   }
   else {
-    $displayList = $list
+    $src = @()
+    if ($sources[$sourceIdx].trim() -in ("none", "msstore")) {
+      $src += ""
+      $src += "msstore"
+    }
+    else {
+      $src += $sources[$sourceIdx]
+    }
+    $displayList = $list | Where-Object { $src.Contains($_.source.trim()) }
+    if ($displayList.count -eq 0) {
+      $displayList = $list
+    }
   }
 
   $skip = 0
@@ -1083,18 +922,20 @@ function Get-WGPackage {
 
   $Session, $Runspace, $win = openSpinner
 
-  $list = Invoke-Winget $command
+  $list = @(Invoke-Winget $command)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
     [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
-    $list2 | ForEach-Object {
-      $package = [ordered]@{}
-      $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-      $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-      $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
-      $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
-      $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-      $list += $package
+    if ($list2) {
+      $list2 | ForEach-Object {
+        $package = [ordered]@{}
+        $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+        $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+        $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+        $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
+        $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+        $list += $package
+      }
     }
   }
   closeSpinner -Session $Session -Runspace $Runspace
@@ -1177,40 +1018,41 @@ function Search-WGPackage {
     if ($terms -ne "") {
       $Session, $Runspace, $win = openSpinner
       $command = "winget search '$terms'"
-      $list = Invoke-Winget $command
+      $list = @(Invoke-Winget $command)
 
       if (Get-ScoopStatus) {
         $win.title = '⏳ Fetching Scoop data '
         $win.drawWindow()
         $win.drawTitle()
         [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
-        
-        Clear-Host
-        $buckets = @()
-        $list2 | ForEach-Object {
-          if ($buckets.contains($_.Source)) {
-            $pkg = [ordered]@{}
-            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-            $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-            $version = $_.Version.PadRight($columns["Version"][1], " ")
-            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-          } 
-          else {
-            $pkg = [ordered]@{}
-            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-            $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
-            $version = $_.Source.PadRight($columns["Version"][1], " ")
-            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-          }
+        if ($list2) {
+          Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
+          Clear-Host
+          $list2 | ForEach-Object {
+            if ($buckets.contains($_.Source)) {
+              $pkg = [ordered]@{}
+              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+              $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+              $version = $_.Version.PadRight($columns["Version"][1], " ")
+              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+            } 
+            else {
+              $pkg = [ordered]@{}
+              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+              $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
+              $version = $_.Source.PadRight($columns["Version"][1], " ")
+              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+            }
           
-          $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-          $list += $pkg
+            $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+            $list += $pkg
+          }
         }
       }
       closeSpinner -Session $Session -Runspace $Runspace
-      
+
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()

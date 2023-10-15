@@ -1,7 +1,6 @@
 ﻿param (
-  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus","Test-Scoop")]$func
+  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus", "Test-Scoop")]$func
 )
-
 $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
 
 . "$include\visuals.ps1"
@@ -547,7 +546,7 @@ function displayGrid {
   }
 
   $sources = $(Get-WGSources).keys
-  $sourceIdx = -1
+  $sourceIdx = $sources.IndexOf("winget");
   $global:Host.UI.RawUI.FlushInputBuffer()
   Get-WingetposhConfig
   $WinWidth = [System.Console]::WindowWidth
@@ -575,7 +574,18 @@ function displayGrid {
     }
   }
   else {
-    $displayList = $list
+    $src = @()
+    if ($sources[$sourceIdx].trim() -in ("none", "msstore")) {
+      $src += ""
+      $src += "msstore"
+    }
+    else {
+      $src += $sources[$sourceIdx]
+    }
+    $displayList = $list | Where-Object { $src.Contains($_.source.trim()) }
+    if ($displayList.count -eq 0) {
+      $displayList = $list
+    }
   }
 
   $skip = 0
@@ -915,18 +925,20 @@ function Get-WGPackage {
 
   $Session, $Runspace, $win = openSpinner
 
-  $list = Invoke-Winget $command
+  $list = @(Invoke-Winget $command)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
     [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
-    $list2 | ForEach-Object {
-      $package = [ordered]@{}
-      $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-      $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-      $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
-      $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
-      $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-      $list += $package
+    if ($list2) {
+      $list2 | ForEach-Object {
+        $package = [ordered]@{}
+        $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+        $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+        $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+        $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
+        $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+        $list += $package
+      }
     }
   }
   closeSpinner -Session $Session -Runspace $Runspace
@@ -1009,36 +1021,37 @@ function Search-WGPackage {
     if ($terms -ne "") {
       $Session, $Runspace, $win = openSpinner
       $command = "winget search '$terms'"
-      $list = Invoke-Winget $command
+      $list = @(Invoke-Winget $command)
 
       if (Get-ScoopStatus) {
         $win.title = '⏳ Fetching Scoop data '
         $win.drawWindow()
         $win.drawTitle()
         [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
-        
-        Clear-Host
-        $buckets = @()
-        $list2 | ForEach-Object {
-          if ($buckets.contains($_.Source)) {
-            $pkg = [ordered]@{}
-            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-            $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-            $version = $_.Version.PadRight($columns["Version"][1], " ")
-            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-          } 
-          else {
-            $pkg = [ordered]@{}
-            $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-            $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
-            $version = $_.Source.PadRight($columns["Version"][1], " ")
-            $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-            $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-          }
+        if ($list2) {
+          Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
+          Clear-Host
+          $list2 | ForEach-Object {
+            if ($buckets.contains($_.Source)) {
+              $pkg = [ordered]@{}
+              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+              $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+              $version = $_.Version.PadRight($columns["Version"][1], " ")
+              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+            } 
+            else {
+              $pkg = [ordered]@{}
+              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+              $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
+              $version = $_.Source.PadRight($columns["Version"][1], " ")
+              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+            }
           
-          $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-          $list += $pkg
+            $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+            $list += $pkg
+          }
         }
       }
       closeSpinner -Session $Session -Runspace $Runspace
@@ -1228,9 +1241,9 @@ function Reset-WingetposhConfig {
 
 switch ($func) {
   "Get-ScoopStatus" { Get-ScoopStatus }
-  "Show-WGList" { Show-WGList}
-  "Install-WGPackage" {Install-WGPackage}
-  "Search-WGPackage" {Search-WGPackage}
+  "Show-WGList" { Show-WGList }
+  "Install-WGPackage" { Install-WGPackage }
+  "Search-WGPackage" { Search-WGPackage }
   "Test-Scoop" {
     Get-WingetposhConfig
     $script:config.IncludeScoop 
@@ -1240,11 +1253,11 @@ switch ($func) {
     #Search-WGPackage -package git
     #Get-WGPackage
     #Search-WGPackage -interactive -search git
-    #Install-WGPackage -package obs
+    Install-WGPackage -package winfetch
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
-    Show-WGList
+    #Show-WGList
     #Update-WGPackage -apply
     #Search-WGPackage -source $args -interactive -allowSearch
     #Uninstall-WGPackage -source winget -apply
