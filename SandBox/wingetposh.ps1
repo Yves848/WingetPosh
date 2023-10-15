@@ -925,7 +925,7 @@ function Get-WGPackage {
 
   $Session, $Runspace, $win = openSpinner
 
-  $list = Invoke-Winget $command
+  $list = @(Invoke-Winget $command)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
     [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
@@ -1021,7 +1021,7 @@ function Search-WGPackage {
     if ($terms -ne "") {
       $Session, $Runspace, $win = openSpinner
       $command = "winget search '$terms'"
-      $list = Invoke-Winget $command
+      $list = @(Invoke-Winget $command)
 
       if (Get-ScoopStatus) {
         $win.title = '⏳ Fetching Scoop data '
@@ -1253,7 +1253,7 @@ switch ($func) {
     #Search-WGPackage -package git
     #Get-WGPackage
     #Search-WGPackage -interactive -search git
-    Install-WGPackage -package obs
+    Install-WGPackage -package winfetch
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
