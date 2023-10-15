@@ -4,6 +4,8 @@ function getWingetLocals {
   $language = $culture, ([string]$culture).ToUpper() -join "-"
   Write-Host "⏳ Downloading resources for $language"
   $version = Invoke-Expression "winget --version" | Out-String -NoNewline
+  $version -match "v\d.\d"
+  $version = $Matches[0]
   $languageData = $(
     $hash = @{}
 
@@ -70,7 +72,7 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
 
 
   $config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
-  "ok" | Out-File -FilePath "~/.config/.wingetposh/params.$version" | Out-Null
+  #"ok" | Out-File -FilePath "~/.config/.wingetposh/params.$version" | Out-Null
 
   Write-Host "Wingetposh version $version installed successfully 👌"
   Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, '—')
