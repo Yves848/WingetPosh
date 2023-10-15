@@ -4,6 +4,8 @@ function getWingetLocals {
   $language = $culture, ([string]$culture).ToUpper() -join "-"
   Write-Host "⏳ Downloading resources for $language"
   $version = Invoke-Expression "winget --version" | Out-String -NoNewline
+  $version -match "v\d.\d"
+  $version = $Matches[0]
   $languageData = $(
     $hash = @{}
 
