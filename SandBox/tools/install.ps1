@@ -1,4 +1,4 @@
-function getWingetLocals {
+﻿function getWingetLocals {
   #$language = (Get-UICulture).Name
   $culture = ((Get-WinUserLanguageList).LanguageTag -split "-")[0]
   $language = $culture, ([string]$culture).ToUpper() -join "-"
@@ -6,16 +6,14 @@ function getWingetLocals {
   $version = Invoke-Expression "winget --version" | Out-String -NoNewline
   $version -match "v\d.\d"
   $version = $Matches[0]
-  $languageData = $(
-    $hash = @{}
+  
+  $hash = @{}
 
-    $(try {
-        # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
-          ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/release-$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
-      }
-      catch {
-        # Fall back to English if a locale file doesn't exist
-        (
+  try {
+    $data = ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/release-$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
+  }
+  catch {
+    $data = (
               ('SearchName', 'Name'),
               ('SearchID', 'Id'),
               ('SearchVersion', 'Version'),
@@ -26,14 +24,12 @@ function getWingetLocals {
               ('InstallerFailedWithCode', 'Installer failed with exit code:'),
               ('UninstallFailedWithCode', 'Uninstall failed with exit code:'),
               ('AvailableUpgrades', 'upgrades available.')
-        ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
-      }) | ForEach-Object {
-      # Convert the array into a hashtable
-      $hash[$_.name] = $_.value
-    }
-    $hash
-  )
-  return $languageData
+    ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
+  }
+  $data | ForEach-Object {
+    $hash[$_.name] = $_.value
+  }
+  $hash
 }
 
 $version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
@@ -46,7 +42,8 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
     New-Item -Path ~/.config/.wingetposh/locals.json | Out-Null
   }
 
-  getWingetLocals | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
+  $l = getWingetLocals
+  $l[1] | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
 
   $init = @{}
   (
