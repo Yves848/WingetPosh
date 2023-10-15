@@ -102,6 +102,7 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
+    'visuals.ps1',
     'wingetposh.psm1',
     'wingetLocals.ps1'
 )
@@ -128,7 +129,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'alpha3'
+        Prerelease = 'alpha5'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
