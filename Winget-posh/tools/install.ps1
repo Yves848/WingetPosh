@@ -6,16 +6,14 @@ function getWingetLocals {
   $version = Invoke-Expression "winget --version" | Out-String -NoNewline
   $version -match "v\d.\d"
   $version = $Matches[0]
-  $languageData = $(
-    $hash = @{}
+  
+  $hash = @{}
 
-    $(try {
-        # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
-          ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/release-$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
-      }
-      catch {
-        # Fall back to English if a locale file doesn't exist
-        (
+  try {
+    $data = ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/release-$version/Localization/Resources/$language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
+  }
+  catch {
+    $data = (
               ('SearchName', 'Name'),
               ('SearchID', 'Id'),
               ('SearchVersion', 'Version'),
@@ -26,18 +24,12 @@ function getWingetLocals {
               ('InstallerFailedWithCode', 'Installer failed with exit code:'),
               ('UninstallFailedWithCode', 'Uninstall failed with exit code:'),
               ('AvailableUpgrades', 'upgrades available.')
-        ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
-      }) | ForEach-Object {
-      # Convert the array into a hashtable
-      $hash[$_.name] = $_.value
-    }
-    $hash
-  )
-  return $languageData
-}
-
-function Get-ScoopStatus {
-  Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+    ) | ForEach-Object { [pscustomobject]@{name = $_[0]; value = $_[1] } }
+  }
+  $data | ForEach-Object {
+    $hash[$_.name] = $_.value
+  }
+  $hash
 }
 
 $version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
@@ -50,16 +42,16 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
     New-Item -Path ~/.config/.wingetposh/locals.json | Out-Null
   }
 
-  getWingetLocals | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
-  [bool]$scoop = Get-ScoopStatus
+  $l = getWingetLocals
+  $l[1] | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
+
   $init = @{}
   (
   ('UseNerdFont', $false),
   ('SilentInstall', $false),
   ('AcceptPackageAgreements', $true),
   ('AcceptSourceAgreements', $true),
-  ('Force', $false),
-  ('IncludeScoop', $scoop)
+  ('Force', $false)
   ) | ForEach-Object { $init[$_[0]] = $_[1] }
 
   $config = @{}
@@ -77,16 +69,10 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
 
 
   $config | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
-  "ok" | Out-File -filepath "~/.config/.wingetposh/params.$version" | Out-Null
+  #"ok" | Out-File -FilePath "~/.config/.wingetposh/params.$version" | Out-Null
 
   Write-Host "Wingetposh version $version installed successfully 👌"
   Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, '—')
-  if (Get-ScoopStatus) {
-    Write-Host "Scoop Installed.  Support activated."
-    Write-Host "".PadRight($Host.UI.RawUI.BufferSize.Width, '—')
-  }
-
-  
   Write-Host "🗒️ Go to http://github.com/yves848/wingetposh for help and infos."
   Write-Host "📨 Please report bugs and requests at wingetposh@gmail.com"
 }
