@@ -128,7 +128,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'alpha7'
+        Prerelease = 'alpha8'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
