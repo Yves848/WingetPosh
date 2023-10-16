@@ -452,7 +452,7 @@ function Invoke-Winget {
         $columnWidths += $column.Len
       }
 
-      $totalAvailableSpace = $Host.UI.RawUI.WindowSize.Width - 8  # Subtracting 8 for padding
+      $totalAvailableSpace = $Host.UI.RawUI.WindowSize.Width - 10  # Subtracting 8 for padding
       $totalColumnWidths = $columnWidths | Measure-Object -Sum | Select-Object -ExpandProperty Sum
 
       # Calculate adjusted column widths
@@ -465,7 +465,7 @@ function Invoke-Winget {
       $columns.Clear()
       $i = 1
       foreach ($col in [column[]]$cols) {
-        $colw = [math]::round(($totalAvailableSpace) / 100 * $widths[$i-1])
+        $colw = [math]::round(($totalAvailableSpace) / 100 * $widths[$i - 1])
         $Columns.Add($col.Name, @($col.Position, $colw, $col.len))
         $i++
       }
@@ -590,29 +590,50 @@ function displayGrid {
     param (
       $list,
       $checked,
+      $Deleted,
+      $Updated,
       $row,
-      $selected,
-      $W
+      $selected
     ) 
     
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
-      $check = [char]::ConvertFromUtf32(0xf05d)
+      #$check = [char]::ConvertFromUtf32(0xf05d)
+      $check = "📌"
+      $update = "↺ "
+      $delete = "🗑️"
     }
     else {
-      $check = "✓"
+      $check = "✓ "
+      $update = "↺ "
+      $delete = "Ⅹ "
+      #$delete = $check
     }
     
     foreach ($key in $columns.keys) {
       [string]$col = $list.$key
       $line = $line, $col -join " "
     }
-    if ($checked) {
-      $line = "$esc[38;5;46m$check", $line -join ""
+
+    if ($deleted -or $Updated -or $checked) {
+      if ($deleted) {
+        $line = "$esc[38;5;46m$delete", $line -join ""
+      }
+
+      if ($Updated) {
+        $line = "$esc[38;5;46m$Update", $line -join ""
+      }
+      
+      if (-not $deleted -and -not $Updated) {
+        if ($checked) {
+          $line = "$esc[38;5;46m$check", $line -join ""
+        }
+      }
     }
     else {
-      $line = " ", $line -join ""
+      $line = "  ", $line -join ""
     }
+
     if ($row -eq $selected) {
       $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
     }
@@ -712,13 +733,17 @@ function displayGrid {
     $row = 0
     if ($displayList.length -eq 1) {
       $checked = $displayList.Selected
-      $partdisplayList = makelines $displayList $checked $row $selected $win.W-2
+      $Deleted = $displayList.Deleted
+      $Updated = $displayList.Updated
+      $partdisplayList = makelines $displayList $checked $Deleted $Updated $row $selected
     }
     else {
       $partdisplayList = $displayList | Select-Object -First $nblines -Skip $skip | ForEach-Object {
         $index = (($page - 1) * $nbLines) + $row
         $checked = $displayList[$index].Selected
-        makelines $displayList[$index] $checked $row $selected $win.W-2
+        $deleted = $displayList[$index].Deleted
+        $Updated = $displayList[$index].Updated
+        makelines $displayList[$index] $checked $deleted $Updated $row $selected
         $row++
       }
     }
@@ -788,6 +813,32 @@ function displayGrid {
             $displayList[$index].Selected = -not $checked
           }
           if ($checked) { $nbChecked-- } else { $nbChecked++ }
+        }
+
+        if ($key.VirtualKeyCode -eq 46) {
+          # delete key
+          if ($displayList.length -eq 1) {
+            $deleted = $displayList.Deleted
+            $displayList.deleted = -not $deleted
+          }
+          else {
+            $index = (($page - 1) * $nbLines) + $selected
+            $Deleted = $displayList[$index].Deleted
+            $displayList[$index].Deleted = -not $Deleted
+          }
+        }
+
+        if ($key.Character -eq "u") {
+          # "u" key (update)
+          if ($displayList.length -eq 1) {
+            $Updated = $displayList.Updated
+            $displayList.Updated = -not $deleted
+          }
+          else {
+            $index = (($page - 1) * $nbLines) + $selected
+            $Updated = $displayList[$index].Updated
+            $displayList[$index].Updated = -not $Updated
+          }
         }
 
         if ($key.VirtualKeyCode -eq 13) {
@@ -1186,7 +1237,7 @@ function Search-WGPackage {
     if ($package.Trim() -eq "") {
       $terms = getSearchTerms
     }
-    $terms = $terms.Replace(" ","")
+    $terms = $terms.Replace(" ", "")
   }
   process {
     if ($terms -ne "") {
