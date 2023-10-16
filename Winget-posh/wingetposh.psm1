@@ -577,7 +577,8 @@ function displayGrid {
     [string]$title, 
     [ref]$data, 
     $allowSearch = $false,
-    $allowModifications = $false
+    $allowModifications = $false,
+    $build = $false
   )
 
   if ($iscoreclr) {
@@ -600,8 +601,13 @@ function displayGrid {
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
       #$check = [char]::ConvertFromUtf32(0xf05d)
-      if ($allowModifications) {
-        $check = "📌"
+      if ($allowModifications -or $build) {
+        if ($build) {
+          $check = "📝"
+        }
+        else {
+          $check = "📌"
+        }
       }
       else {
         $check = "📦"
@@ -823,7 +829,7 @@ function displayGrid {
 
         if ($key.VirtualKeyCode -eq 46) {
           # delete key
-          if ($allowModifications) {
+          if ($allowModifications -and -not $build) {
             if ($displayList.length -eq 1) {
               $deleted = $displayList.Deleted
               $displayList.deleted = -not $deleted
@@ -838,7 +844,7 @@ function displayGrid {
 
         if ($key.VirtualKeyCode -eq 85) {
           # "u" key (update)
-          if ($allowModifications) {
+          if ($allowModifications -and -not $build) {
             if ($displayList.length -eq 1) {
               if ($displayList.Available) {
                 $Updated = $displayList.Updated
@@ -1117,7 +1123,8 @@ function Get-WGPackage {
     [switch]$uninstall,
     [switch]$update,
     [switch]$apply,
-    [switch]$silent
+    [switch]$silent,
+    [switch]$Build
   )
   Get-WingetposhConfig
   if ($source) {
@@ -1163,11 +1170,11 @@ function Get-WGPackage {
   }
 
   if ($update) {
-    $title = "⫷ Update ⫸"
+    $title = " ⟬ Update ⟭ "
   }
   else {
     if ($uninstall) {
-      $title = "⫷ Uninstall ⫸"
+      $title = " ⟬ Uninstall ⟭ " 
     }
   }
 
@@ -1198,7 +1205,10 @@ function Get-WGPackage {
   
   if ($interactive) {
     $data = @()
-    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false -allowModifications $true
+    if ($build) {
+      $title = " ⟬ Build Install File ⟭ "
+    }
+    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false -allowModifications $true -Build $Build
     if ($apply) {
       $title = ""
       if ($data.length -gt 0) {
@@ -1314,7 +1324,7 @@ function Search-WGPackage {
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()
-        displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch 
+        displayGrid -list $list -source $source  -title "Package Search ⟬ Install ⟭ " -data ([ref]$data) -allowSearch $allowSearch 
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
@@ -1377,37 +1387,43 @@ function Get-WGList {
   Get-WGPackage -source $source
 }
 
+function Build-WGInstallFile {
+  $data = Get-WGPackage -interactive -Build
+}
+
 function Show-WGList {
   param(
     [string]$source
   )
   $data = Get-WGPackage -interactive -source $source
-  $data | Out-Object | ForEach-Object {
-    if ($_.Deleted -or $_.Updated) {
-      $id = ($_.Id).Trim()
-      if ($_.Deleted) {
-        $expression = "winget uninstall "
-        if ($silent) {
-          $expression = $expression, "--silent --disable-interactivity" -join ""
+  if (($data | Out-Object | Where-Object { $_.updated -or $_.deleted }).count -gt 0) {
+    $data | Out-Object | ForEach-Object {
+      if ($_.Deleted -or $_.Updated) {
+        $id = ($_.Id).Trim()
+        if ($_.Deleted) {
+          $expression = "winget uninstall "
+          if ($silent) {
+            $expression = $expression, "--silent --disable-interactivity" -join ""
+          }
+          $expression = $expression, " --id $($id)" -join ""
+          $title = "🗑️ Uninstall $($id)"
+          $action = " is Uninstalled"
         }
-        $expression = $expression, " --id $($id)" -join ""
-        $title = "🗑️ Uninstall $($id)"
-        $action = " is Uninstalled"
-      }
-      if ($_.Updated) {
-        $expression = "winget upgrade --id $($id)"
-        $title = "⚡ Upgrade $($id)"
-        $action = " is Updated"
-      }
-      [System.Console]::CursorVisible = $false
-      Invoke-Expression2 -exp $expression -title $title
-      #Write-Host "Exit code : $($LASTEXITCODE)"
-      Write-Host "Name $($_.Name) $action"
-      [System.Console]::CursorVisible = $true
+        if ($_.Updated) {
+          $expression = "winget upgrade --id $($id)"
+          $title = "⚡ Upgrade $($id)"
+          $action = " is Updated"
+        }
+        [System.Console]::CursorVisible = $false
+        Invoke-Expression2 -exp $expression -title $title
+        #Write-Host "Exit code : $($LASTEXITCODE)"
+        Write-Host "Name $($_.Name) $action"
+        [System.Console]::CursorVisible = $true
+      } 
     }
-    else {
-      $data | Out-Object
-    }
+  }
+  else {
+    $data | Out-Object
   }
 }
 

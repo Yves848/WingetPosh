@@ -1,5 +1,5 @@
 param (
-  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus", "Test-Scoop", "Uninstall-WGPackage")]$func
+  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus", "Test-Scoop", "Uninstall-WGPackage","Build-WGInstallFile")]$func
 )
 
 
@@ -19,6 +19,10 @@ switch ($func) {
   }
   "Uninstall-WGPackage" {
     Uninstall-WGPackage
+  }
+  "Build-WGInstallFile"
+  {
+    Build-WGInstallFile
   }
   Default {
     #Search-WGPackage -package git
