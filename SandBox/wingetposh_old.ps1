@@ -465,8 +465,7 @@ function Invoke-Winget {
       $columns.Clear()
       $i = 1
       foreach ($col in [column[]]$cols) {
-        $colw = [math]::round(($totalAvailableSpace) / 100 * $widths[$i-1])
-        $Columns.Add($col.Name, @($col.Position, $colw, $col.len))
+        $Columns.Add($col.Name, @($col.Position, $adjustedColumnWidths[$i-1], $col.len))
         $i++
       }
       $data = $true
@@ -1186,7 +1185,6 @@ function Search-WGPackage {
     if ($package.Trim() -eq "") {
       $terms = getSearchTerms
     }
-    $terms = $terms.Replace(" ","")
   }
   process {
     if ($terms -ne "") {

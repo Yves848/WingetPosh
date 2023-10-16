@@ -24,7 +24,7 @@ switch ($func) {
     #Search-WGPackage -package git
     #Get-WGPackage
     #Search-WGPackage
-    Install-WGPackage $([regex]::escape("cpuz,git,neovim"))
+    Install-WGPackage -package "neovim,git,cpuz"
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
