@@ -20,8 +20,8 @@ switch ($func) {
   Default {
     #Search-WGPackage -package git
     #Get-WGPackage
-    #Search-WGPackage -interactive -search git
-    Install-WGPackage
+    Search-WGPackage
+    #Install-WGPackage
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
