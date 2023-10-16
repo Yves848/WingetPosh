@@ -115,7 +115,8 @@ function getSearchTerms {
 function removeLastPSRealineHistoryItem {
   $psreadline_history = (Get-PSReadLineOption).HistorySavePath
   $h = Get-Content $psreadline_history
-
+  $output = $h[0..($h.count - 2)]
+  Clear-History -Newest
 }
 
 function getFilterSource {
@@ -1044,7 +1045,7 @@ function Search-WGPackage {
         $win.title = '⏳ Fetching Scoop data '
         $win.drawWindow()
         $win.drawTitle()
-        [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
+        [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $([regex]::escape($terms))"
         if ($list2) {
           Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
           Clear-Host
