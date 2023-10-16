@@ -576,7 +576,8 @@ function displayGrid {
     [string]$source,
     [string]$title, 
     [ref]$data, 
-    $allowSearch = $false
+    $allowSearch = $false,
+    $allowModifications = $false
   )
 
   if ($iscoreclr) {
@@ -600,7 +601,7 @@ function displayGrid {
     if ($script:config.UseNerdFont -eq $true) {
       #$check = [char]::ConvertFromUtf32(0xf05d)
       $check = "📌"
-      $update = "↺ "
+      $update = "♻️"
       $delete = "🗑️"
     }
     else {
@@ -817,27 +818,31 @@ function displayGrid {
 
         if ($key.VirtualKeyCode -eq 46) {
           # delete key
-          if ($displayList.length -eq 1) {
-            $deleted = $displayList.Deleted
-            $displayList.deleted = -not $deleted
-          }
-          else {
-            $index = (($page - 1) * $nbLines) + $selected
-            $Deleted = $displayList[$index].Deleted
-            $displayList[$index].Deleted = -not $Deleted
+          if ($allowModifications) {
+            if ($displayList.length -eq 1) {
+              $deleted = $displayList.Deleted
+              $displayList.deleted = -not $deleted
+            }
+            else {
+              $index = (($page - 1) * $nbLines) + $selected
+              $Deleted = $displayList[$index].Deleted
+              $displayList[$index].Deleted = -not $Deleted
+            }
           }
         }
 
         if ($key.Character -eq "u") {
           # "u" key (update)
-          if ($displayList.length -eq 1) {
-            $Updated = $displayList.Updated
-            $displayList.Updated = -not $deleted
-          }
-          else {
-            $index = (($page - 1) * $nbLines) + $selected
-            $Updated = $displayList[$index].Updated
-            $displayList[$index].Updated = -not $Updated
+          if ($allowModifications) {
+            if ($displayList.length -eq 1) {
+              $Updated = $displayList.Updated
+              $displayList.Updated = -not $deleted
+            }
+            else {
+              $index = (($page - 1) * $nbLines) + $selected
+              $Updated = $displayList[$index].Updated
+              $displayList[$index].Updated = -not $Updated
+            }
           }
         }
 
@@ -1171,7 +1176,7 @@ function Get-WGPackage {
   
   if ($interactive) {
     $data = @()
-    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false
+    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false -allowModifications $true
     if ($apply) {
       $title = ""
       if ($data.length -gt 0) {
@@ -1291,7 +1296,7 @@ function Search-WGPackage {
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()
-        displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
+        displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch 
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
