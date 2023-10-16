@@ -78,7 +78,6 @@ class column {
   [Int16]$Len
 }
     
-
   
 $columns = [ordered]@{}
   
@@ -106,10 +105,18 @@ function getSearchTerms {
   finally {
     Remove-PSReadLineKeyHandler -Key Escape
     Set-PSReadLineOption -PredictionSource $save
+    removeLastPSRealineHistoryItem
     [console]::CursorVisible = $false
   }
   
   return $pack
+}
+
+function removeLastPSRealineHistoryItem {
+  $psreadline_history = (Get-PSReadLineOption).HistorySavePath
+  $h = Get-Content $psreadline_history
+  $output = $h[0..($h.count - 2)]
+  Clear-History -Newest
 }
 
 function getFilterSource {
@@ -336,7 +343,27 @@ function Invoke-Scoop {
   param (
     [string]$cmd
   )
-  $SearchResult = Invoke-Expression $cmd 
+  $stateCmd = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $stateCmd.exp = $cmd
+  $stateCmd.SearchResult = ""
+  $runspaceCmd = [runspacefactory]::CreateRunspace()
+  $runspaceCmd.Open()
+  $RunspaceCmd.SessionStateProxy.SetVariable("StateCmd", $StateCmd)
+
+  $sbCmd = {
+    $StateCmd.SearchResult = Invoke-Expression $stateCmd.exp
+  }
+
+  $sessionCmd = [powershell]::create()
+  $null = $sessionCmd.AddScript($sbCmd)
+  $sessionCmd.Runspace = $runspaceCmd
+  $handleCmd = $sessionCmd.BeginInvoke()
+  while (-not $handleCmd.IsCompleted) {
+    
+  }
+  $SearchResult = $StateCmd.SearchResult
+  $sessionCmd.stop()
+  $runspaceCmd.Dispose() 
   return $SearchResult
 }
 
@@ -351,7 +378,27 @@ function Invoke-Winget {
   [System.Console]::CursorVisible = $false
 
   $PackageList = @()
-  $SearchResult = Invoke-Expression $cmd | Out-String -Width $TerminalWidth -Stream 
+  $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $stateInstall.exp = $cmd
+  $stateInstall.SearchResult = ""
+  $runspaceInstall = [runspacefactory]::CreateRunspace()
+  $runspaceInstall.Open()
+  $RunspaceInstall.SessionStateProxy.SetVariable("StateInstall", $StateInstall)
+
+  $sbInstall = {
+    $StateInstall.SearchResult = Invoke-Expression $stateInstall.exp | Out-String -Stream
+  }
+
+  $sessionInstall = [powershell]::create()
+  $null = $sessionInstall.AddScript($sbInstall)
+  $sessionInstall.Runspace = $runspaceInstall
+  $handleInstall = $sessionInstall.BeginInvoke()
+  while (-not $handleInstall.IsCompleted) {
+    
+  }
+  $SearchResult = $StateInstall.SearchResult
+  $sessionInstall.stop()
+  $runspaceInstall.Dispose() 
 
   $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
     if ($_.StartsWith('---')) {
@@ -1038,7 +1085,8 @@ function Search-WGPackage {
         $win.title = '⏳ Fetching Scoop data '
         $win.drawWindow()
         $win.drawTitle()
-        [scoopSearch[]]$list2 = Invoke-Scoop -cmd "scoop search $($terms)"
+        $ScoopCmd = "scoop search $([regex]::escape($terms))"
+        [scoopSearch[]]$list2 = Invoke-Scoop -cmd $ScoopCmd
         if ($list2) {
           Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
           Clear-Host
