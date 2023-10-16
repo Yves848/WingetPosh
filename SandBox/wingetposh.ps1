@@ -600,7 +600,12 @@ function displayGrid {
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
       #$check = [char]::ConvertFromUtf32(0xf05d)
-      $check = "📌"
+      if ($allowModifications) {
+        $check = "📌"
+      }
+      else {
+        $check = "📦"
+      }
       $update = "♻️"
       $delete = "🗑️"
     }
@@ -831,17 +836,34 @@ function displayGrid {
           }
         }
 
-        if ($key.Character -eq "u") {
+        if ($key.VirtualKeyCode -eq 85) {
           # "u" key (update)
           if ($allowModifications) {
             if ($displayList.length -eq 1) {
-              $Updated = $displayList.Updated
-              $displayList.Updated = -not $deleted
+              if ($displayList.Available) {
+                $Updated = $displayList.Updated
+                $displayList.Updated = -not $deleted
+              }
             }
             else {
               $index = (($page - 1) * $nbLines) + $selected
-              $Updated = $displayList[$index].Updated
-              $displayList[$index].Updated = -not $Updated
+              if ($displayList[$index].Available -and ($displayList[$index].Available.trim() -ne "")) {
+                $Updated = $displayList[$index].Updated
+                $displayList[$index].Updated = -not $Updated
+              }
+            }
+          }
+        }
+        if ($key.VirtualKeyCode -eq 85) {
+          # "Ctrl-u" key (update)
+          if ($allowModifications) {
+            if (($key.ControlKeyState -band 8) -ne 0) {
+              $displayList | ForEach-Object { 
+                $Updated = $_.Updated
+                if ($_.Available -and ($_.Available.trim() -ne "")) {
+                  $_.Updated = -not $Updated
+                }
+              }
             }
           }
         }
@@ -849,7 +871,7 @@ function displayGrid {
         if ($key.VirtualKeyCode -eq 13) {
           # key Enter
           Clear-Host
-          $data.value = $data.value = $displayList | Where-Object { $_.Selected }
+          $data.value = $data.value = $displayList | Where-Object { $_.Selected -or $_.Deleted -or $_.Updated }
           $stop = $true
         }
         if ($key.VirtualKeyCode -eq 114) {
@@ -1150,7 +1172,7 @@ function Get-WGPackage {
   }
 
   $Session, $Runspace, $win = openSpinner
-
+  
   $list = @(Invoke-Winget $command)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
@@ -1202,7 +1224,6 @@ function Get-WGPackage {
         }
       }
       # display summary.
-
     }
     else {
       return $data
@@ -1250,9 +1271,6 @@ function Search-WGPackage {
       $Session, $Runspace, $win = openSpinner
       $terms -split "," | ForEach-Object { 
         $term = $_
-        $win.title = "⏳ Fetching Winget $term data " 
-        $win.drawWindow()
-        $win.drawTitle()
         $command = "winget search '$term'"
         $result = @(Invoke-Winget $command)
         $result | ForEach-Object { 
@@ -1363,7 +1381,34 @@ function Show-WGList {
   param(
     [string]$source
   )
-  Get-WGPackage -interactive -source $source
+  $data = Get-WGPackage -interactive -source $source
+  $data | Out-Object | ForEach-Object {
+    if ($_.Deleted -or $_.Updated) {
+      $id = ($_.Id).Trim()
+      if ($_.Deleted) {
+        $expression = "winget uninstall "
+        if ($silent) {
+          $expression = $expression, "--silent --disable-interactivity" -join ""
+        }
+        $expression = $expression, " --id $($id)" -join ""
+        $title = "🗑️ Uninstall $($id)"
+        $action = " is Uninstalled"
+      }
+      if ($_.Updated) {
+        $expression = "winget upgrade --id $($id)"
+        $title = "⚡ Upgrade $($id)"
+        $action = " is Updated"
+      }
+      [System.Console]::CursorVisible = $false
+      Invoke-Expression2 -exp $expression -title $title
+      #Write-Host "Exit code : $($LASTEXITCODE)"
+      Write-Host "Name $($_.Name) $action"
+      [System.Console]::CursorVisible = $true
+    }
+    else {
+      $data | Out-Object
+    }
+  }
 }
 
 function Install-WGPackage {

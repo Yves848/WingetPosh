@@ -15,6 +15,6 @@
     while (-not $stop) {
       if ($global:Host.UI.RawUI.KeyAvailable) { 
         [System.Management.Automation.Host.KeyInfo]$key = $($global:host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown'))
-        $key
+        $key.ControlKeyState
       }
     }
