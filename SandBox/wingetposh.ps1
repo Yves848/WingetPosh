@@ -2,6 +2,18 @@
 
 . "$include\visuals.ps1"
 
+$display = @{
+  list   = {
+    cols = [35, 25, 32, 7]
+  }
+  update = {
+
+  }
+  search = {
+    cols = [28, 23, 17, 22, 6]
+  }
+}
+
 class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
@@ -151,6 +163,50 @@ function getFilterSource {
   
 
 function getColumnsHeaders {
+  param(
+    [parameter (
+      Mandatory
+    )]
+    [string]$columsLine,
+    [int]$width
+  )
+
+  $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
+  
+
+  $tempCols = ($columsLine | Select-String -Pattern "(?:\S+)" -AllMatches).Matches
+  $result = @()
+  
+  $w = $columsLine.Length
+  $i = 0
+  while ($i -lt $tempCols.Count) {
+    $pos = $tempCols[$i].Index
+    if ($i -eq $tempCols.Count - 1) {
+      # Last Column
+      $len = $width - $pos
+    }
+    else {
+      # Not last Column
+      $len = $tempCols[$i + 1].Index - $pos
+    }
+    $acolumn = [column]::new()
+    # get EN Name
+    $base = $script:fields.psobject.Properties | Where-Object { $_.Value -eq $tempCols[$i].Value }
+    if ($base.count -eq 1) {
+      $BaseName = $base.Name
+    }
+    else {
+      $BaseName = ($base | Where-Object { $_.Name.StartsWith("Search") }).Name
+    }
+    $acolumn.Name = $baseFields[$BaseName]
+    $acolumn.Position = $pos
+    $acolumn.Len = $len
+    $result += $acolumn
+    $i++
+  }
+  $result
+}
+function getColumnsHeaders0 {
   param(
     [parameter (
       Mandatory
@@ -404,18 +460,27 @@ function Invoke-Winget {
     if ($_.StartsWith('---')) {
       $lWidth = $_.Length
       $cols = getColumnsHeaders -columsLine $SearchResult[$i - 1] -width $lWidth
+      $columnWidths = @()
+      foreach ($column in [column[]]$cols) {
+        $columnWidths += $column.Len
+      }
+
+      $totalAvailableSpace = $Host.UI.RawUI.WindowSize.Width - 8  # Subtracting 8 for padding
+      $totalColumnWidths = $columnWidths | Measure-Object -Sum | Select-Object -ExpandProperty Sum
+
+      # Calculate adjusted column widths
+      $adjustedColumnWidths = @()
+      foreach ($width in $columnWidths) {
+        $adjustedWidth = [math]::Round(($width / $totalColumnWidths) * $totalAvailableSpace)
+        $adjustedColumnWidths += $adjustedWidth
+      }
+
       $columns.Clear()
       $i = 1
       foreach ($col in [column[]]$cols) {
-        if ($i -lt $cols.length) {
-          $colPercent = [Math]::Round(($col.Len / $lWidth * 100) - 0.99, 2)
-          $colWidth = [System.Math]::Truncate($TerminalWidth / 100 * $colPercent);
-        }
-        else {
-          $colWidth = $col.len  
-        }
+        $Columns.Add($col.Name, @($col.Position, $adjustedColumnWidths[$i-1], $col.len))
         $i++
-        $Columns.Add($col.Name, @($col.Position, $colWidth, $col.len))
+        
       }
       $data = $true
     }
@@ -855,6 +920,66 @@ function displayHelp {
 }
 
 function openSpinner {
+  $SpinnerWidth = 50
+  $DotWidth = $SpinnerWidth - 2
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - $SpinnerWidth) / 2)
+  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
+  $statedata.SpinnerWidth = $SpinnerWidth
+  $statedata.DotWidth = $DotWidth
+  $stateData.SpinLimit = $SpinnerWidth - 5
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  [window]$win = [window]::new($statedata.X, $statedata.Y, $SpinnerWidth, 2, $false, "White")
+  $win.titleColor = "Red"
+  $win.title = '⏳ Fetching Winget data '
+  $win.drawWindow()
+  $win.drawTitle()
+  $statedata.X ++
+  $statedata.Y ++
+  $sb = {
+    [System.Console]::CursorVisible = $false
+    $x = $statedata.X
+    $y = $statedata.Y
+    
+    $i = 1
+    $string = "".PadRight($statedata.DotWidth, ".")
+    $nav = "oOo"
+    while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight($statedata.DotWidth, '.')
+      }
+      else {
+        if ($i -gt $stateData.SpinLimit) {
+          $nb = $statedata.DotWidth - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft($statedata.DotWidth, '.')
+        }
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight($stateData.SpinLimit - $i, '.')
+          $string = $left, $nav, $right -join ""
+        }
+      }
+      [System.Console]::setcursorposition($X, $Y)
+      [System.Console]::write($string)
+      $i++
+      if ($i -gt $statedata.DotWidth) {
+        $i = 1
+      }
+      Start-Sleep -Milliseconds 100
+    }
+  }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $null = $session.BeginInvoke()
+  return $Session, $runspace, $win
+}
+function openSpinner_old {
+  $SpinnerWidth = 50
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
   $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
@@ -993,7 +1118,7 @@ function Get-WGPackage {
         $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
         $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
         $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
-        $package.add("Available", $_.Version.PadRight($columns["Available"][1], " "))
+        $package.add("Available", $_.Version.PadRight($columns["Version"][1], " "))
         $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
         $list += $package
       }
@@ -1077,39 +1202,48 @@ function Search-WGPackage {
   }
   process {
     if ($terms -ne "") {
+      $list = @()
       $Session, $Runspace, $win = openSpinner
-      $command = "winget search '$terms'"
-      $list = @(Invoke-Winget $command)
-
-      if (Get-ScoopStatus) {
-        $win.title = '⏳ Fetching Scoop data '
+      $terms -split "," | ForEach-Object { 
+        $term = $_
+        $win.title = "⏳ Fetching Winget $term data " 
         $win.drawWindow()
         $win.drawTitle()
-        $ScoopCmd = "scoop search $([regex]::escape($terms))"
-        [scoopSearch[]]$list2 = Invoke-Scoop -cmd $ScoopCmd
-        if ($list2) {
-          Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
-          Clear-Host
-          $list2 | ForEach-Object {
-            if ($buckets.contains($_.Source)) {
-              $pkg = [ordered]@{}
-              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-              $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-              $version = $_.Version.PadRight($columns["Version"][1], " ")
-              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-            } 
-            else {
-              $pkg = [ordered]@{}
-              $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-              $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
-              $version = $_.Source.PadRight($columns["Version"][1], " ")
-              $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
-              $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
-            }
+        $command = "winget search '$term'"
+        $result = @(Invoke-Winget $command)
+        $result | ForEach-Object { 
+          $list += $_
+        }
+        if (Get-ScoopStatus) {
+          $win.title = "⏳ Fetching Scoop $term data "
+          $win.drawWindow()
+          $win.drawTitle()
+          $ScoopCmd = "scoop search $([regex]::escape($term))"
+          [scoopSearch[]]$list2 = Invoke-Scoop -cmd $ScoopCmd
+          if ($list2) {
+            Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
+            Clear-Host
+            $list2 | ForEach-Object {
+              if ($buckets.contains($_.Source)) {
+                $pkg = [ordered]@{}
+                $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+                $pkg.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+                $version = $_.Version.PadRight($columns["Version"][1], " ")
+                $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+                $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+              } 
+              else {
+                $pkg = [ordered]@{}
+                $pkg.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+                $pkg.add("Id", "‼️ Missing bucket ‼️".PadRight($columns["Id"][1], " "))
+                $version = $_.Source.PadRight($columns["Version"][1], " ")
+                $pkg.add("Version", $version.Substring(0, $columns["Version"][1]))
+                $pkg.add("Moniker", "".PadRight($columns["Moniker"][1], " "))
+              }
           
-            $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
-            $list += $pkg
+              $pkg.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+              $list += $pkg
+            }
           }
         }
       }
