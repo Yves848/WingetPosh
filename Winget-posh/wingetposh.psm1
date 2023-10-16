@@ -600,7 +600,12 @@ function displayGrid {
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
       #$check = [char]::ConvertFromUtf32(0xf05d)
-      $check = "📌"
+      if ($allowModifications) {
+        $check = "📌"
+      }
+      else {
+        $check = "📦"
+      }
       $update = "♻️"
       $delete = "🗑️"
     }
@@ -1167,7 +1172,7 @@ function Get-WGPackage {
   }
 
   $Session, $Runspace, $win = openSpinner
-
+  
   $list = @(Invoke-Winget $command)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
@@ -1266,9 +1271,6 @@ function Search-WGPackage {
       $Session, $Runspace, $win = openSpinner
       $terms -split "," | ForEach-Object { 
         $term = $_
-        $win.title = "⏳ Fetching Winget $term data " 
-        $win.drawWindow()
-        $win.drawTitle()
         $command = "winget search '$term'"
         $result = @(Invoke-Winget $command)
         $result | ForEach-Object { 
