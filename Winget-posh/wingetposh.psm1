@@ -57,10 +57,7 @@ class Keys {
     [Keys]::escape = [char]::ConvertFromUtf32(0xf12b7)
   }
 }
-  
-$Single = [Frame]::new($false)
-$Double = [Frame]::new($true)
-  
+ 
 
 $baseFields = @{
   'SearchName'        = 'Name'
@@ -235,6 +232,11 @@ function Invoke-Expression2 {
     [string]$title
   )
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $stateInstall.exp = $exp
+  $runspaceInstall = [runspacefactory]::CreateRunspace()
+  $runspaceInstall.Open()
+  $RunspaceInstall.SessionStateProxy.SetVariable("StateInstall", $StateInstall)
   $statedata.X = 0
   $statedata.Y = $Host.UI.RawUI.CursorPosition.Y
   $statedata.title = $title
@@ -275,12 +277,24 @@ function Invoke-Expression2 {
     }
   }
 
+  $sbInstall = {
+    $result = Invoke-Expression -Command $stateInstall.exp
+  }
+
   $session = [powershell]::create()
   $null = $session.AddScript($sb)
   $session.Runspace = $runspace
   $handle = $session.BeginInvoke()
-  $result = Invoke-Expression -Command $exp 
-
+  
+  $sessionInstall = [powershell]::create()
+  $null = $sessionInstall.AddScript($sbInstall)
+  $sessionInstall.Runspace = $runspaceInstall
+  $handleInstall = $sessionInstall.BeginInvoke()
+  while (-not $handleInstall.IsCompleted) {
+    
+  }
+  $sessionInstall.stop()
+  $runspaceInstall.Dispose()
   $session.Stop()
   $runspace.Dispose()
   [System.Console]::setcursorposition($statedata.X, $statedata.Y)
@@ -1065,7 +1079,6 @@ function Search-WGPackage {
                 $expression = $expression, "  $($_.Name)" -join ""
                 [System.Console]::CursorVisible = $false
                 Invoke-Expression2 -exp $expression -title "⚡Invoking scoop for $($_.Name)"
-                #Write-Host "Exit code : $($LASTEXITCODE)"
                 [System.Console]::CursorVisible = $true
               }
               else {
@@ -1077,13 +1090,11 @@ function Search-WGPackage {
                 $expression = $expression, " --id $($id)" -join ""
                 [System.Console]::CursorVisible = $false
                 Invoke-Expression2 -exp $expression -title "⚡ Installation of $($id)"
-                #Write-Host "Exit code : $($LASTEXITCODE)"
                 [System.Console]::CursorVisible = $true
               }
             }
           }
         }
-        #$data
       }
       else {
         $list
@@ -1232,5 +1243,5 @@ function Set-WingetposhConfig {
 }
 
 function Reset-WingetposhConfig {
-  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false, "IncludeScoop": False }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+  '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false, "IncludeScoop": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 }
