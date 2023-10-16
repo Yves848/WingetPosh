@@ -78,7 +78,6 @@ class column {
   [Int16]$Len
 }
     
-
   
 $columns = [ordered]@{}
   
@@ -106,10 +105,17 @@ function getSearchTerms {
   finally {
     Remove-PSReadLineKeyHandler -Key Escape
     Set-PSReadLineOption -PredictionSource $save
+    removeLastPSRealineHistoryItem
     [console]::CursorVisible = $false
   }
   
   return $pack
+}
+
+function removeLastPSRealineHistoryItem {
+  $psreadline_history = (Get-PSReadLineOption).HistorySavePath
+  $h = Get-Content $psreadline_history
+
 }
 
 function getFilterSource {

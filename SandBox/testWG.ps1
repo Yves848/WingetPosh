@@ -21,11 +21,11 @@ switch ($func) {
     #Search-WGPackage -package git
     #Get-WGPackage
     #Search-WGPackage -interactive -search git
-    #Install-WGPackage -package neofetch
+    Install-WGPackage
     #Get-WGPackage -interactive -update
     #Get-WGUpdatables
     #Get-WGList -source $args
-    Show-WGList
+    #Show-WGList
     #Update-WGPackage -apply
     #Search-WGPackage -source $args -interactive -allowSearch
     #Uninstall-WGPackage -source winget -apply
