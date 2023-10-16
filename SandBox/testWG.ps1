@@ -1,5 +1,5 @@
 param (
-  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus", "Test-Scoop")]$func
+  [ValidateSet("Show-WGList", "Install-WGPackage", "Search-WGPackage", "Get-ScoopStatus", "Test-Scoop", "Uninstall-WGPackage")]$func
 )
 
 
@@ -16,6 +16,9 @@ switch ($func) {
     Get-WingetposhConfig
     $script:config.IncludeScoop 
     Test-Path -Path "$env:HOMEDRIVE$env:HOMEPATH\Scoop\"
+  }
+  "Uninstall-WGPackage" {
+    Uninstall-WGPackage
   }
   Default {
     #Search-WGPackage -package git
