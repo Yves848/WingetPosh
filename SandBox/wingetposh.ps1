@@ -990,6 +990,14 @@ function displayHelp {
   }
 }
 
+function GetVersion {
+  $version = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+  if ([bool]$version) {
+    return "Debug"
+  }
+  return $version
+}
+
 function openSpinner {
   $SpinnerWidth = 50
   $DotWidth = $SpinnerWidth - 2
@@ -1309,17 +1317,24 @@ function Search-WGPackage {
 function Get-WGPVersion {
   param(
     [ValidateSet("Winget", "WGP", "All")]
-    [String]$param = "WGP"
+    [String]$param = "WGP",
+    [switch]$display = $false
   )
 
   if ($param -in ("Winget", "All")) {
-    $v = Invoke-Expression "winget -v" | Out-String -NoNewline
-    Write-Host "Winget version : $v"
+    [string]$v = Invoke-Expression "winget -v" | Out-String -NoNewline
+    if ($display) {
+      Write-Host "Winget version : $v"
+    }
+    $v
   }
 
   if ($param -in ("WGP", "All")) {
-    $v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+    [string]$v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
+    if ($display) {
     Write-Host "Wingetposh version : $v"
+    }
+    $v
   }
 
 }
@@ -1333,7 +1348,7 @@ function Get-WGList {
 
 function Build-WGInstallFile {
   param(
-    [string]$file="WGConfig.json"
+    [string]$file = "WGConfig.json"
   )
 
   if (Test-Path -Path $file) {

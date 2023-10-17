@@ -127,9 +127,10 @@ class window {
     
   
   [void] drawVersion() {
-    $v = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version 
+    $v =Get-WGPVersion -param WGP
     $version = $this.frameStyle.LEFTSPLIT, $v, $this.frameStyle.RIGHTSPLIT -join ""
-    if ($v -or $v.ToString().Trim() -eq "") {
+    $isempty = [string]::IsNullOrEmpty($v)
+    if ($isempty -eq $true) {
       $version = $this.frameStyle.LEFTSPLIT, "Debug", $this.frameStyle.RIGHTSPLIT -join ""
     }
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )

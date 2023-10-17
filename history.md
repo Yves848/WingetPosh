@@ -97,3 +97,13 @@
         - Only download ressource once for a version.
         - Add function **Get-WGPVersions" to display Winget and/or WGP versions.
         - Updating Readme and screenshots.
+### 1.0.0 :
+        - Changed the download resources method.  Now based on the "master" branch of Winget
+        - Uninstall-WGPackage is deprecated => Show-WGList
+        - Update-WGPackage is deprecated => Show-WGList
+        - Install-WGPackage accept multiple keywords to perform multiple installations at once
+        - Scoop Integration
+        - Build-WGInstallFile is added to generate a config file (json) to replicate install on other machines
+        - Readme updated
+        - Use of multiple runspaces (display and invokes)
+        - Bug fixes

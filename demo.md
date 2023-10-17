@@ -16,11 +16,7 @@ Install-WGPackage -package -source winget
 Get-WGSources
 Set-WingetposhConfig -param SilentInstall -value $true
 Install-WGPackage -package notepad
-Uninstall-WGPackage -source winget -apply
-Update-WGPackage
-Update-WGPackage | Out-Object
-Update-WGPackage -source winget -apply
-Search-WGPackage -package notepad -interactive -install -source winget
+Build-WGInstallFile -
 Invoke-Winget "winget list"
 Invoke-Winget "winget list" | Out-Object
 Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
