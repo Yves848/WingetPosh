@@ -452,7 +452,7 @@ function Invoke-Winget {
         $columnWidths += $column.Len
       }
 
-      $totalAvailableSpace = $Host.UI.RawUI.WindowSize.Width - 10  # Subtracting 8 for padding
+      $totalAvailableSpace = $Host.UI.RawUI.WindowSize.Width - 8  # Subtracting 8 for padding
       $totalColumnWidths = $columnWidths | Measure-Object -Sum | Select-Object -ExpandProperty Sum
 
       # Calculate adjusted column widths
@@ -465,8 +465,7 @@ function Invoke-Winget {
       $columns.Clear()
       $i = 1
       foreach ($col in [column[]]$cols) {
-        $colw = [math]::round(($totalAvailableSpace) / 100 * $widths[$i - 1])
-        $Columns.Add($col.Name, @($col.Position, $colw, $col.len))
+        $Columns.Add($col.Name, @($col.Position, $adjustedColumnWidths[$i-1], $col.len))
         $i++
       }
       $data = $true
@@ -576,9 +575,7 @@ function displayGrid {
     [string]$source,
     [string]$title, 
     [ref]$data, 
-    $allowSearch = $false,
-    $allowModifications = $false,
-    $build = $false
+    $allowSearch = $false
   )
 
   if ($iscoreclr) {
@@ -592,60 +589,29 @@ function displayGrid {
     param (
       $list,
       $checked,
-      $Deleted,
-      $Updated,
       $row,
-      $selected
+      $selected,
+      $W
     ) 
     
     [string]$line = ""
     if ($script:config.UseNerdFont -eq $true) {
-      #$check = [char]::ConvertFromUtf32(0xf05d)
-      if ($allowModifications -or $build) {
-        if ($build) {
-          $check = "📝"
-        }
-        else {
-          $check = "📌"
-        }
-      }
-      else {
-        $check = "📦"
-      }
-      $update = "♻️"
-      $delete = "🗑️"
+      $check = [char]::ConvertFromUtf32(0xf05d)
     }
     else {
-      $check = "✓ "
-      $update = "↺ "
-      $delete = "Ⅹ "
-      #$delete = $check
+      $check = "✓"
     }
     
     foreach ($key in $columns.keys) {
       [string]$col = $list.$key
       $line = $line, $col -join " "
     }
-
-    if ($deleted -or $Updated -or $checked) {
-      if ($deleted) {
-        $line = "$esc[38;5;46m$delete", $line -join ""
-      }
-
-      if ($Updated) {
-        $line = "$esc[38;5;46m$Update", $line -join ""
-      }
-      
-      if (-not $deleted -and -not $Updated) {
-        if ($checked) {
-          $line = "$esc[38;5;46m$check", $line -join ""
-        }
-      }
+    if ($checked) {
+      $line = "$esc[38;5;46m$check", $line -join ""
     }
     else {
-      $line = "  ", $line -join ""
+      $line = " ", $line -join ""
     }
-
     if ($row -eq $selected) {
       $line = "$esc[48;5;33m$esc[38;5;15m$($line)"
     }
@@ -745,17 +711,13 @@ function displayGrid {
     $row = 0
     if ($displayList.length -eq 1) {
       $checked = $displayList.Selected
-      $Deleted = $displayList.Deleted
-      $Updated = $displayList.Updated
-      $partdisplayList = makelines $displayList $checked $Deleted $Updated $row $selected
+      $partdisplayList = makelines $displayList $checked $row $selected $win.W-2
     }
     else {
       $partdisplayList = $displayList | Select-Object -First $nblines -Skip $skip | ForEach-Object {
         $index = (($page - 1) * $nbLines) + $row
         $checked = $displayList[$index].Selected
-        $deleted = $displayList[$index].Deleted
-        $Updated = $displayList[$index].Updated
-        makelines $displayList[$index] $checked $deleted $Updated $row $selected
+        makelines $displayList[$index] $checked $row $selected $win.W-2
         $row++
       }
     }
@@ -827,57 +789,10 @@ function displayGrid {
           if ($checked) { $nbChecked-- } else { $nbChecked++ }
         }
 
-        if ($key.VirtualKeyCode -eq 46) {
-          # delete key
-          if ($allowModifications -and -not $build) {
-            if ($displayList.length -eq 1) {
-              $deleted = $displayList.Deleted
-              $displayList.deleted = -not $deleted
-            }
-            else {
-              $index = (($page - 1) * $nbLines) + $selected
-              $Deleted = $displayList[$index].Deleted
-              $displayList[$index].Deleted = -not $Deleted
-            }
-          }
-        }
-
-        if ($key.VirtualKeyCode -eq 85) {
-          # "u" key (update)
-          if ($allowModifications -and -not $build) {
-            if ($displayList.length -eq 1) {
-              if ($displayList.Available) {
-                $Updated = $displayList.Updated
-                $displayList.Updated = -not $deleted
-              }
-            }
-            else {
-              $index = (($page - 1) * $nbLines) + $selected
-              if ($displayList[$index].Available -and ($displayList[$index].Available.trim() -ne "")) {
-                $Updated = $displayList[$index].Updated
-                $displayList[$index].Updated = -not $Updated
-              }
-            }
-          }
-        }
-        if ($key.VirtualKeyCode -eq 85) {
-          # "Ctrl-u" key (update)
-          if ($allowModifications) {
-            if (($key.ControlKeyState -band 8) -ne 0) {
-              $displayList | ForEach-Object { 
-                $Updated = $_.Updated
-                if ($_.Available -and ($_.Available.trim() -ne "")) {
-                  $_.Updated = -not $Updated
-                }
-              }
-            }
-          }
-        }
-
         if ($key.VirtualKeyCode -eq 13) {
           # key Enter
           Clear-Host
-          $data.value = $data.value = $displayList | Where-Object { $_.Selected -or $_.Deleted -or $_.Updated }
+          $data.value = $data.value = $displayList | Where-Object { $_.Selected }
           $stop = $true
         }
         if ($key.VirtualKeyCode -eq 114) {
@@ -1049,6 +964,62 @@ function openSpinner {
   $null = $session.BeginInvoke()
   return $Session, $runspace, $win
 }
+function openSpinner_old {
+  $SpinnerWidth = 50
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
+  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
+  
+  $runspace = [runspacefactory]::CreateRunspace()
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
+  $win.titleColor = "Red"
+  $win.title = '⏳ Fetching Winget data '
+  $win.drawWindow()
+  $win.drawTitle()
+  $statedata.X ++
+  $statedata.Y ++
+  $sb = {
+    [System.Console]::CursorVisible = $false
+    $x = $statedata.X
+    $y = $statedata.Y
+    
+    $i = 1
+    $string = "".PadRight(30, ".")
+    $nav = "oOo"
+    while ($true) {
+      if ($i -lt $nav.Length) {
+        $mobile = $nav.Substring($nav.Length - $i)
+        $string = $mobile.PadRight(30, '.')
+      }
+      else {
+        if ($i -gt 27) {
+          $nb = 30 - $i
+          $mobile = $nav.Substring(1, $nb)
+          $string = $mobile.PadLeft(30, '.')
+        }
+        else {
+          $left = "".PadLeft($i, '.')
+          $right = "".PadRight(27 - $i, '.')
+          $string = $left, $nav, $right -join ""
+        }
+      }
+      [System.Console]::setcursorposition($X, $Y)
+      [System.Console]::write($string)
+      $i++
+      if ($i -gt 30) {
+        $i = 1
+      }
+      Start-Sleep -Milliseconds 100
+    }
+  }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $null = $session.BeginInvoke()
+  return $Session, $runspace, $win
+}
 
 function closeSpinner {
   param(
@@ -1067,8 +1038,7 @@ function Get-WGPackage {
     [switch]$uninstall,
     [switch]$update,
     [switch]$apply,
-    [switch]$silent,
-    [switch]$Build
+    [switch]$silent
   )
   Get-WingetposhConfig
   if ($source) {
@@ -1114,16 +1084,16 @@ function Get-WGPackage {
   }
 
   if ($update) {
-    $title = " ⟬ Update ⟭ "
+    $title = "⫷ Update ⫸"
   }
   else {
     if ($uninstall) {
-      $title = " ⟬ Uninstall ⟭ " 
+      $title = "⫷ Uninstall ⫸"
     }
   }
 
   $Session, $Runspace, $win = openSpinner
-  
+
   $list = @(Invoke-Winget $command)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
@@ -1149,10 +1119,7 @@ function Get-WGPackage {
   
   if ($interactive) {
     $data = @()
-    if ($build) {
-      $title = " ⟬ Build Install File ⟭ "
-    }
-    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false -allowModifications $true -Build $Build
+    displayGrid -list $list -title "Packages List $($title)" -data ([ref]$data) -allowSearch $false
     if ($apply) {
       $title = ""
       if ($data.length -gt 0) {
@@ -1178,6 +1145,7 @@ function Get-WGPackage {
         }
       }
       # display summary.
+
     }
     else {
       return $data
@@ -1217,7 +1185,6 @@ function Search-WGPackage {
     if ($package.Trim() -eq "") {
       $terms = getSearchTerms
     }
-    $terms = $terms.Replace(" ", "")
   }
   process {
     if ($terms -ne "") {
@@ -1225,6 +1192,9 @@ function Search-WGPackage {
       $Session, $Runspace, $win = openSpinner
       $terms -split "," | ForEach-Object { 
         $term = $_
+        $win.title = "⏳ Fetching Winget $term data " 
+        $win.drawWindow()
+        $win.drawTitle()
         $command = "winget search '$term'"
         $result = @(Invoke-Winget $command)
         $result | ForEach-Object { 
@@ -1268,7 +1238,7 @@ function Search-WGPackage {
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()
-        displayGrid -list $list -source $source  -title "Package Search ⟬ Install ⟭ " -data ([ref]$data) -allowSearch $allowSearch 
+        displayGrid -list $list -source $source  -title "Package Search" -data ([ref]$data) -allowSearch $allowSearch
         if ($install) {
           if ($data.length -gt 0) {
             $data | Out-Object | ForEach-Object {
@@ -1331,54 +1301,11 @@ function Get-WGList {
   Get-WGPackage -source $source
 }
 
-function Build-WGInstallFile {
-  param(
-    [string]$file="WGConfig.json"
-  )
-
-  if (Test-Path -Path $file) {
-    Remove-Item -Path $file
-  }
-
-  $data = Get-WGPackage -interactive -Build
-  $data | Out-Object | ConvertTo-Json | Out-File -FilePath $file -Append
-  Write-Host "Config file writen in $file"
-}
-
 function Show-WGList {
   param(
     [string]$source
   )
-  $data = Get-WGPackage -interactive -source $source
-  if (($data | Out-Object | Where-Object { $_.updated -or $_.deleted }).count -gt 0) {
-    $data | Out-Object | ForEach-Object {
-      if ($_.Deleted -or $_.Updated) {
-        $id = ($_.Id).Trim()
-        if ($_.Deleted) {
-          $expression = "winget uninstall "
-          if ($silent) {
-            $expression = $expression, "--silent --disable-interactivity" -join ""
-          }
-          $expression = $expression, " --id $($id)" -join ""
-          $title = "🗑️ Uninstall $($id)"
-          $action = " is Uninstalled"
-        }
-        if ($_.Updated) {
-          $expression = "winget upgrade --id $($id)"
-          $title = "⚡ Upgrade $($id)"
-          $action = " is Updated"
-        }
-        [System.Console]::CursorVisible = $false
-        Invoke-Expression2 -exp $expression -title $title
-        #Write-Host "Exit code : $($LASTEXITCODE)"
-        Write-Host "Name $($_.Name) $action"
-        [System.Console]::CursorVisible = $true
-      } 
-    }
-  }
-  else {
-    $data | Out-Object
-  }
+  Get-WGPackage -interactive -source $source
 }
 
 function Install-WGPackage {

@@ -38,7 +38,8 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
   ('SilentInstall', $false),
   ('AcceptPackageAgreements', $true),
   ('AcceptSourceAgreements', $true),
-  ('Force', $false)
+  ('Force', $false),
+  ('IncludeScoop',$false)
   ) | ForEach-Object { $init[$_[0]] = $_[1] }
 
   $config = @{}

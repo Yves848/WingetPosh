@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.9'
+ModuleVersion = '1.0.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -83,7 +83,8 @@ FunctionsToExport = @('Get-WGPackage',
                       "Get-WingetPoshConfig",
                       "Reset-WingetposhConfig",
                       "Get-WingetposhConfig",
-                      "Get-WGPVersion" )
+                      "Get-WGPVersion",
+                      "Build-WGInstallFile" )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -128,7 +129,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'beta02'
+        Prerelease = 'beta01'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true

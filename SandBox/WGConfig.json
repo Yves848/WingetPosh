@@ -1,0 +1,50 @@
+[
+  {
+    "Selected": true,
+    "Name": "7-Zip 23.01 (x64)                       ",
+    "Id": "7zip.7zip                               ",
+    "Version": "23.01            ",
+    "Source": "winget    ",
+    "Available": "                 "
+  },
+  {
+    "Selected": true,
+    "Name": "Ubuntu                                  ",
+    "Id": "Canonical.Ubuntu.2204                   ",
+    "Version": "2204.2.33.0      ",
+    "Source": "winget    ",
+    "Available": "                 "
+  },
+  {
+    "Selected": true,
+    "Name": "GitHub Desktop                          ",
+    "Id": "GitHub.GitHubDesktop                    ",
+    "Version": "3.3.3            ",
+    "Source": "winget    ",
+    "Available": "3.3.4            "
+  },
+  {
+    "Selected": true,
+    "Name": "Git                                     ",
+    "Id": "Git.Git                                 ",
+    "Version": "2.42.0.2         ",
+    "Source": "winget    ",
+    "Available": "                 "
+  },
+  {
+    "Selected": true,
+    "Name": "Microsoft Edge                          ",
+    "Id": "Microsoft.Edge                          ",
+    "Version": "118.0.2088.46    ",
+    "Source": "winget    ",
+    "Available": "                 "
+  },
+  {
+    "Selected": true,
+    "Name": "Microsoft Edge WebView2 Runtime         ",
+    "Id": "Microsoft.EdgeWebView2Runtime           ",
+    "Version": "118.0.2088.46    ",
+    "Source": "winget    ",
+    "Available": "                 "
+  }
+]

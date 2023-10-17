@@ -124,11 +124,12 @@ class window {
     $this.drawTitle()
     $this.drawFooter()
   }
-  
+    
   
   [void] drawVersion() {
-    $version = $this.frameStyle.LEFTSPLIT, [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version, $this.frameStyle.RIGHTSPLIT -join ""
-    if ($version -or $version.ToString().Trim() -eq "") {
+    $v = [string]$(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version 
+    $version = $this.frameStyle.LEFTSPLIT, $v, $this.frameStyle.RIGHTSPLIT -join ""
+    if ($v -or $v.ToString().Trim() -eq "") {
       $version = $this.frameStyle.LEFTSPLIT, "Debug", $this.frameStyle.RIGHTSPLIT -join ""
     }
     [System.Console]::setcursorposition($this.W - ($version.Length + 6), $this.Y )
