@@ -1,7 +1,7 @@
-![](./images/Wingetposh%20(2).png)
+![](./images/WingetposhLogo.png)
 ***
 ## Demo
-https://youtu.be/o7I0A_7Y4kY
+https://youtu.be/rH9PcEj8u5A
 
 
 A set of functions to help using winget.
@@ -12,7 +12,7 @@ No dependencies are used to ensure compatibility with Powershell 5.1
 
 ***
 ## Remaks :
-  The goal of this module is not really the same as *Microsoft.WinGet.Client* (still in alpha)
+  The goal of this module is not really the same as *Microsoft.WinGet.Client* 
 
   Basically, it was focused on the "graphical interface" aspect. The "parsing" part was added naturally.
   Unlike the official module, it is 100% written in Powershell in order to be compatible with version 5.1 and requires NO external dependency.
@@ -28,13 +28,24 @@ The availablle functions are :
 - Invoke-Winget 
 - Out-Object              
 - Show-WGList                 
-- Uninstall-WGPackage         
-- Update-WGPackage [-Update] 
+- Uninstall-WGPackage  *(deprecated)*        
+- Update-WGPackage [-Update]  *(deprecated)*
 - Set-WingetposhConfig -param -value
 - Get-WingetposhConfig [-display]
 - Reset-WingetposhConfig
 - Get-WGPVersions [-param]
+- Build-WGInstallFile [-file]
   
+
+Starting with version 1.0.0, **Scoop** (if present) is supported.
+This is a limited support but it will grow with the next versions of WingetPosh.
+
+When the module is imported for the first time, Scoop is detected and if present, his usage is flagged in the config file.
+
+Scoop integration can be activated or deactivated with :
+``` Powershell
+  Set-WingetposhConfig -param includeScoop $True / $False
+```
 ***
 ## Installation
 
@@ -112,26 +123,27 @@ Get an Object (or an array of objects) with the installed packages, filtered on 
 ```
 ![image1](./images/002.png)
 
-This function allows multiselection, by pressing "space" on the selected line.
-When at least one package is selected, when the function is exitted with "Return", an Object list is returned.
+This screen allow to select (Space) the package for which information will be returned.
+It is also possible to flag some packages for uninstallation (with "Del") and for update (with "u")
+**Note:** Only updatable packages will be available to update.
+Pressing "Ctrl-U" will flag every updatable package to be updated.
+
+Info, Uninstall and Update can be combined.
+
+![image2](./images/002-2.png)
+
+Pressing enter launches the process. (See demo vidéo)
 
 ![](./images/003.png)
 When Hit return .....
 ![](./images/004.png)
 
-The result is a hashtable, faster and more memory efficient.
-
-But the result can be converted to object by piping it to Out-Object
-
-``` Powershell
-   Show-WGlist | Out-Object
-```
-![](images/005.png)
+The result is an array of PSObject
 
 And, of course, we can pipe this result to perform additionnal operations .....
 
 ``` Powershell
-   Show-WGList | Out-Object | Select-Object -Property id
+   Show-WGList | Select-Object -Property id
 ```
 
 ![](./images/006.png)
@@ -144,19 +156,28 @@ If omitted, wingetposh will display a popup to enter the packages to search.
 ``` Powershell
   Search-WGPackage
 ```
+Search-WGPackage now accept multiple search keys.  They must be comma-separated.
+If the "-package" switch is used, the search string must be quoted.
+If the interactive search is used, no quotes needed.
+
 ![](./images/006-1.png)
+![](./images/006-3.png)
 
 ***
 
 ## Converting results to PSCustomObject arrays
 
 ``` Powershell
-  Get-WGList | Out-Object
+  Search-WGPackage -package "cpu-z,git" | Out-Object
 ```
 
 ***
 
 ## Search and install a package
+
+Just as Search-WGPackage, Install-WGPackage now accept multiple search keys.  They must be comma-separated.
+If the "-package" switch is used, the search string must be quoted.
+If the interactive search is used, no quotes needed.
 
 If no **-package** parameter is specified, the function will popup a window to enter the terms to search.
 
@@ -170,26 +191,50 @@ The source can be specified to limit the number of results.  EG : *-source winge
 
 ![image8-1](./images/006-2.png)
 
+If no source is specified, the display grid will allow to filter the sources by pressing **F2** key.
+
+![image8-2](./images/006-4.png)
+
+Multiple packages, from multiple source can be selected at once to install.
+
+![image8-5](./images/006-5.png)
+
 ***
 
-## Select and update an installed package
- 
+## ~~Select and update an installed package~~ 
+ **(Deprecated)**
+
  To confirm the update, the *-apply* switch must be provided.  Otherwise, the function will only return a list of the selected packages.
  
 
 ```Powershell
   Update-WGPackage -source winget -apply
 ```
-![image9](./images/009.png)
 
 ***
 
-## Select and uninstall an installed package
+## Building a config file to replicate packages installation
+
+``` Powershell
+  Build-WGInstallFile -file RyzenConfig.json
+```
+This function will display a grid similar to **Show-WGList".
+But when confirmed with "Enter", the function will generate a JSON config file with every package informations.
+This file can be used for future installation or replication of the same package list.
+
+If no "-file" parameter is present, the defaut config file is "WGConfig.json"
+
+**Remark :** The import function will be soon available in a next beta version. 
+
+***
+
+## ~~Select and uninstall an installed package~~
+ **(Deprecated)**
+
  To confirm the update, the *-apply* switch must be provided.  Otherwise, the function will only return a list of the selected packages.
 ``` Powershell
   Uninstall-WGPackage -source winget -apply
 ```
-![image10](./images/010.png)
 
 ## Generic function to convert winget results to PSCustomObject
 
