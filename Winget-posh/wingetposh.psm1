@@ -1049,62 +1049,6 @@ function openSpinner {
   $null = $session.BeginInvoke()
   return $Session, $runspace, $win
 }
-function openSpinner_old {
-  $SpinnerWidth = 50
-  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $statedata.X = [math]::round(($Host.UI.RawUI.BufferSize.Width - 32) / 2)
-  $statedata.Y = [math]::round(($Host.UI.RawUI.BufferSize.Height - 3) / 2)
-  
-  $runspace = [runspacefactory]::CreateRunspace()
-  $runspace.Open()
-  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
-  [window]$win = [window]::new($statedata.X, $statedata.Y, 32, 2, $false, "White")
-  $win.titleColor = "Red"
-  $win.title = '⏳ Fetching Winget data '
-  $win.drawWindow()
-  $win.drawTitle()
-  $statedata.X ++
-  $statedata.Y ++
-  $sb = {
-    [System.Console]::CursorVisible = $false
-    $x = $statedata.X
-    $y = $statedata.Y
-    
-    $i = 1
-    $string = "".PadRight(30, ".")
-    $nav = "oOo"
-    while ($true) {
-      if ($i -lt $nav.Length) {
-        $mobile = $nav.Substring($nav.Length - $i)
-        $string = $mobile.PadRight(30, '.')
-      }
-      else {
-        if ($i -gt 27) {
-          $nb = 30 - $i
-          $mobile = $nav.Substring(1, $nb)
-          $string = $mobile.PadLeft(30, '.')
-        }
-        else {
-          $left = "".PadLeft($i, '.')
-          $right = "".PadRight(27 - $i, '.')
-          $string = $left, $nav, $right -join ""
-        }
-      }
-      [System.Console]::setcursorposition($X, $Y)
-      [System.Console]::write($string)
-      $i++
-      if ($i -gt 30) {
-        $i = 1
-      }
-      Start-Sleep -Milliseconds 100
-    }
-  }
-  $session = [powershell]::create()
-  $null = $session.AddScript($sb)
-  $session.Runspace = $runspace
-  $null = $session.BeginInvoke()
-  return $Session, $runspace, $win
-}
 
 function closeSpinner {
   param(
@@ -1388,7 +1332,17 @@ function Get-WGList {
 }
 
 function Build-WGInstallFile {
+  param(
+    [string]$file="WGConfig.json"
+  )
+
+  if (Test-Path -Path $file) {
+    Remove-Item -Path $file
+  }
+
   $data = Get-WGPackage -interactive -Build
+  $data | Out-Object | ConvertTo-Json | Out-File -FilePath $file -Append
+  Write-Host "Config file writen in $file"
 }
 
 function Show-WGList {
