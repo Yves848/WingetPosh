@@ -39,9 +39,10 @@ switch ($func) {
     #Get-WGSources
     #Set-WingetposhConfig -param UseNerdFont -value $args
     #Install-WGPackage 
-    #Get-WGPVersion -param All
+    #Get-WGPVersion -param WGP
     #Get-ScoopStatus
     #Get-ScoopBuckets
     #Reset-WingetposhConfig
+    #GetVersion
   }
 }
