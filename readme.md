@@ -1,4 +1,4 @@
-![](./images/WingetposhLogo.png)
+![](./images/Wingetposh.png)
 ***
 ## Demo
 https://youtu.be/rH9PcEj8u5A
