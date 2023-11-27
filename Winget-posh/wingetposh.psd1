@@ -129,7 +129,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'beta01'
+        #Prerelease = 'beta01'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
