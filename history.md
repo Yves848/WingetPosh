@@ -107,3 +107,5 @@
         - Readme updated
         - Use of multiple runspaces (display and invokes)
         - Bug fixes
+### 1.0.1 :
+        - fixing a bug on Windows 10 when installing the module.  Now, it correctly download the resources.
