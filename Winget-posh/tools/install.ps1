@@ -2,7 +2,7 @@ function getWinVersion {
   $win10 = (Get-ComputerInfo | Select-Object OsName) -match "windows 10"
   $psversion = $PSVersionTable.PSVersion.Major
   if ($win10) {
-    if ($psversion = 5) {
+    if ($psversion -eq 5) {
       import-Module -Name International 
     } else {
       import-Module -Name International -UseWindowsPowerShell 
@@ -11,6 +11,7 @@ function getWinVersion {
 }
 
 function getWingetLocals {
+  getWinVersion
   $culture = ((Get-WinUserLanguageList).LanguageTag -split "-")[0]
   $languages = @('de-DE', 'es-ES', 'fr-FR', 'it-IT', 'ja-JP', 'ko-KR', 'pt-BR', 'ru-RU', 'zh-CN', 'zh-TW')
   $language = $languages | Where-Object {$_.StartsWith($culture)}
@@ -41,7 +42,7 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
     New-Item -Path ~/.config/.wingetposh/locals.json | Out-Null
   }
 
-  getWinVersion
+  
 
   $l = getWingetLocals
   $l | ConvertTo-Json | Out-File -FilePath ~/.config/.wingetposh/locals.json -Force | Out-Null
