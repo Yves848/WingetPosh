@@ -11,7 +11,7 @@ else {
 $version = "$($content.ModuleVersion)"
 
 $folder = "C:\Users\yvesg\Documents\PowerShell\Modules\$(split-path $content.RootModule -LeafBase)",$version -join "\"
-
+$env:NUGET_CLI_LANGUAGE="en_US"
 
 Write-Host "Module folder : $folder"
 
