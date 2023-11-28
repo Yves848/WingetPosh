@@ -4,33 +4,35 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, sSkinProvider, sSkinManager, Vcl.ExtCtrls, Vcl.Menus, SynEdit, DosCommand, Vcl.StdCtrls, sButton, System.ImageList,
-  Vcl.ImgList, acAlphaImageList;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList, sSkinManager, sSkinProvider, Vcl.Menus, Vcl.ExtCtrls, System.Actions, Vcl.ActnList,
+  uBaseFrame,
+  uFrmList;
 
 type
   TfMain = class(TForm)
+    ImageList1: TImageList;
     TrayIcon1: TTrayIcon;
-    sSkinManager1: TsSkinManager;
-    sSkinProvider1: TsSkinProvider;
     PopupMenu1: TPopupMenu;
+    W1: TMenuItem;
+    N3: TMenuItem;
     L1: TMenuItem;
     List1: TMenuItem;
     N1: TMenuItem;
     N2: TMenuItem;
-    DosCommand1: TDosCommand;
-    SynEdit1: TSynEdit;
-    sButton1: TsButton;
-    W1: TMenuItem;
-    N3: TMenuItem;
-    ImageList1: TImageList;
-    procedure N2Click(Sender: TObject);
-    procedure L1Click(Sender: TObject);
-    function DosCommand1CharDecoding(ASender: TObject; ABuf: TStream): string;
-    procedure DosCommand1NewLine(ASender: TObject; const ANewLine: string; AOutputType: TOutputType);
-    procedure sButton1Click(Sender: TObject);
+    sSkinProvider1: TsSkinProvider;
+    sSkinManager1: TsSkinManager;
+    ActionList1: TActionList;
+    pnlMain: TPanel;
+    actQuit: TAction;
+    actListPackages: TAction;
+    S1: TMenuItem;
+    N4: TMenuItem;
+    procedure actQuitExecute(Sender: TObject);
+    procedure actListPackagesExecute(Sender: TObject);
   private
     { Private declarations }
   public
+   aFrame: TBaseFrame;
     { Public declarations }
   end;
 
@@ -41,47 +43,23 @@ implementation
 
 {$R *.dfm}
 
-function TfMain.DosCommand1CharDecoding(ASender: TObject; ABuf: TStream): string;
-var
-  pBytes: TBytes;
-  iLength: Integer;
+procedure TfMain.actListPackagesExecute(Sender: TObject);
 begin
-  iLength := ABuf.Size;
-  if iLength > 0 then
-  begin
-    SetLength(pBytes, iLength);
-    ABuf.Read(pBytes, iLength);
-    try
-      result := tEncoding.UTF8.GetString(pBytes);
-    except
-      result := '';
-    end;
-  end
-  else
-    result := '';
+  //ActivitySet(True);
+  if aFrame <> Nil then
+    aFrame.Free;
 
-end;
+  aFrame := TfrmList.Create(pnlMain);
+  aFrame.Parent := pnlMain;
+  aFrame.Align := alClient;
 
-procedure TfMain.DosCommand1NewLine(ASender: TObject; const ANewLine: string; AOutputType: TOutputType);
-begin
-  SynEdit1.Lines.Add(aNewLine);
-end;
-
-procedure TfMain.L1Click(Sender: TObject);
-begin
   Show;
+  TfrmList(aFrame).Init;
 end;
 
-procedure TfMain.N2Click(Sender: TObject);
+procedure TfMain.actQuitExecute(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TfMain.sButton1Click(Sender: TObject);
-begin
-  var s : string := 'powershell -noprofile -command "get-wglist -quiet |out-object | Where-Object {$_.source.trim() -ceq \"winget\" -and $_.available.trim() -ne \"\"} | ConvertTo-Json';
-  DosCommand1.CommandLine := s;
-  DosCommand1.Execute;
 end;
 
 end.

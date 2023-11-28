@@ -415,7 +415,7 @@ function Invoke-Scoop {
 function Invoke-Winget {
   param (
     [string]$cmd,
-    [switch]$quiet
+    [bool]$quiet
 
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
@@ -1087,7 +1087,7 @@ function Get-WGPackage {
     [switch]$apply,
     [switch]$silent,
     [switch]$Build,
-    [switch]$quiet
+    [bool]$quiet
   )
   Get-WingetposhConfig
   if ($source) {
@@ -1365,7 +1365,7 @@ function Get-WGPVersion {
 function Get-WGList {
   param(
     [string]$source,
-    [switch]$quiet
+    [bool]$quiet
   )
   $params = @{
     source = $source
@@ -1452,7 +1452,7 @@ function Update-WGPackage {
   param(
     [string]$source,
     [switch]$apply,
-    [switch]$quiet
+    [bool]$quiet
   )
   $interactive = -not $quiet
   $params = @{
@@ -1486,6 +1486,28 @@ function Uninstall-WGPackage {
     $params.Add("silent", $script:config.SilentInstall)
   }
   Get-WGPackage @params
+}
+
+function Out-JSON {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+    [hashtable]
+    $Data
+  )
+  begin {
+    [PSCustomObject[]]$result = @()
+  }
+  process {
+    foreach ($d in $data) {
+      $result += [pscustomobject]$d
+    }
+  }
+  end {
+    return (@{
+      "packages"= $result
+    }) | ConvertTo-Json
+  }
 }
 
 function Out-Object {

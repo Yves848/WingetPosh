@@ -1,32 +1,168 @@
-object fMain: TfMain
+object fOldMain: TfOldMain
   Left = 0
   Top = 0
-  BorderStyle = bsSingle
-  Caption = 'WingetPosh GUI'
-  ClientHeight = 656
-  ClientWidth = 836
+  Caption = 'fOldMain'
+  ClientHeight = 659
+  ClientWidth = 980
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  PopupMenu = PopupMenu1
+  PopupMode = pmExplicit
   TextHeight = 15
-  object pnlMain: TPanel
-    Left = 0
-    Top = 0
-    Width = 836
-    Height = 656
-    Align = alClient
-    BevelOuter = bvNone
-    Caption = 'pnlMain'
-    ShowCaption = False
+  object SynEdit1: TSynEdit
+    Left = 8
+    Top = 8
+    Width = 801
+    Height = 569
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Consolas'
+    Font.Style = []
+    Font.Quality = fqClearTypeNatural
     TabOrder = 0
-    ExplicitTop = -8
+    UseCodeFolding = False
+    Gutter.Font.Charset = DEFAULT_CHARSET
+    Gutter.Font.Color = clWindowText
+    Gutter.Font.Height = -11
+    Gutter.Font.Name = 'Consolas'
+    Gutter.Font.Style = []
+    Gutter.Bands = <
+      item
+        Kind = gbkMarks
+        Width = 13
+      end
+      item
+        Kind = gbkLineNumbers
+      end
+      item
+        Kind = gbkFold
+      end
+      item
+        Kind = gbkTrackChanges
+      end
+      item
+        Kind = gbkMargin
+        Width = 3
+      end>
+    Highlighter = SynJSONSyn1
+    Lines.Strings = (
+      'SynEdit1')
+    SelectedColor.Alpha = 0.400000005960464500
+  end
+  object sButton1: TsButton
+    Left = 856
+    Top = 80
+    Width = 75
+    Height = 25
+    Caption = 'sButton1'
+    TabOrder = 1
+    OnClick = sButton1Click
+  end
+  object TrayIcon1: TTrayIcon
+    Animate = True
+    Icons = ImageList1
+    PopupMenu = PopupMenu1
+    Visible = True
+    Left = 272
+    Top = 80
+  end
+  object sSkinManager1: TsSkinManager
+    ButtonsOptions.OldGlyphsMode = False
+    IsDefault = False
+    InternalSkins = <>
+    MenuSupport.Font.Charset = DEFAULT_CHARSET
+    MenuSupport.Font.Color = clWindowText
+    MenuSupport.Font.Height = -11
+    MenuSupport.Font.Name = 'Segoe UI'
+    MenuSupport.Font.Style = []
+    SkinDirectory = 'C:\skins\Skins'
+    SkinName = 'Windows 11 dark'
+    SkinInfo = '16.13'
+    ThirdParty.ThirdEdits = ' '#13#10
+    ThirdParty.ThirdButtons = 'TButton'#13#10'TPopUpMenu'#13#10
+    ThirdParty.ThirdBitBtns = ' '#13#10
+    ThirdParty.ThirdCheckBoxes = ' '#13#10
+    ThirdParty.ThirdGroupBoxes = ' '#13#10
+    ThirdParty.ThirdListViews = ' '#13#10
+    ThirdParty.ThirdPanels = ' '#13#10
+    ThirdParty.ThirdGrids = ' '#13#10
+    ThirdParty.ThirdTreeViews = ' '#13#10'TTrayIcon'#13#10
+    ThirdParty.ThirdComboBoxes = ' '#13#10
+    ThirdParty.ThirdWWEdits = ' '#13#10
+    ThirdParty.ThirdVirtualTrees = ' '#13#10
+    ThirdParty.ThirdGridEh = ' '#13#10
+    ThirdParty.ThirdPageControl = ' '#13#10
+    ThirdParty.ThirdTabControl = ' '#13#10
+    ThirdParty.ThirdToolBar = ' '#13#10
+    ThirdParty.ThirdStatusBar = ' '#13#10
+    ThirdParty.ThirdSpeedButton = ' '#13#10
+    ThirdParty.ThirdScrollControl = ' '#13#10
+    ThirdParty.ThirdUpDown = ' '#13#10
+    ThirdParty.ThirdScrollBar = ' '#13#10
+    ThirdParty.ThirdStaticText = ' '#13#10
+    ThirdParty.ThirdNativePaint = ' '#13#10
+    Left = 392
+    Top = 48
+  end
+  object sSkinProvider1: TsSkinProvider
+    AddedTitle.Font.Charset = DEFAULT_CHARSET
+    AddedTitle.Font.Color = clNone
+    AddedTitle.Font.Height = -12
+    AddedTitle.Font.Name = 'Segoe UI'
+    AddedTitle.Font.Style = []
+    SkinData.SkinSection = 'FORM'
+    TitleButtons = <>
+    Left = 456
+    Top = 136
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 296
+    Top = 144
+    object W1: TMenuItem
+      Caption = 'Winget GUI'
+      SubMenuImages = ImageList1
+      ImageIndex = 0
+      ShortCut = 36935
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object L1: TMenuItem
+      Caption = 'List'
+      SubMenuImages = ImageList1
+      OnClick = L1Click
+    end
+    object List1: TMenuItem
+      Caption = 'Update'
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object N2: TMenuItem
+      Caption = 'Quit'
+      OnClick = N2Click
+    end
+  end
+  object DosCommand1: TDosCommand
+    CommandLine = 
+      'powershell -command "get-wglist | out-object | where-Object {$_.' +
+      'source -eq '#39'winget'#39'}'
+    InputToOutput = False
+    MaxTimeAfterBeginning = 0
+    MaxTimeAfterLastOutput = 0
+    OnCharDecoding = DosCommand1CharDecoding
+    OnNewLine = DosCommand1NewLine
+    Left = 864
+    Top = 216
   end
   object ImageList1: TImageList
-    Left = 408
-    Top = 278
+    Left = 376
+    Top = 608
     Bitmap = {
       494C010101000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
@@ -167,105 +303,8 @@ object fMain: TfMain
       C183000000000000FBDF00000000000000000000000000000000000000000000
       000000000000}
   end
-  object TrayIcon1: TTrayIcon
-    Animate = True
-    PopupMenu = PopupMenu1
-    Visible = True
-    Left = 272
-    Top = 80
-  end
-  object PopupMenu1: TPopupMenu
-    Images = ImageList1
-    Left = 296
-    Top = 144
-    object W1: TMenuItem
-      Caption = 'Winget GUI'
-    end
-    object N3: TMenuItem
-      Caption = '-'
-    end
-    object L1: TMenuItem
-      Action = actListPackages
-      Caption = 'List Packages'
-      SubMenuImages = ImageList1
-      ImageIndex = 0
-    end
-    object List1: TMenuItem
-      Caption = 'Update'
-    end
-    object N1: TMenuItem
-      Caption = '-'
-    end
-    object S1: TMenuItem
-      Caption = 'Search Package'
-    end
-    object N4: TMenuItem
-      Caption = '-'
-    end
-    object N2: TMenuItem
-      Action = actQuit
-    end
-  end
-  object sSkinProvider1: TsSkinProvider
-    AddedTitle.Font.Charset = DEFAULT_CHARSET
-    AddedTitle.Font.Color = clNone
-    AddedTitle.Font.Height = -12
-    AddedTitle.Font.Name = 'Segoe UI'
-    AddedTitle.Font.Style = []
-    SkinData.SkinManager = sSkinManager1
-    SkinData.SkinSection = 'FORM'
-    TitleButtons = <>
-    Left = 456
-    Top = 136
-  end
-  object sSkinManager1: TsSkinManager
-    ButtonsOptions.OldGlyphsMode = False
-    InternalSkins = <>
-    MenuSupport.Font.Charset = DEFAULT_CHARSET
-    MenuSupport.Font.Color = clWindowText
-    MenuSupport.Font.Height = -11
-    MenuSupport.Font.Name = 'Segoe UI'
-    MenuSupport.Font.Style = []
-    SkinDirectory = 'C:\skins\Skins'
-    SkinName = 'Windows 11 dark'
-    SkinInfo = '16.13'
-    ThirdParty.ThirdEdits = ' '#13#10
-    ThirdParty.ThirdButtons = 'TButton'#13#10'TPopUpMenu'#13#10
-    ThirdParty.ThirdBitBtns = ' '#13#10
-    ThirdParty.ThirdCheckBoxes = ' '#13#10
-    ThirdParty.ThirdGroupBoxes = ' '#13#10
-    ThirdParty.ThirdListViews = ' '#13#10
-    ThirdParty.ThirdPanels = ' '#13#10
-    ThirdParty.ThirdGrids = ' '#13#10
-    ThirdParty.ThirdTreeViews = ' '#13#10'TTrayIcon'#13#10
-    ThirdParty.ThirdComboBoxes = ' '#13#10
-    ThirdParty.ThirdWWEdits = ' '#13#10
-    ThirdParty.ThirdVirtualTrees = ' '#13#10
-    ThirdParty.ThirdGridEh = ' '#13#10
-    ThirdParty.ThirdPageControl = ' '#13#10
-    ThirdParty.ThirdTabControl = ' '#13#10
-    ThirdParty.ThirdToolBar = ' '#13#10
-    ThirdParty.ThirdStatusBar = ' '#13#10
-    ThirdParty.ThirdSpeedButton = ' '#13#10
-    ThirdParty.ThirdScrollControl = ' '#13#10
-    ThirdParty.ThirdUpDown = ' '#13#10
-    ThirdParty.ThirdScrollBar = ' '#13#10
-    ThirdParty.ThirdStaticText = ' '#13#10
-    ThirdParty.ThirdNativePaint = ' '#13#10
-    Left = 392
-    Top = 48
-  end
-  object ActionList1: TActionList
-    Left = 544
-    Top = 80
-    object actQuit: TAction
-      Category = 'General'
-      Caption = 'Quit'
-      OnExecute = actQuitExecute
-    end
-    object actListPackages: TAction
-      Caption = 'actListPackages'
-      OnExecute = actListPackagesExecute
-    end
+  object SynJSONSyn1: TSynJSONSyn
+    Left = 696
+    Top = 336
   end
 end

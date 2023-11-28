@@ -30,7 +30,7 @@ switch ($func) {
     #Search-WGPackage
     #Install-WGPackage
     #Get-WGPackage -interactive -update
-    Get-WGList -quiet
+    Get-WGList -quiet $true
     #Show-WGList
     #Update-WGPackage -quiet
     #Search-WGPackage -source $args -interactive -allowSearch

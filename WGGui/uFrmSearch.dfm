@@ -1,0 +1,2 @@
+inherited frmSearch: TfrmSearch
+end

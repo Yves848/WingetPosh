@@ -1,0 +1,2 @@
+inherited frmConfig: TfrmConfig
+end
