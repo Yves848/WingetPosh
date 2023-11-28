@@ -57,7 +57,7 @@ PowerShellVersion = '5.1'
 # RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @('tools\install.ps1')
+ScriptsToProcess = @('tools\install.ps1','tools\WGGui.exe')
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -130,7 +130,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'alpha01'
+        Prerelease = 'alpha02'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
