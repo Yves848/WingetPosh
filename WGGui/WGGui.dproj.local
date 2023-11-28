@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.612,=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023-11-28 11:56:45.142,=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023-11-28 11:57:05.200,C:\Users\yvesg\git\WGGui\WGGui.dfm=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2023-11-28 11:57:05.200,C:\Users\yvesg\git\WGGui\WGGui.pas=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023-11-28 11:57:31.103,C:\Users\yvesg\git\WGGui\uMais.dfm=C:\Users\yvesg\git\WGGui\WGGui.dfm</Transaction>
+    <Transaction>2023-11-28 11:57:31.103,C:\Users\yvesg\git\WGGui\uMais.pas=C:\Users\yvesg\git\WGGui\WGGui.pas</Transaction>
+    <Transaction>2023-11-28 11:57:36.156,C:\Users\yvesg\git\WGGui\uMain.dfm=C:\Users\yvesg\git\WGGui\uMais.dfm</Transaction>
+    <Transaction>2023-11-28 11:57:36.156,C:\Users\yvesg\git\WGGui\uMain.pas=C:\Users\yvesg\git\WGGui\uMais.pas</Transaction>
+    <Transaction>2023-11-28 11:57:43.191,C:\Users\yvesg\git\WGGui\WGGui.dproj=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
+    <Transaction>2023-11-28 12:43:14.913,C:\Users\yvesg\git\WingetPosh\WGGui\WGGui.dproj=C:\Users\yvesg\git\WGGui\WGGui.dproj</Transaction>
+    <Transaction>2023-11-28 12:43:52.055,C:\Users\yvesg\git\WingetPosh\WGGui\uMain.pas=C:\Users\yvesg\git\WGGui\uMain.pas</Transaction>
+    <Transaction>2023-11-28 12:43:52.055,C:\Users\yvesg\git\WingetPosh\WGGui\uMain.dfm=C:\Users\yvesg\git\WGGui\uMain.dfm</Transaction>
+    <Transaction>2023-11-28 12:44:31.398,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>2023-11-28 12:44:44.165,C:\Users\yvesg\git\WingetPosh\WGGui\uConsts.pas=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>
