@@ -57,7 +57,7 @@ PowerShellVersion = '5.1'
 # RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @('tools\install.ps1','tools\WGGui.exe')
+ScriptsToProcess = @('tools\install.ps1')
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -105,7 +105,8 @@ AliasesToExport = @()
 # List of all files packaged with this module
 FileList = @(
     'visuals.ps1',
-    'wingetposh.psm1'
+    'wingetposh.psm1',
+    'WGGui.exe'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
@@ -130,7 +131,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        Prerelease = 'alpha02'
+        Prerelease = 'alpha03'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true

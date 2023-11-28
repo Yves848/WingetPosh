@@ -51,9 +51,9 @@ var
 begin
     SynEdit1.Clear;
 
-    V := TJSONObject.ParseJSONValue(lS.text);
+    V := TJSONObject.ParseJSONValue(Doscommand1.Lines.text);
     if not Assigned(V) then
-      SynEdit1.Lines.Assign(ls);
+      SynEdit1.Lines.Assign(Doscommand1.OutputLines);
     try
       Memo1.Clear;
       O := V as TJSONObject;
@@ -78,7 +78,7 @@ begin
     ls := tStringList.Create;
     DosCommand1.OnCharDecoding := DM.CharDecoding;
     DosCommand1.CommandLine := sList;
-    DosCommand1.Execute;
+    DosCommand1.Execute
 
 end;
 

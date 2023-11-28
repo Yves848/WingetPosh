@@ -87,7 +87,7 @@ inherited FrmList: TFrmList
   object DosCommand1: TDosCommand
     InputToOutput = False
     MaxTimeAfterBeginning = 0
-    MaxTimeAfterLastOutput = 0
+    MaxTimeAfterLastOutput = 10
     OnNewLine = DosCommand1NewLine
     OnTerminated = DosCommand1Terminated
     Left = 456
