@@ -1554,3 +1554,8 @@ function Set-WingetposhConfig {
 function Reset-WingetposhConfig {
   '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false, "IncludeScoop": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
 }
+
+function Start-Gui {
+  $path =  (Get-Module -Name wingetposh).path | Split-Path -Parent
+  Invoke-Expression "$path\WGGui.exe"
+}

@@ -11,7 +11,6 @@ type
     sFrameAdapter1: TsFrameAdapter;
     DosCommand1: TDosCommand;
     sPanel1: TsPanel;
-    SynEdit1: TSynEdit;
     sButton1: TsButton;
     Memo1: TsMemo;
     Button1: TButton;
@@ -39,7 +38,7 @@ implementation
 
 procedure TFrmList.DosCommand1NewLine(ASender: TObject; const ANewLine: string; AOutputType: TOutputType);
 begin
-  ls.Add(aNewLine);
+//  ls.Add(aNewLine);
 end;
 
 procedure TFrmList.DosCommand1Terminated(Sender: TObject);
@@ -49,11 +48,11 @@ var
     A: TJsonArray;
     s : String;
 begin
-    SynEdit1.Clear;
+
 
     V := TJSONObject.ParseJSONValue(Doscommand1.Lines.text);
     if not Assigned(V) then
-      SynEdit1.Lines.Assign(Doscommand1.OutputLines);
+      Memo1.Lines.Assign(Doscommand1.OutputLines);
     try
       Memo1.Clear;
       O := V as TJSONObject;
@@ -75,7 +74,7 @@ end;
 
 procedure TFrmList.init;
 begin
-    ls := tStringList.Create;
+//    ls := tStringList.Create;
     DosCommand1.OnCharDecoding := DM.CharDecoding;
     DosCommand1.CommandLine := sList;
     DosCommand1.Execute
@@ -84,32 +83,32 @@ end;
 
 procedure TFrmList.sButton1Click(Sender: TObject);
 begin
-  SynEdit1.Lines.Assign(ls);
-  Sr := TStringReader.Create(ls.text);
-  Reader := TJsonTextReader.Create(Sr);
-  while Reader.read do
-   case Reader.TokenType of
-      TJsonToken.startobject:
-       Memo1.Lines.Add('(StartObject) ' + '- Token Path : ' + Reader.Path);
-      TJsonToken.StartArray:
-       Memo1.Lines.Add('(StartArray) ' + '- Token Path : ' + Reader.Path );
-      TJsonToken.PropertyName:
-       Memo1.Lines.Add('PropertyName : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path );
-      TJsonToken.String:
-       Memo1.Lines.Add('String Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
-      TJsonToken.Integer:
-       Memo1.Lines.Add('Integer Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
-      TJsonToken.Float:
-       Memo1.Lines.Add('Float Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
-      TJsonToken.Boolean:
-       Memo1.Lines.Add('Boolean Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
-      TJsonToken.Null:
-       Memo1.Lines.Add('Null Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
-      TJsonToken.EndArray:
-       Memo1.Lines.Add('(EndArray) ' + '- Token Path : ' + Reader.Path);
-      TJsonToken.EndObject:
-       Memo1.Lines.Add('(EndObject) ' + '- Token Path : ' + Reader.Path);
-   end;
+//  SynEdit1.Lines.Assign(ls);
+//  Sr := TStringReader.Create(ls.text);
+//  Reader := TJsonTextReader.Create(Sr);
+//  while Reader.read do
+//   case Reader.TokenType of
+//      TJsonToken.startobject:
+//       Memo1.Lines.Add('(StartObject) ' + '- Token Path : ' + Reader.Path);
+//      TJsonToken.StartArray:
+//       Memo1.Lines.Add('(StartArray) ' + '- Token Path : ' + Reader.Path );
+//      TJsonToken.PropertyName:
+//       Memo1.Lines.Add('PropertyName : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path );
+//      TJsonToken.String:
+//       Memo1.Lines.Add('String Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
+//      TJsonToken.Integer:
+//       Memo1.Lines.Add('Integer Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
+//      TJsonToken.Float:
+//       Memo1.Lines.Add('Float Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
+//      TJsonToken.Boolean:
+//       Memo1.Lines.Add('Boolean Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
+//      TJsonToken.Null:
+//       Memo1.Lines.Add('Null Value : ' + Reader.Value.ToString + '- Token Path : ' + Reader.Path);
+//      TJsonToken.EndArray:
+//       Memo1.Lines.Add('(EndArray) ' + '- Token Path : ' + Reader.Path);
+//      TJsonToken.EndObject:
+//       Memo1.Lines.Add('(EndObject) ' + '- Token Path : ' + Reader.Path);
+//   end;
 end;
 
 end.

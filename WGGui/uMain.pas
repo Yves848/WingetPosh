@@ -27,8 +27,13 @@ type
     actListPackages: TAction;
     S1: TMenuItem;
     N4: TMenuItem;
+    actConfigGui: TAction;
+    mnuConfigurtion: TMenuItem;
+    Configuration1: TMenuItem;
+    actShowGui: TAction;
     procedure actQuitExecute(Sender: TObject);
     procedure actListPackagesExecute(Sender: TObject);
+    procedure actShowGuiExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -60,6 +65,11 @@ end;
 procedure TfMain.actQuitExecute(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TfMain.actShowGuiExecute(Sender: TObject);
+begin
+      Show;
 end;
 
 end.

@@ -22,7 +22,8 @@ object fMain: TfMain
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = -8
+    ExplicitWidth = 832
+    ExplicitHeight = 655
   end
   object ImageList1: TImageList
     Left = 408
@@ -179,7 +180,7 @@ object fMain: TfMain
     Left = 296
     Top = 144
     object W1: TMenuItem
-      Caption = 'Winget GUI'
+      Action = actShowGui
     end
     object N3: TMenuItem
       Caption = '-'
@@ -198,6 +199,12 @@ object fMain: TfMain
     end
     object S1: TMenuItem
       Caption = 'Search Package'
+    end
+    object Configuration1: TMenuItem
+      Caption = '-'
+    end
+    object mnuConfigurtion: TMenuItem
+      Action = actConfigGui
     end
     object N4: TMenuItem
       Caption = '-'
@@ -266,6 +273,15 @@ object fMain: TfMain
     object actListPackages: TAction
       Caption = 'actListPackages'
       OnExecute = actListPackagesExecute
+    end
+    object actConfigGui: TAction
+      Category = 'Configuration'
+      Caption = 'actConfigGui'
+    end
+    object actShowGui: TAction
+      Category = 'General'
+      Caption = 'actShowGui'
+      OnExecute = actShowGuiExecute
     end
   end
 end
