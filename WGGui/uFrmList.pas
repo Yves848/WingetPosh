@@ -13,11 +13,9 @@ uses
 
 type
   TFrmList = class(TBaseFrame)
-    sFrameAdapter1: TsFrameAdapter;
     DosCommand1: TDosCommand;
     sPanel1: TsPanel;
     sButton1: TsButton;
-    sPanel2: TsPanel;
     sg1: TAdvStringGrid;
     procedure sButton1Click(Sender: TObject);
   private
@@ -41,6 +39,7 @@ implementation
 
 procedure TFrmList.init;
 begin
+  Application.MainForm.Show;
   DosCommand1.OnCharDecoding := DM.CharDecoding;
   DosCommand1.CommandLine := sList;
   DosCommand1.OnTerminated := terminated;
@@ -85,6 +84,7 @@ var
     A: TJsonArray;
     s : String;
     aItem: TListItem;
+    iRow : Integer;
 begin
     //listView1.Items.BeginUpdate;
 
@@ -96,10 +96,10 @@ begin
       //Memo1.Clear;
       O := V as TJSONObject;
       A := O.GetValue<TJsonArray>('packages');
-
+      iRow := 1;
       for var I := 0 to A.Count - 1 do
       begin
-        E := A.Items[I] as TJsonObject; // Element
+          E := A.Items[I] as TJsonObject; // Element
 //        aItem := listView1.Items.Add;
 //        aItem.Caption := E.GetValue<string>('Name');
 //        aItem.SubItems.Add(E.GetValue<string>('Id'));
@@ -111,18 +111,23 @@ begin
 //        s := s + E.GetValue<string>('Name');
 //        s := s + ' Id: ' + E.GetValue<string>('Id') + '  ' + 'Version: ' +  E.GetValue<string>('Version')+' Available : '+E.GetValue<string>('Available');
 //        memo1.Lines.Add(s);
-          sg1.Cells[0,I+1] :=  E.GetValue<string>('Name');
-          sg1.Cells[1,I+1] :=  E.GetValue<string>('Id');
-          sg1.Cells[2,I+1] :=  E.GetValue<string>('Version');
-          sg1.Cells[3,I+1] :=  E.GetValue<string>('Available');
-          sg1.Cells[4,I+1] :=  E.GetValue<string>('Source');
+          if (sg1.Cells[0,iRow] <> '') then
+          begin
+            sg1.AddRow;
+          end;
+          iRow := sg1.RowCount -1;
+          sg1.Cells[0,iRow] :=  E.GetValue<string>('Name');
+          sg1.Cells[1,iRow] :=  E.GetValue<string>('Id');
+          sg1.Cells[2,iRow] :=  E.GetValue<string>('Version');
+          sg1.Cells[3,iRow] :=  E.GetValue<string>('Available');
+          sg1.Cells[4,iRow] :=  E.GetValue<string>('Source');
       end;
     finally
+    sg1.AutoFitColumns();
       V.Free;
     end;
     ActivitySet(False);
     //listView1.Items.EndUpdate;
-    Application.MainForm.Show;
 end;
 
 end.

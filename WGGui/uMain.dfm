@@ -8081,13 +8081,13 @@ object fMain: TfMain
     Left = 0
     Top = 0
     Width = 836
-    Height = 615
+    Height = 520
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = -2
+    ExplicitHeight = 433
   end
   object pnlStatus: TPanel
     Left = 0
@@ -8107,6 +8107,16 @@ object fMain: TfMain
       IndicatorColor = aicWhite
       IndicatorType = aitRotatingSector
     end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 520
+    Width = 836
+    Height = 95
+    Align = alBottom
+    Caption = 'Panel1'
+    ShowCaption = False
+    TabOrder = 2
   end
   object ImageList1: TImageList
     Left = 408
@@ -10943,55 +10953,6 @@ object fMain: TfMain
     object N2: TMenuItem
       Action = actQuit
     end
-  end
-  object sSkinProvider1: TsSkinProvider
-    AddedTitle.Font.Charset = DEFAULT_CHARSET
-    AddedTitle.Font.Color = clNone
-    AddedTitle.Font.Height = -12
-    AddedTitle.Font.Name = 'Segoe UI'
-    AddedTitle.Font.Style = []
-    SkinData.SkinManager = sSkinManager1
-    SkinData.SkinSection = 'FORM'
-    TitleButtons = <>
-    Left = 456
-    Top = 136
-  end
-  object sSkinManager1: TsSkinManager
-    ButtonsOptions.OldGlyphsMode = False
-    InternalSkins = <>
-    MenuSupport.Font.Charset = DEFAULT_CHARSET
-    MenuSupport.Font.Color = clWindowText
-    MenuSupport.Font.Height = -11
-    MenuSupport.Font.Name = 'Segoe UI'
-    MenuSupport.Font.Style = []
-    SkinDirectory = 'C:\skins\Skins'
-    SkinName = 'Windows 11 dark'
-    SkinInfo = '16.13'
-    ThirdParty.ThirdEdits = ' '#13#10
-    ThirdParty.ThirdButtons = 'TButton'#13#10'TPopUpMenu'#13#10
-    ThirdParty.ThirdBitBtns = ' '#13#10
-    ThirdParty.ThirdCheckBoxes = ' '#13#10
-    ThirdParty.ThirdGroupBoxes = ' '#13#10
-    ThirdParty.ThirdListViews = ' '#13#10
-    ThirdParty.ThirdPanels = ' '#13#10
-    ThirdParty.ThirdGrids = ' '#13#10
-    ThirdParty.ThirdTreeViews = ' '#13#10'TTrayIcon'#13#10
-    ThirdParty.ThirdComboBoxes = ' '#13#10
-    ThirdParty.ThirdWWEdits = ' '#13#10
-    ThirdParty.ThirdVirtualTrees = ' '#13#10
-    ThirdParty.ThirdGridEh = ' '#13#10
-    ThirdParty.ThirdPageControl = ' '#13#10
-    ThirdParty.ThirdTabControl = ' '#13#10
-    ThirdParty.ThirdToolBar = ' '#13#10
-    ThirdParty.ThirdStatusBar = ' '#13#10
-    ThirdParty.ThirdSpeedButton = ' '#13#10
-    ThirdParty.ThirdScrollControl = ' '#13#10
-    ThirdParty.ThirdUpDown = ' '#13#10
-    ThirdParty.ThirdScrollBar = ' '#13#10
-    ThirdParty.ThirdStaticText = ' '#13#10
-    ThirdParty.ThirdNativePaint = ' '#13#10
-    Left = 392
-    Top = 48
   end
   object ActionList1: TActionList
     Left = 544

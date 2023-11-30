@@ -3,15 +3,17 @@ inherited FrmList: TFrmList
   Height = 672
   ExplicitWidth = 1048
   ExplicitHeight = 672
-  object sPanel1: TsPanel
+  object sPanel1: TsPanel [0]
     Left = 0
-    Top = 0
+    Top = 33
     Width = 1048
-    Height = 672
+    Height = 639
     Align = alClient
     Caption = 'sPanel1'
     ShowCaption = False
     TabOrder = 0
+    ExplicitTop = 0
+    ExplicitHeight = 672
     object sButton1: TsButton
       Left = 24
       Top = 368
@@ -22,26 +24,18 @@ inherited FrmList: TFrmList
       Visible = False
       OnClick = sButton1Click
     end
-    object sPanel2: TsPanel
+    object sg1: TAdvStringGrid
       Left = 1
       Top = 1
       Width = 1046
-      Height = 24
-      Align = alTop
-      BevelOuter = bvNone
-      Caption = 'Installed Packages'
-      TabOrder = 1
-    end
-    object sg1: TAdvStringGrid
-      Left = 1
-      Top = 25
-      Width = 1046
-      Height = 646
+      Height = 637
       Align = alClient
-      DrawingStyle = gdsClassic
       FixedColor = clWhite
       FixedCols = 0
-      TabOrder = 2
+      RowCount = 2
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goFixedRowDefAlign]
+      ScrollBars = ssVertical
+      TabOrder = 1
       ActiveCellFont.Charset = DEFAULT_CHARSET
       ActiveCellFont.Color = 4474440
       ActiveCellFont.Height = -12
@@ -49,6 +43,10 @@ inherited FrmList: TFrmList
       ActiveCellFont.Style = [fsBold]
       ActiveCellColor = 11565130
       ActiveCellColorTo = 11565130
+      AutoSize = True
+      AutoThemeAdapt = True
+      Bands.PrimaryColor = clSilver
+      Bands.SecondaryColor = clGray
       BorderColor = 11250603
       ControlLook.FixedGradientFrom = clWhite
       ControlLook.FixedGradientTo = clWhite
@@ -95,6 +93,7 @@ inherited FrmList: TFrmList
         'Larger than'
         'Smaller than'
         'Clear')
+      FixedColWidth = 20
       FixedRowHeight = 22
       FixedFont.Charset = DEFAULT_CHARSET
       FixedFont.Color = clWindowText
@@ -151,12 +150,23 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
+      ExplicitTop = 26
+      ExplicitHeight = 646
+      ColWidths = (
+        20
+        20
+        20
+        20
+        20)
     end
   end
-  object sFrameAdapter1: TsFrameAdapter
-    ThirdParty.ThirdEdits = 'TAdvStringGrid'#13#10
-    Left = 904
-    Top = 144
+  inherited framePnl: TFlowPanel
+    Width = 1048
+    Caption = 'Installed Packages'
+    TabOrder = 1
+    ExplicitLeft = -1
+    ExplicitTop = -5
+    ExplicitWidth = 1048
   end
   object DosCommand1: TDosCommand
     InputToOutput = False

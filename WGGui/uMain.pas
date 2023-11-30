@@ -19,8 +19,6 @@ type
     List1: TMenuItem;
     N1: TMenuItem;
     N2: TMenuItem;
-    sSkinProvider1: TsSkinProvider;
-    sSkinManager1: TsSkinManager;
     ActionList1: TActionList;
     pnlMain: TPanel;
     actQuit: TAction;
@@ -33,6 +31,7 @@ type
     actShowGui: TAction;
     pnlStatus: TPanel;
     AI1: TActivityIndicator;
+    Panel1: TPanel;
     procedure actQuitExecute(Sender: TObject);
     procedure actListPackagesExecute(Sender: TObject);
     procedure actShowGuiExecute(Sender: TObject);

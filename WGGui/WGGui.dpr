@@ -8,7 +8,9 @@ uses
   uBaseFrame in 'uBaseFrame.pas' {BaseFrame: TFrame},
   uFrmList in 'uFrmList.pas' {FrmList: TFrame},
   uFrmSearch in 'uFrmSearch.pas' {frmSearch: TFrame},
-  uFrmConfig in 'uFrmConfig.pas' {frmConfig: TFrame};
+  uFrmConfig in 'uFrmConfig.pas' {frmConfig: TFrame},
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
@@ -17,6 +19,7 @@ begin
 
   Application.MainFormOnTaskbar := True;
   Application.ShowMainForm :=  False;
+  TStyleManager.TrySetStyle('Windows11 Modern Dark');
   Application.CreateForm(TfMain, fMain);
   fMain.Onshow := Nil;
 
