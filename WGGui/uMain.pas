@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList, sSkinManager, sSkinProvider, Vcl.Menus, Vcl.ExtCtrls, System.Actions, Vcl.ActnList,
   uBaseFrame,
-  uFrmList;
+  uFrmList, Vcl.WinXCtrls, sPanel;
 
 type
   TfMain = class(TForm)
@@ -31,6 +31,8 @@ type
     mnuConfigurtion: TMenuItem;
     Configuration1: TMenuItem;
     actShowGui: TAction;
+    pnlStatus: TPanel;
+    AI1: TActivityIndicator;
     procedure actQuitExecute(Sender: TObject);
     procedure actListPackagesExecute(Sender: TObject);
     procedure actShowGuiExecute(Sender: TObject);
@@ -38,6 +40,7 @@ type
     { Private declarations }
   public
    aFrame: TBaseFrame;
+   procedure ActivitySet(bActive: Boolean);
     { Public declarations }
   end;
 
@@ -50,21 +53,26 @@ implementation
 
 procedure TfMain.actListPackagesExecute(Sender: TObject);
 begin
-  //ActivitySet(True);
+  ActivitySet(True);
   if aFrame <> Nil then
     aFrame.Free;
 
   aFrame := TfrmList.Create(pnlMain);
   aFrame.Parent := pnlMain;
   aFrame.Align := alClient;
+  aFrame.ActivitySet := ActivitySet;
 
-  Show;
   TfrmList(aFrame).Init;
+end;
+
+procedure TfMain.ActivitySet(bActive: Boolean);
+begin
+    AI1.Animate := bActive;
 end;
 
 procedure TfMain.actQuitExecute(Sender: TObject);
 begin
-  Close;
+   Close;
 end;
 
 procedure TfMain.actShowGuiExecute(Sender: TObject);

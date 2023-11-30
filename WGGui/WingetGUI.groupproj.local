@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions/>
-  <Default.Personality>
-    <Projects ActiveProject="C:\Users\yvesg\git\WinDel\WGHelp.dproj"/>
-  </Default.Personality>
+	<Transactions/>
+	<Default.Personality>
+		<Projects ActiveProject="C:\Users\yvesg\git\WingetPosh\WGGui\WGGui.dproj"/>
+	</Default.Personality>
 </BorlandProject>
