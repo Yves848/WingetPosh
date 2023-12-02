@@ -10,7 +10,8 @@ uses
   uFrmSearch in 'uFrmSearch.pas' {frmSearch: TFrame},
   uFrmConfig in 'uFrmConfig.pas' {frmConfig: TFrame},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  uDM in 'uDM.pas' {DM: TDataModule};
 
 {$R *.res}
 
@@ -21,6 +22,7 @@ begin
   Application.ShowMainForm :=  False;
   TStyleManager.TrySetStyle('Windows11 Modern Dark');
   Application.CreateForm(TfMain, fMain);
+  Application.CreateForm(TDM, DM);
   fMain.Onshow := Nil;
 
 

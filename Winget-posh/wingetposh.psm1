@@ -1226,7 +1226,8 @@ function Search-WGPackage {
     [switch]$interactive,
     [switch]$allowSearch,
     [switch]$install,
-    [switch]$silent
+    [switch]$silent,
+    [bool]$quiet
   )
   begin {
     Get-WingetposhConfig
@@ -1253,11 +1254,13 @@ function Search-WGPackage {
   process {
     if ($terms -ne "") {
       $list = @()
-      $Session, $Runspace, $win = openSpinner
+      if (-not $quiet) {
+        $Session, $Runspace, $win = openSpinner
+      }
       $terms -split "," | ForEach-Object { 
         $term = $_
         $command = "winget search '$term'"
-        $result = @(Invoke-Winget $command)
+        $result = @(Invoke-Winget -quiet $quiet $command)
         $result | ForEach-Object { 
           $list += $_
         }
@@ -1294,8 +1297,9 @@ function Search-WGPackage {
           }
         }
       }
-      closeSpinner -Session $Session -Runspace $Runspace
-
+      if (-not $quiet) {
+       closeSpinner -Session $Session -Runspace $Runspace
+      }
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()

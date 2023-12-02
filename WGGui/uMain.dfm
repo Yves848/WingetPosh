@@ -8087,7 +8087,8 @@ object fMain: TfMain
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitHeight = 433
+    ExplicitWidth = 832
+    ExplicitHeight = 519
   end
   object pnlStatus: TPanel
     Left = 0
@@ -8117,6 +8118,8 @@ object fMain: TfMain
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
+    ExplicitTop = 519
+    ExplicitWidth = 832
   end
   object ImageList1: TImageList
     Left = 408
@@ -10938,7 +10941,7 @@ object fMain: TfMain
       Caption = '-'
     end
     object S1: TMenuItem
-      Caption = 'Search Package'
+      Action = actSearch
     end
     object Configuration1: TMenuItem
       Caption = '-'
@@ -10974,6 +10977,11 @@ object fMain: TfMain
       Category = 'General'
       Caption = 'actShowGui'
       OnExecute = actShowGuiExecute
+    end
+    object actSearch: TAction
+      Category = 'General'
+      Caption = 'Search Package'
+      OnExecute = actSearchExecute
     end
   end
 end

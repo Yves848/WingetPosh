@@ -1,6 +1,7 @@
 inherited FrmList: TFrmList
   Width = 1048
   Height = 672
+  OnResize = FrameResize
   ExplicitWidth = 1048
   ExplicitHeight = 672
   object sPanel1: TsPanel [0]
@@ -12,8 +13,6 @@ inherited FrmList: TFrmList
     Caption = 'sPanel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = 0
-    ExplicitHeight = 672
     object sButton1: TsButton
       Left = 24
       Top = 368
@@ -30,12 +29,14 @@ inherited FrmList: TFrmList
       Width = 1046
       Height = 637
       Align = alClient
+      ColCount = 6
+      DrawingStyle = gdsClassic
       FixedColor = clWhite
       FixedCols = 0
       RowCount = 2
-      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goFixedRowDefAlign]
-      ScrollBars = ssVertical
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goRowSelect, goFixedRowDefAlign]
       TabOrder = 1
+      OnGetCellColor = sg1GetCellColor
       ActiveCellFont.Charset = DEFAULT_CHARSET
       ActiveCellFont.Color = 4474440
       ActiveCellFont.Height = -12
@@ -43,11 +44,14 @@ inherited FrmList: TFrmList
       ActiveCellFont.Style = [fsBold]
       ActiveCellColor = 11565130
       ActiveCellColorTo = 11565130
-      AutoSize = True
-      AutoThemeAdapt = True
-      Bands.PrimaryColor = clSilver
-      Bands.SecondaryColor = clGray
       BorderColor = 11250603
+      ColumnHeaders.Strings = (
+        ''
+        'Name'
+        'Id'
+        'Version'
+        'Available'
+        'Source')
       ControlLook.FixedGradientFrom = clWhite
       ControlLook.FixedGradientTo = clWhite
       ControlLook.FixedGradientHoverFrom = clGray
@@ -93,7 +97,6 @@ inherited FrmList: TFrmList
         'Larger than'
         'Smaller than'
         'Clear')
-      FixedColWidth = 20
       FixedRowHeight = 22
       FixedFont.Charset = DEFAULT_CHARSET
       FixedFont.Color = clWindowText
@@ -150,22 +153,12 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
-      ExplicitTop = 26
-      ExplicitHeight = 646
-      ColWidths = (
-        20
-        20
-        20
-        20
-        20)
     end
   end
   inherited framePnl: TFlowPanel
     Width = 1048
     Caption = 'Installed Packages'
     TabOrder = 1
-    ExplicitLeft = -1
-    ExplicitTop = -5
     ExplicitWidth = 1048
   end
   object DosCommand1: TDosCommand

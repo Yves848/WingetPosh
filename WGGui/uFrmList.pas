@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics, System.JSON, System.JSON.Readers,
   System.JSON.Types,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uBaseFrame, sFrameAdapter, DosCommand,
-  Vcl.StdCtrls, sLabel, Vcl.ExtCtrls, sPanel, SynEdit, uConsts, uDM, sButton,
+  Vcl.StdCtrls, sLabel, Vcl.ExtCtrls, sPanel, SynEdit, uConsts, sButton, uDM,
   sMemo,
   Vcl.ComCtrls, sListView, AdvUtil, Vcl.Grids, AdvObj, BaseGrid, AdvGrid;
 
@@ -18,6 +18,8 @@ type
     sButton1: TsButton;
     sg1: TAdvStringGrid;
     procedure sButton1Click(Sender: TObject);
+    procedure sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure FrameResize(Sender: TObject);
   private
     { Private declarations }
     ls: TStringList;
@@ -36,6 +38,12 @@ implementation
 
 {$R *.dfm}
 { TFrmList }
+
+procedure TFrmList.FrameResize(Sender: TObject);
+begin
+  inherited;
+   sg1.AutoFitColumns();
+end;
 
 procedure TFrmList.init;
 begin
@@ -77,6 +85,20 @@ begin
   // end;
 end;
 
+procedure TFrmList.sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+  if arow > 0 then
+  
+  if aCol = 4 then
+  begin
+    if sg1.Cells[aCol,aRow] <> '' then begin
+      aFont.Color := clRed;
+    end;
+  end;
+
+end;
+
 procedure TFrmList.terminated(Sender: TObject);
 var
     V: TJsonValue;
@@ -97,6 +119,7 @@ begin
       O := V as TJSONObject;
       A := O.GetValue<TJsonArray>('packages');
       iRow := 1;
+      sg1.ColWidths[0] := 25;
       for var I := 0 to A.Count - 1 do
       begin
           E := A.Items[I] as TJsonObject; // Element
@@ -111,19 +134,21 @@ begin
 //        s := s + E.GetValue<string>('Name');
 //        s := s + ' Id: ' + E.GetValue<string>('Id') + '  ' + 'Version: ' +  E.GetValue<string>('Version')+' Available : '+E.GetValue<string>('Available');
 //        memo1.Lines.Add(s);
-          if (sg1.Cells[0,iRow] <> '') then
+          if (sg1.Cells[2,iRow] <> '') then
           begin
             sg1.AddRow;
           end;
           iRow := sg1.RowCount -1;
-          sg1.Cells[0,iRow] :=  E.GetValue<string>('Name');
-          sg1.Cells[1,iRow] :=  E.GetValue<string>('Id');
-          sg1.Cells[2,iRow] :=  E.GetValue<string>('Version');
-          sg1.Cells[3,iRow] :=  E.GetValue<string>('Available');
-          sg1.Cells[4,iRow] :=  E.GetValue<string>('Source');
+          sg1.AddCheckBox(0,iRow,TCheckBoxState.cbChecked);
+          sg1.Cells[1,iRow] :=  E.GetValue<string>('Name');
+          sg1.Cells[2,iRow] :=  E.GetValue<string>('Id');
+          sg1.Cells[3,iRow] :=  E.GetValue<string>('Version');
+          sg1.Cells[4,iRow] :=  E.GetValue<string>('Available');
+          sg1.Cells[5,iRow] :=  E.GetValue<string>('Source');
       end;
     finally
-    sg1.AutoFitColumns();
+      sg1.AutoFitColumns();
+
       V.Free;
     end;
     ActivitySet(False);

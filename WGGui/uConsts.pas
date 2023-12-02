@@ -8,6 +8,7 @@ uses
 const
   sList = 'pwsh -noprofile -command "Get-WGList -quiet $true | Where-Object {$_.source -ceq \"winget\"} | Out-JSON';
   sUpdate = 'pwsh -noprofile -command "Get-WGList -quiet $true | Where-Object {$_.source -ceq \"winget\" -and $_.available -ne \"\" } | Out-JSON';
+  sSearch = 'pwsh -noprofile -command "Search-WGPackage -quiet $true -package %s | Out-JSON ';
 
 function CharDecoding(ASender: TObject; ABuf: TStream) : String;
 implementation
