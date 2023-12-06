@@ -21,7 +21,7 @@ begin
 
   Application.MainFormOnTaskbar := True;
   Application.ShowMainForm :=  False;
-  TStyleManager.TrySetStyle('Windows11 Modern Dark');
+  TStyleManager.TrySetStyle('Windows11 MineShaft');
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TDM, DM);
   Application.CreateForm(TfSearchPackage, fSearchPackage);

@@ -6,7 +6,8 @@ uses
   System.SysUtils;
 
 const
-  sList = 'pwsh -noprofile -command "Get-WGList -quiet $true | Where-Object {$_.source -ceq \"winget\"} | Out-JSON';
+  //sList = 'pwsh -noprofile -command "Get-WGList -quiet $true | Where-Object {$_.source -ceq \"winget\"} | Out-JSON';
+  sList = 'pwsh -noprofile -command "Get-WGList -quiet $true | Out-JSON';
   sUpdate = 'pwsh -noprofile -command "Get-WGList -quiet $true | Where-Object {$_.source -ceq \"winget\" -and $_.available -ne \"\" } | Out-JSON';
   sSearch = 'pwsh -noprofile -command "Search-WGPackage -quiet $true -package %s | Out-JSON ';
 

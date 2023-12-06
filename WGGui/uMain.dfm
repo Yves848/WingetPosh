@@ -8089,8 +8089,7 @@ object fMain: TfMain
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitWidth = 832
-    ExplicitHeight = 519
+    ExplicitTop = -5
   end
   object pnlStatus: TPanel
     Left = 0
@@ -8136,8 +8135,8 @@ object fMain: TfMain
     end
   end
   object ImageList1: TImageList
-    Left = 408
-    Top = 278
+    Left = 744
+    Top = 238
     Bitmap = {
       494C010102000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
@@ -10928,12 +10927,12 @@ object fMain: TfMain
       82}
     PopupMenu = PopupMenu1
     Visible = True
-    Left = 272
-    Top = 80
+    Left = 680
+    Top = 107
   end
   object PopupMenu1: TPopupMenu
     Images = ImageList1
-    Left = 296
+    Left = 728
     Top = 144
     object W1: TMenuItem
       Action = actShowGui
@@ -10972,8 +10971,8 @@ object fMain: TfMain
     end
   end
   object ActionList1: TActionList
-    Left = 544
-    Top = 80
+    Left = 728
+    Top = 16
     object actQuit: TAction
       Category = 'General'
       Caption = 'Quit'
@@ -11003,11 +11002,11 @@ object fMain: TfMain
     InputToOutput = False
     MaxTimeAfterBeginning = 0
     MaxTimeAfterLastOutput = 0
-    Left = 704
+    Left = 744
     Top = 64
   end
   object NotificationCenter1: TNotificationCenter
-    Left = 224
-    Top = 280
+    Left = 720
+    Top = 360
   end
 end

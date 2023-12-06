@@ -37,6 +37,8 @@ inherited FrmList: TFrmList
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goRowSelect, goFixedRowDefAlign]
       TabOrder = 1
       OnGetCellColor = sg1GetCellColor
+      OnGetColumnFilter = sg1GetColumnFilter
+      OnFilterSelect = sg1FilterSelect
       ActiveCellFont.Charset = DEFAULT_CHARSET
       ActiveCellFont.Color = 4474440
       ActiveCellFont.Height = -12
@@ -153,7 +155,7 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
-      ExplicitLeft = 0
+      ExplicitLeft = 2
       ExplicitTop = 6
     end
   end

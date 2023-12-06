@@ -20,6 +20,10 @@ type
     procedure sButton1Click(Sender: TObject);
     procedure sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
     procedure FrameResize(Sender: TObject);
+    procedure sg1GetColumnFilter(Sender: TObject; Column: Integer;
+      Filter: TStrings);
+    procedure sg1FilterSelect(Sender: TObject; Column, ItemIndex: Integer;
+      FriendlyName: string; var FilterCondition: string);
   private
     { Private declarations }
     ls: TStringList;
@@ -86,6 +90,19 @@ begin
   // end;
 end;
 
+procedure TFrmList.sg1FilterSelect(Sender: TObject; Column, ItemIndex: Integer;
+  FriendlyName: string; var FilterCondition: string);
+begin
+  inherited;
+  if (Column = 5) then
+  begin
+      if (FilterCondition = 'None') then
+      begin
+        FilterCondition := ' ';
+      end;
+  end;
+end;
+
 procedure TFrmList.sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
 begin
   inherited;
@@ -96,6 +113,19 @@ begin
     if sg1.Cells[aCol,aRow] <> '' then begin
       aFont.Color := clRed;
     end;
+  end;
+
+end;
+
+procedure TFrmList.sg1GetColumnFilter(Sender: TObject; Column: Integer;
+  Filter: TStrings);
+begin
+  inherited;
+  if (column = 5) then
+  begin
+    Filter.Add('*');
+    Filter.Add('winget');
+    Filter.Add('None');
   end;
 
 end;
@@ -124,12 +154,16 @@ begin
       for var I := 0 to A.Count - 1 do
       begin
           E := A.Items[I] as TJsonObject; // Element
-//        aItem := listView1.Items.Add;
-//        aItem.Caption := E.GetValue<string>('Name');
-//        aItem.SubItems.Add(E.GetValue<string>('Id'));
-//        aItem.SubItems.Add(E.GetValue<string>('Version'));
-//        aItem.SubItems.Add(E.GetValue<string>('Available'));
-//        aItem.SubItems.Add(E.GetValue<string>('Source'));
+//          aItem := listView1.Items.Add;
+//          aItem.Caption := E.GetValue<string>('Name');
+//          aItem.SubItems.Add(E.GetValue<string>('Id'));
+//          aItem.SubItems.Add(E.GetValue<string>('Version'));
+//          try
+//          aItem.SubItems.Add(E.GetValue<string>('Available'));
+//          except
+//             aItem.SubItems.Add('');
+//          end;
+//          aItem.SubItems.Add(E.GetValue<string>('Source'));
 //        s := 'Package : ';
 //        E := A.Items[I] as TJsonObject; // Element
 //        s := s + E.GetValue<string>('Name');
@@ -140,12 +174,17 @@ begin
             sg1.AddRow;
           end;
           iRow := sg1.RowCount -1;
-          //g1.AddCheckBox(0,iRow,TCheckBoxState.cbChecked);
+          sg1.AddCheckBox(0,iRow,false,false);
           sg1.Cells[1,iRow] :=  E.GetValue<string>('Name');
           sg1.Cells[2,iRow] :=  E.GetValue<string>('Id');
           sg1.Cells[3,iRow] :=  E.GetValue<string>('Version');
-          sg1.Cells[4,iRow] :=  E.GetValue<string>('Available');
+          try
+            sg1.Cells[4,iRow] :=  E.GetValue<string>('Available');
+          except
+            sg1.Cells[4,iRow] :=  '';
+          end;
           sg1.Cells[5,iRow] :=  E.GetValue<string>('Source');
+          if (sg1.Cells[5,iRow].Trim() = '') then sg1.Cells[5,iRow]:= ' ';
       end;
     finally
       sg1.AutoFitColumns();
@@ -153,7 +192,7 @@ begin
       V.Free;
     end;
     ActivitySet(False);
-    //listView1.Items.EndUpdate;
+//    listView1.Items.EndUpdate;
 end;
 
 end.
