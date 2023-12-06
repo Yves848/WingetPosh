@@ -48,6 +48,7 @@ end;
 procedure TFrmList.init;
 begin
   Application.MainForm.Show;
+  framePnl.Visible := false;
   DosCommand1.OnCharDecoding := DM.CharDecoding;
   DosCommand1.CommandLine := sList;
   DosCommand1.OnTerminated := terminated;
@@ -139,7 +140,7 @@ begin
             sg1.AddRow;
           end;
           iRow := sg1.RowCount -1;
-          sg1.AddCheckBox(0,iRow,TCheckBoxState.cbChecked);
+          //g1.AddCheckBox(0,iRow,TCheckBoxState.cbChecked);
           sg1.Cells[1,iRow] :=  E.GetValue<string>('Name');
           sg1.Cells[2,iRow] :=  E.GetValue<string>('Id');
           sg1.Cells[3,iRow] :=  E.GetValue<string>('Version');

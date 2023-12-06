@@ -11,7 +11,8 @@ uses
   uFrmConfig in 'uFrmConfig.pas' {frmConfig: TFrame},
   Vcl.Themes,
   Vcl.Styles,
-  uDM in 'uDM.pas' {DM: TDataModule};
+  uDM in 'uDM.pas' {DM: TDataModule},
+  usearchPackage in 'usearchPackage.pas' {fSearchPackage};
 
 {$R *.res}
 
@@ -23,6 +24,7 @@ begin
   TStyleManager.TrySetStyle('Windows11 Modern Dark');
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TDM, DM);
+  Application.CreateForm(TfSearchPackage, fSearchPackage);
   fMain.Onshow := Nil;
 
 

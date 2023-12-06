@@ -3,10 +3,14 @@ unit uMain;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList, sSkinManager, sSkinProvider, Vcl.Menus, Vcl.ExtCtrls, System.Actions, Vcl.ActnList,
-  uBaseFrame,uFrmSearch,
-  uFrmList, Vcl.WinXCtrls, sPanel;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, uConsts, System.JSON,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
+  sSkinManager, sSkinProvider, Vcl.Menus, Vcl.ExtCtrls, System.Actions,
+  Vcl.ActnList,
+  uBaseFrame, uFrmSearch, usearchPackage, uDM,
+  uFrmList, Vcl.WinXCtrls, sPanel, DosCommand, Vcl.StdCtrls,
+  System.Notification;
 
 type
   TfMain = class(TForm)
@@ -33,15 +37,23 @@ type
     AI1: TActivityIndicator;
     Panel1: TPanel;
     actSearch: TAction;
+    DosCUpdates: TDosCommand;
+    Memo1: TMemo;
+    NotificationCenter1: TNotificationCenter;
     procedure actQuitExecute(Sender: TObject);
     procedure actListPackagesExecute(Sender: TObject);
     procedure actShowGuiExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
+    bCanClose: Boolean;
+    procedure popup(nb: integer);
   public
-   aFrame: TBaseFrame;
-   procedure ActivitySet(bActive: Boolean);
+    aFrame: TBaseFrame;
+    procedure ActivitySet(bActive: Boolean);
+    procedure terminateUpdate(Sender: TObject);
     { Public declarations }
   end;
 
@@ -68,17 +80,18 @@ end;
 
 procedure TfMain.ActivitySet(bActive: Boolean);
 begin
-    AI1.Animate := bActive;
+  AI1.Animate := bActive;
 end;
 
 procedure TfMain.actQuitExecute(Sender: TObject);
 begin
-   Close;
+  bCanClose := True;
+  Close;
 end;
 
 procedure TfMain.actSearchExecute(Sender: TObject);
 begin
-   ActivitySet(True);
+  // ActivitySet(True);
   if aFrame <> Nil then
     aFrame.Free;
 
@@ -92,7 +105,62 @@ end;
 
 procedure TfMain.actShowGuiExecute(Sender: TObject);
 begin
-      Show;
+  Show;
+end;
+
+procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  hide;
+  CanClose := bCanClose;
+end;
+
+procedure TfMain.FormCreate(Sender: TObject);
+begin
+  bCanClose := False;
+  DosCUpdates.CommandLine := sUpdate;
+  DosCUpdates.OnCharDecoding := DM.CharDecoding;
+  DosCUpdates.OnTerminated := terminateUpdate;
+  DosCUpdates.Execute;
+
+end;
+
+procedure TfMain.popup(nb: integer);
+var
+  MyNotification: TNotification;
+begin
+  MyNotification := NotificationCenter1.CreateNotification;
+  // Creates the notification
+  try
+    MyNotification.Name := 'Winget Helper Notification';
+    // Defines the name of the notification.
+    MyNotification.Title := 'Winget Helper';
+    // Defines the name that appears when the notification is presented.
+    MyNotification.AlertBody := Format('New Upgrades availables (%d)', [nb]);
+    // Defines the body of the notification that appears below the title.
+    MyNotification.EnableSound := True;
+
+    NotificationCenter1.PresentNotification(MyNotification);
+    // Presents the notification on the screen.
+  finally
+    MyNotification.Free; // Frees the variable
+  end;
+end;
+
+procedure TfMain.terminateUpdate(Sender: TObject);
+var
+  V: TJsonValue;
+  O, E, P: TJsonObject;
+  A: TJsonArray;
+  s: String;
+
+  iRow: integer;
+begin
+  V := TJsonObject.ParseJSONValue(DosCUpdates.Lines.text);
+
+  O := V as TJsonObject;
+  A := O.GetValue<TJsonArray>('packages');
+
+  popup(A.Count);
 end;
 
 end.

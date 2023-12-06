@@ -34,7 +34,7 @@ inherited frmSearch: TfrmSearch
       'Name'
       'Id'
       'Version'
-      'Available'
+      'Moniker'
       'Source')
     ControlLook.FixedGradientFrom = clWhite
     ControlLook.FixedGradientTo = clWhite
@@ -137,10 +137,6 @@ inherited frmSearch: TfrmSearch
     SortSettings.HeaderMirrorColor = clWhite
     SortSettings.HeaderMirrorColorTo = clWhite
     Version = '8.6.14.2'
-    ExplicitLeft = 128
-    ExplicitTop = 215
-    ExplicitWidth = 585
-    ExplicitHeight = 284
   end
   object Panel1: TPanel
     Left = 0
@@ -162,7 +158,6 @@ inherited frmSearch: TfrmSearch
       Width = 272
       Height = 23
       TabOrder = 0
-      Text = 'Edit1'
     end
     object Button1: TButton
       Left = 359

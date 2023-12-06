@@ -37,6 +37,7 @@ begin
   inherited;
   DosCommand1.CommandLine := format(sSearch,[Edit1.Text]);
   DosCommand1.OnTerminated := terminated;
+  ActivitySet(true);
   DosCommand1.Execute;
 end;
 

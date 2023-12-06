@@ -8076,6 +8076,8 @@ object fMain: TfMain
     000000000000000000000000003F000000000000000000000000000000000000
     000000000000000000000000003F000000000000000000000000000000000000
     000000000000000000000000003F}
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
   TextHeight = 15
   object pnlMain: TPanel
     Left = 0
@@ -8120,6 +8122,18 @@ object fMain: TfMain
     TabOrder = 2
     ExplicitTop = 519
     ExplicitWidth = 832
+    object Memo1: TMemo
+      Left = 1
+      Top = 1
+      Width = 834
+      Height = 93
+      Align = alClient
+      Lines.Strings = (
+        'Memo1')
+      TabOrder = 0
+      Visible = False
+      ExplicitWidth = 830
+    end
   end
   object ImageList1: TImageList
     Left = 408
@@ -10981,7 +10995,19 @@ object fMain: TfMain
     object actSearch: TAction
       Category = 'General'
       Caption = 'Search Package'
+      ShortCut = 49225
       OnExecute = actSearchExecute
     end
+  end
+  object DosCUpdates: TDosCommand
+    InputToOutput = False
+    MaxTimeAfterBeginning = 0
+    MaxTimeAfterLastOutput = 0
+    Left = 704
+    Top = 64
+  end
+  object NotificationCenter1: TNotificationCenter
+    Left = 224
+    Top = 280
   end
 end

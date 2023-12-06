@@ -46,6 +46,7 @@ class Frame {
 $Single = [Frame]::new($false)
 $Double = [Frame]::new($true)
 
+
 class window {
   [int]$X
   [int]$Y

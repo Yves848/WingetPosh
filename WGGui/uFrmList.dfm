@@ -153,6 +153,8 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
+      ExplicitLeft = 0
+      ExplicitTop = 6
     end
   end
   inherited framePnl: TFlowPanel
