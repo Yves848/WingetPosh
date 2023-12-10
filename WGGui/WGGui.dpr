@@ -12,7 +12,8 @@ uses
   Vcl.Themes,
   Vcl.Styles,
   uDM in 'uDM.pas' {DM: TDataModule},
-  usearchPackage in 'usearchPackage.pas' {fSearchPackage};
+  usearchPackage in 'usearchPackage.pas' {fSearchPackage},
+  uFrmSplash in 'uFrmSplash.pas' {FrmSplash: TFrame};
 
 {$R *.res}
 
@@ -20,7 +21,7 @@ begin
    Application.Initialize;
 
   Application.MainFormOnTaskbar := True;
-  Application.ShowMainForm :=  False;
+  Application.ShowMainForm :=  True;
   TStyleManager.TrySetStyle('Windows11 MineShaft');
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TDM, DM);

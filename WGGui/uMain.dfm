@@ -2,8 +2,8 @@ object fMain: TfMain
   Left = 0
   Top = 0
   Caption = 'WingetPosh GUI'
-  ClientHeight = 656
-  ClientWidth = 836
+  ClientHeight = 862
+  ClientWidth = 1588
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -8076,33 +8076,35 @@ object fMain: TfMain
     000000000000000000000000003F000000000000000000000000000000000000
     000000000000000000000000003F000000000000000000000000000000000000
     000000000000000000000000003F}
+  Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   TextHeight = 15
   object pnlMain: TPanel
     Left = 0
-    Top = 0
-    Width = 836
-    Height = 520
+    Top = 73
+    Width = 1588
+    Height = 653
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = -5
+    ExplicitWidth = 1584
+    ExplicitHeight = 652
   end
   object pnlStatus: TPanel
     Left = 0
-    Top = 615
-    Width = 836
+    Top = 821
+    Width = 1588
     Height = 41
     Align = alBottom
     BevelOuter = bvNone
     Caption = 'pnlStatus'
     ShowCaption = False
     TabOrder = 1
-    ExplicitTop = 614
-    ExplicitWidth = 832
+    ExplicitTop = 820
+    ExplicitWidth = 1584
     object AI1: TActivityIndicator
       Left = 8
       Top = 4
@@ -8112,26 +8114,97 @@ object fMain: TfMain
   end
   object Panel1: TPanel
     Left = 0
-    Top = 520
-    Width = 836
+    Top = 726
+    Width = 1588
     Height = 95
     Align = alBottom
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
-    ExplicitTop = 519
-    ExplicitWidth = 832
+    ExplicitTop = 725
+    ExplicitWidth = 1584
     object Memo1: TMemo
       Left = 1
       Top = 1
-      Width = 834
+      Width = 1586
       Height = 93
       Align = alClient
       Lines.Strings = (
         'Memo1')
       TabOrder = 0
       Visible = False
-      ExplicitWidth = 830
+      ExplicitWidth = 1582
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Top = 0
+    Width = 1588
+    Height = 73
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'Panel2'
+    ShowCaption = False
+    TabOrder = 3
+    ExplicitWidth = 1584
+    object lblSearch: TLabel
+      Left = 8
+      Top = 14
+      Width = 47
+      Height = 21
+      Caption = 'Search'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+    end
+    object eSearch: TAdvListEditor
+      Left = 70
+      Top = 11
+      Width = 419
+      Height = 30
+      Appearance.Normal.ColorFrom = 16312028
+      Appearance.Normal.ColorTo = 15847357
+      Appearance.Normal.BorderColor = 14124408
+      Appearance.Focused.ColorFrom = 16312028
+      Appearance.Focused.ColorTo = 15847357
+      Appearance.Focused.BorderColor = clWindow
+      Appearance.Selected.ColorFrom = 14981991
+      Appearance.Selected.ColorTo = 14183971
+      Appearance.Selected.BorderColor = 14183971
+      Appearance.FocusedAndSelected.ColorFrom = 15647137
+      Appearance.FocusedAndSelected.ColorTo = 14982764
+      Appearance.FocusedAndSelected.BorderColor = 14183971
+      Appearance.FocusedAndSelected.TextColor = clWindow
+      Caption = ''
+      EditOffset = -2
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      Lookup = <>
+      LookupPopup.Font.Charset = DEFAULT_CHARSET
+      LookupPopup.Font.Color = clWindowText
+      LookupPopup.Font.Height = -11
+      LookupPopup.Font.Name = 'Arial'
+      LookupPopup.Font.Style = []
+      ParentFont = False
+      Separator = ';'
+      TabOrder = 0
+      Values = <>
+      Version = '1.9.0.5'
+    end
+    object Button1: TButton
+      Left = 495
+      Top = 11
+      Width = 87
+      Height = 30
+      Caption = 'Launch'
+      TabOrder = 1
+      OnClick = Button1Click
     end
   end
   object ImageList1: TImageList
@@ -11002,11 +11075,18 @@ object fMain: TfMain
     InputToOutput = False
     MaxTimeAfterBeginning = 0
     MaxTimeAfterLastOutput = 0
-    Left = 744
-    Top = 64
+    Left = 760
+    Top = 88
   end
   object NotificationCenter1: TNotificationCenter
     Left = 720
     Top = 360
+  end
+  object DosCommand1: TDosCommand
+    InputToOutput = False
+    MaxTimeAfterBeginning = 0
+    MaxTimeAfterLastOutput = 0
+    Left = 864
+    Top = 96
   end
 end

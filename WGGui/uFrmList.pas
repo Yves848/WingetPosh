@@ -22,8 +22,6 @@ type
     procedure FrameResize(Sender: TObject);
     procedure sg1GetColumnFilter(Sender: TObject; Column: Integer;
       Filter: TStrings);
-    procedure sg1FilterSelect(Sender: TObject; Column, ItemIndex: Integer;
-      FriendlyName: string; var FilterCondition: string);
   private
     { Private declarations }
     ls: TStringList;
@@ -32,6 +30,7 @@ type
     procedure terminated(Sender: TObject);
   public
     { Public declarations }
+    JSON : string;
     procedure init;
   end;
 
@@ -53,10 +52,7 @@ procedure TFrmList.init;
 begin
   Application.MainForm.Show;
   framePnl.Visible := false;
-  DosCommand1.OnCharDecoding := DM.CharDecoding;
-  DosCommand1.CommandLine := sList;
-  DosCommand1.OnTerminated := terminated;
-  DosCommand1.Execute
+  terminated(nil);
 
 end;
 
@@ -90,24 +86,11 @@ begin
   // end;
 end;
 
-procedure TFrmList.sg1FilterSelect(Sender: TObject; Column, ItemIndex: Integer;
-  FriendlyName: string; var FilterCondition: string);
-begin
-  inherited;
-  if (Column = 5) then
-  begin
-      if (FilterCondition = 'None') then
-      begin
-        FilterCondition := ' ';
-      end;
-  end;
-end;
-
 procedure TFrmList.sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
 begin
   inherited;
   if arow > 0 then
-  
+
   if aCol = 4 then
   begin
     if sg1.Cells[aCol,aRow] <> '' then begin
@@ -142,7 +125,7 @@ begin
     //listView1.Items.BeginUpdate;
 
     //listView1.Clear;
-    V := TJSONObject.ParseJSONValue(Doscommand1.Lines.text);
+    V := TJSONObject.ParseJSONValue(JSON);
 //    if not Assigned(V) then
 //      Memo1.Lines.Assign(Doscommand1.OutputLines);
     try
