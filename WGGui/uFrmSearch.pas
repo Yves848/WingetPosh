@@ -14,7 +14,7 @@ type
     Label1: TLabel;
     Edit1: TEdit;
     DosCommand1: TDosCommand;
-    BitBtn1: TBitBtn;
+    btnClose: TBitBtn;
     ImageList1: TImageList;
   private
     { Private declarations }
@@ -93,7 +93,10 @@ begin
       sg1.Cells[1, iRow] := E.GetValue<string>('Name');
       sg1.Cells[2, iRow] := E.GetValue<string>('Id');
       sg1.Cells[3, iRow] := E.GetValue<string>('Version');
-      sg1.Cells[4, iRow] := E.GetValue<string>('Moniker');
+      if e.TryGetValue<string>('Moniker',s) then
+         sg1.Cells[4, iRow] := s
+      else
+         sg1.Cells[4, iRow] := '';
       sg1.Cells[5, iRow] := E.GetValue<string>('Source');
     end;
   finally

@@ -159,7 +159,7 @@ inherited frmSearch: TfrmSearch
       Height = 23
       TabOrder = 0
     end
-    object BitBtn1: TBitBtn
+    object btnClose: TBitBtn
       Left = 872
       Top = 1
       Width = 49

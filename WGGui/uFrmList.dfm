@@ -5,9 +5,9 @@ inherited FrmList: TFrmList
   ExplicitWidth = 1048
   ExplicitHeight = 672
   object sPanel1: TsPanel [0]
-    Left = 0
+    Left = 185
     Top = 33
-    Width = 1048
+    Width = 863
     Height = 639
     Align = alClient
     Caption = 'sPanel1'
@@ -26,7 +26,7 @@ inherited FrmList: TFrmList
     object sg1: TAdvStringGrid
       Left = 1
       Top = 1
-      Width = 1046
+      Width = 861
       Height = 637
       Align = alClient
       ColCount = 6
@@ -36,8 +36,8 @@ inherited FrmList: TFrmList
       RowCount = 2
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goRowSelect, goFixedRowDefAlign]
       TabOrder = 1
+      OnGetDisplText = sg1GetDisplText
       OnGetCellColor = sg1GetCellColor
-      OnGetColumnFilter = sg1GetColumnFilter
       ActiveCellFont.Charset = DEFAULT_CHARSET
       ActiveCellFont.Color = 4474440
       ActiveCellFont.Height = -12
@@ -79,7 +79,14 @@ inherited FrmList: TFrmList
       ControlLook.DropDownFooter.Font.Style = []
       ControlLook.DropDownFooter.Visible = True
       ControlLook.DropDownFooter.Buttons = <>
-      Filter = <>
+      Filter = <
+        item
+          Column = 4
+          Condition = '! '#39'N/A'#39
+          CaseSensitive = False
+          Operation = foSHORT
+          Method = fmExpression
+        end>
       FilterDropDown.Font.Charset = DEFAULT_CHARSET
       FilterDropDown.Font.Color = clWindowText
       FilterDropDown.Font.Height = -12
@@ -154,6 +161,9 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
+      RowHeights = (
+        22
+        22)
     end
   end
   inherited framePnl: TFlowPanel
@@ -161,6 +171,26 @@ inherited FrmList: TFrmList
     Caption = 'Installed Packages'
     TabOrder = 1
     ExplicitWidth = 1048
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 33
+    Width = 185
+    Height = 639
+    Align = alLeft
+    Caption = 'Panel1'
+    ShowCaption = False
+    TabOrder = 2
+    object Button1: TButton
+      Left = 1
+      Top = 1
+      Width = 183
+      Height = 56
+      Align = alTop
+      Caption = 'Updates'
+      TabOrder = 0
+      OnClick = Button1Click
+    end
   end
   object DosCommand1: TDosCommand
     InputToOutput = False

@@ -8090,6 +8090,7 @@ object fMain: TfMain
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
+    ExplicitLeft = -8
     ExplicitTop = 79
   end
   object pnlStatus: TPanel

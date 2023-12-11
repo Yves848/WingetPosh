@@ -17,11 +17,13 @@ type
     sPanel1: TsPanel;
     sButton1: TsButton;
     sg1: TAdvStringGrid;
+    Panel1: TPanel;
+    Button1: TButton;
     procedure sButton1Click(Sender: TObject);
     procedure sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
     procedure FrameResize(Sender: TObject);
-    procedure sg1GetColumnFilter(Sender: TObject; Column: Integer;
-      Filter: TStrings);
+    procedure Button1Click(Sender: TObject);
+    procedure sg1GetDisplText(Sender: TObject; ACol, ARow: Integer; var Value: string);
   private
     { Private declarations }
     ls: TStringList;
@@ -41,6 +43,13 @@ implementation
 
 {$R *.dfm}
 { TFrmList }
+
+procedure TFrmList.Button1Click(Sender: TObject);
+begin
+  inherited;
+  sg1.FilterActive := not sg1.FilterActive;
+
+end;
 
 procedure TFrmList.FrameResize(Sender: TObject);
 begin
@@ -100,17 +109,14 @@ begin
 
 end;
 
-procedure TFrmList.sg1GetColumnFilter(Sender: TObject; Column: Integer;
-  Filter: TStrings);
+procedure TFrmList.sg1GetDisplText(Sender: TObject; ACol, ARow: Integer; var Value: string);
 begin
   inherited;
-  if (column = 5) then
+  if aCol = 4 then
   begin
-    Filter.Add('*');
-    Filter.Add('winget');
-    Filter.Add('None');
+    if Value = 'N/A' then Value := '';
+    
   end;
-
 end;
 
 procedure TFrmList.terminated(Sender: TObject);
@@ -162,13 +168,15 @@ begin
           sg1.Cells[2,iRow] :=  E.GetValue<string>('Id');
           sg1.Cells[3,iRow] :=  E.GetValue<string>('Version');
           try
-            sg1.Cells[4,iRow] :=  E.GetValue<string>('Available');
+              sg1.Cells[4,iRow] := E.GetValue<string>('Available')
           except
             sg1.Cells[4,iRow] :=  '';
           end;
           sg1.Cells[5,iRow] :=  E.GetValue<string>('Source');
           if (sg1.Cells[5,iRow].Trim() = '') then sg1.Cells[5,iRow]:= ' ';
       end;
+      sg1.Filter.Clear;
+      sg1.Filter.add(4,'! ');
     finally
       sg1.AutoFitColumns();
 
