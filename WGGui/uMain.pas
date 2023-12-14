@@ -164,7 +164,7 @@ end;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
-  displaySplash;
+  //displaySplash;
   bCanClose := False;
   DosCUpdates.CommandLine := sUpdate;
   DosCUpdates.OnCharDecoding := DM.CharDecoding;
@@ -206,6 +206,8 @@ begin
   aFrame.ActivitySet := ActivitySet;
   TfrmList(aFrame).JSON := DosCommand1.Lines.Text;
   TfrmList(aFrame).Init;
+  tfrmList(aFrame).sg1.SetFocus;
+  eSearch.SetFocus;
 end;
 
 procedure TfMain.terminateUpdate(Sender: TObject);

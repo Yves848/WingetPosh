@@ -8090,7 +8090,7 @@ object fMain: TfMain
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = 79
+    ExplicitTop = 67
   end
   object pnlStatus: TPanel
     Left = 0
@@ -8121,7 +8121,8 @@ object fMain: TfMain
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
-    ExplicitTop = 790
+    ExplicitTop = 783
+    ExplicitWidth = 1584
   end
   object Panel2: TPanel
     Left = 0
@@ -8155,6 +8156,7 @@ object fMain: TfMain
       Appearance.Normal.ColorFrom = 16312028
       Appearance.Normal.ColorTo = 15847357
       Appearance.Normal.BorderColor = 14124408
+      Appearance.Normal.TextColor = clCream
       Appearance.Focused.ColorFrom = 16312028
       Appearance.Focused.ColorTo = 15847357
       Appearance.Focused.BorderColor = clWindow

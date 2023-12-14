@@ -1,4 +1,4 @@
-program WGGui;
+program WingetPoshGui;
 
 uses
   Vcl.Forms,

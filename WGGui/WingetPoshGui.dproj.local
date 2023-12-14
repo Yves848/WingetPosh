@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.518,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.200,C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\yvesg\git\WGGui\WGGui.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.612,=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.142,=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.398,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.708,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.918,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.165,C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas=C:\Users\yvesg\git\WingetPosh\WGGui\uConsts.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.317,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.191,C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Project2.dproj=C:\Users\yvesg\git\WGGui\WGGui.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.055,C:\Users\yvesg\git\WGGui\uMain.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\uMain.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.160,C:\Users\yvesg\git\WingetPosh\WGGui\uMain.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\uOldMain.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.160,C:\Users\yvesg\git\WingetPosh\WGGui\uMain.pas=C:\Users\yvesg\git\WingetPosh\WGGui\uOldMain.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.714,C:\Users\yvesg\git\WingetPosh\WGGui\uFrmSearch.pas=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.638,C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\uMain.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.486,C:\Users\yvesg\git\WingetPosh\WGGui\uFrmList.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.651,C:\Users\yvesg\git\WingetPosh\WGGui\uFrmConfig.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.923,D:\git\WingetPosh\WGGui\uFrmSplash.pas=D:\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.493,C:\Users\yvesg\git\WingetPosh\WGGui\uBaseFrame.pas=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.905,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.493,C:\Users\yvesg\git\WingetPosh\WGGui\uBaseFrame.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.002,C:\Users\yvesg\git\WingetPosh\WGGui\usearchPackage.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.103,C:\Users\yvesg\git\WGGui\WGGui.pas=C:\Users\yvesg\git\WGGui\uMais.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.923,D:\git\WingetPosh\WGGui\uFrmSplash.dfm=D:\git\WingetPosh\WGGui\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.156,C:\Users\yvesg\git\WGGui\uMais.pas=C:\Users\yvesg\git\WGGui\uMain.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.913,C:\Users\yvesg\git\WGGui\WGGui.dproj=C:\Users\yvesg\git\WingetPosh\WGGui\WGGui.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.156,C:\Users\yvesg\git\WGGui\uMais.dfm=C:\Users\yvesg\git\WGGui\uMain.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.714,C:\Users\yvesg\git\WingetPosh\WGGui\uFrmSearch.dfm=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.691,=C:\Users\yvesg\git\WingetPosh\WGGui\uDM.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.651,C:\Users\yvesg\git\WingetPosh\WGGui\uFrmConfig.pas=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.728,=D:\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.002,C:\Users\yvesg\git\WingetPosh\WGGui\usearchPackage.pas=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.638,C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas=C:\Users\yvesg\git\WingetPosh\WGGui\uMain.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.729,=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.103,C:\Users\yvesg\git\WGGui\WGGui.dfm=C:\Users\yvesg\git\WGGui\uMais.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.768,D:\git\WingetPosh\WGGui\WGGui.dproj=D:\git\WingetPosh\WGGui\WingetPoshGui.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.200,C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\yvesg\git\WGGui\WGGui.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.486,C:\Users\yvesg\git\WingetPosh\WGGui\uFrmList.pas=C:\Users\yvesg\git\WingetPosh\WGGui\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.055,C:\Users\yvesg\git\WGGui\uMain.pas=C:\Users\yvesg\git\WingetPosh\WGGui\uMain.pas</Transaction>
+  </Transactions>
+</BorlandProject>
