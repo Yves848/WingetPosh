@@ -18,11 +18,11 @@ uses
 {$R *.res}
 
 begin
-   Application.Initialize;
+  Application.Initialize;
 
   Application.MainFormOnTaskbar := True;
   Application.ShowMainForm :=  true;
-  TStyleManager.TrySetStyle('Windows11 MineShaft');
+  TStyleManager.TrySetStyle('Glow');
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TDM, DM);
   Application.CreateForm(TfSearchPackage, fSearchPackage);

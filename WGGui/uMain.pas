@@ -164,7 +164,7 @@ end;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
-  //displaySplash;
+  displaySplash;
   bCanClose := False;
   DosCUpdates.CommandLine := sUpdate;
   DosCUpdates.OnCharDecoding := DM.CharDecoding;

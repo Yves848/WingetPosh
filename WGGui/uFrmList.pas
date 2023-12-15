@@ -18,18 +18,21 @@ type
     sButton1: TsButton;
     sg1: TAdvStringGrid;
     Panel1: TPanel;
-    Button1: TButton;
+    ckUpdates: TCheckBox;
+    Panel2: TPanel;
+    btnUpdate: TButton;
     procedure sButton1Click(Sender: TObject);
     procedure sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
     procedure FrameResize(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure sg1GetDisplText(Sender: TObject; ACol, ARow: Integer; var Value: string);
+    procedure ckUpdatesClick(Sender: TObject);
+    procedure sg1CheckBoxChange(Sender: TObject; ACol, ARow: Integer; State: Boolean);
   private
     { Private declarations }
     ls: TStringList;
     Sr: TStringReader;
     Reader: TJsonTextReader;
     procedure terminated(Sender: TObject);
+    function isAnUpdateChecked : Boolean;
   public
     { Public declarations }
     JSON : string;
@@ -44,11 +47,10 @@ implementation
 {$R *.dfm}
 { TFrmList }
 
-procedure TFrmList.Button1Click(Sender: TObject);
+procedure TFrmList.ckUpdatesClick(Sender: TObject);
 begin
   inherited;
-  sg1.FilterActive := not sg1.FilterActive;
-
+  sg1.FilterActive := ckUpdates.Checked;
 end;
 
 procedure TFrmList.FrameResize(Sender: TObject);
@@ -63,6 +65,24 @@ begin
   framePnl.Visible := false;
   terminated(nil);
 
+end;
+
+function TFrmList.isAnUpdateChecked: Boolean;
+var
+  i : Integer;
+  bchecked : boolean;
+  b : boolean;
+begin
+    i := 1;
+    bchecked := false;
+    while i < sg1.RowCount do
+    begin
+      if sg1.Cells[4,i] <> '' then
+         sg1.GetCheckBoxState(0,i,b);
+         bchecked := (bchecked or b);
+      inc(i);
+    end;
+    result := bchecked;
 end;
 
 procedure TFrmList.sButton1Click(Sender: TObject);
@@ -95,6 +115,15 @@ begin
   // end;
 end;
 
+procedure TFrmList.sg1CheckBoxChange(Sender: TObject; ACol, ARow: Integer; State: Boolean);
+begin
+  inherited;
+  if sg1.Cells[4,aRow] <> '' then
+  begin
+    btnUpdate.Visible := isAnUpdateChecked;
+  end;
+end;
+
 procedure TFrmList.sg1GetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
 begin
   inherited;
@@ -107,16 +136,6 @@ begin
     end;
   end;
 
-end;
-
-procedure TFrmList.sg1GetDisplText(Sender: TObject; ACol, ARow: Integer; var Value: string);
-begin
-  inherited;
-  if aCol = 4 then
-  begin
-    if Value = 'N/A' then Value := '';
-    
-  end;
 end;
 
 procedure TFrmList.terminated(Sender: TObject);
@@ -140,6 +159,9 @@ begin
       A := O.GetValue<TJsonArray>('packages');
       iRow := 1;
       sg1.ColWidths[0] := 25;
+      sg1.AddCheckBoxColumn(0);
+      sg1.AddCheckBox(0,0,false,false);
+      sg1.MouseActions.CheckAllCheck := true;
       for var I := 0 to A.Count - 1 do
       begin
           E := A.Items[I] as TJsonObject; // Element

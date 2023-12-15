@@ -1,6 +1,7 @@
 object fMain: TfMain
   Left = 0
   Top = 0
+  ActiveControl = eSearch
   Caption = 'WingetPosh GUI'
   ClientHeight = 862
   ClientWidth = 1588
@@ -8102,8 +8103,8 @@ object fMain: TfMain
     Caption = 'pnlStatus'
     ShowCaption = False
     TabOrder = 1
-    ExplicitTop = 820
-    ExplicitWidth = 1584
+    ExplicitTop = 817
+    ExplicitWidth = 1586
     object AI1: TActivityIndicator
       Left = 8
       Top = 4
@@ -8121,8 +8122,8 @@ object fMain: TfMain
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
-    ExplicitTop = 783
-    ExplicitWidth = 1584
+    ExplicitTop = 780
+    ExplicitWidth = 1586
   end
   object Panel2: TPanel
     Left = 0
@@ -8134,7 +8135,7 @@ object fMain: TfMain
     Caption = 'Panel2'
     ShowCaption = False
     TabOrder = 3
-    ExplicitWidth = 1584
+    ExplicitWidth = 1586
     object lblSearch: TLabel
       Left = 8
       Top = 14
@@ -8152,7 +8153,7 @@ object fMain: TfMain
       Left = 70
       Top = 14
       Width = 419
-      Height = 30
+      Height = 24
       Appearance.Normal.ColorFrom = 16312028
       Appearance.Normal.ColorTo = 15847357
       Appearance.Normal.BorderColor = 14124408
@@ -8170,18 +8171,12 @@ object fMain: TfMain
       Appearance.FocusedAndSelected.TextColor = clWindow
       Caption = ''
       EditOffset = -2
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Segoe UI'
-      Font.Style = []
       Lookup = <>
       LookupPopup.Font.Charset = DEFAULT_CHARSET
       LookupPopup.Font.Color = clWindowText
       LookupPopup.Font.Height = -11
       LookupPopup.Font.Name = 'Arial'
       LookupPopup.Font.Style = []
-      ParentFont = False
       ShowDeleteButton = True
       Separator = ';'
       TabOrder = 0

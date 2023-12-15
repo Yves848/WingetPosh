@@ -6,13 +6,15 @@ inherited FrmList: TFrmList
   ExplicitHeight = 672
   object sPanel1: TsPanel [0]
     Left = 185
-    Top = 33
+    Top = 64
     Width = 863
-    Height = 639
+    Height = 608
     Align = alClient
     Caption = 'sPanel1'
     ShowCaption = False
     TabOrder = 0
+    ExplicitTop = 33
+    ExplicitHeight = 639
     object sButton1: TsButton
       Left = 24
       Top = 368
@@ -27,7 +29,7 @@ inherited FrmList: TFrmList
       Left = 1
       Top = 1
       Width = 861
-      Height = 637
+      Height = 606
       Align = alClient
       ColCount = 6
       DrawingStyle = gdsClassic
@@ -36,8 +38,8 @@ inherited FrmList: TFrmList
       RowCount = 2
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goRowSelect, goFixedRowDefAlign]
       TabOrder = 1
-      OnGetDisplText = sg1GetDisplText
       OnGetCellColor = sg1GetCellColor
+      OnCheckBoxChange = sg1CheckBoxChange
       ActiveCellFont.Charset = DEFAULT_CHARSET
       ActiveCellFont.Color = 4474440
       ActiveCellFont.Height = -12
@@ -161,6 +163,9 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
+      ExplicitLeft = 6
+      ExplicitTop = 6
+      ExplicitHeight = 637
       RowHeights = (
         22
         22)
@@ -174,22 +179,45 @@ inherited FrmList: TFrmList
   end
   object Panel1: TPanel
     Left = 0
-    Top = 33
+    Top = 64
     Width = 185
-    Height = 639
+    Height = 608
     Align = alLeft
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
-    object Button1: TButton
+    ExplicitLeft = -5
+    ExplicitTop = 39
+    ExplicitHeight = 639
+    object btnUpdate: TButton
       Left = 1
       Top = 1
       Width = 183
-      Height = 56
+      Height = 64
       Align = alTop
-      Caption = 'Updates'
+      Caption = 'Update Cheked Packages'
       TabOrder = 0
-      OnClick = Button1Click
+      Visible = False
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Top = 33
+    Width = 1048
+    Height = 31
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'Panel2'
+    ShowCaption = False
+    TabOrder = 3
+    object ckUpdates: TCheckBox
+      Left = 8
+      Top = 6
+      Width = 137
+      Height = 17
+      Caption = 'Show Only Updates'
+      TabOrder = 0
+      OnClick = ckUpdatesClick
     end
   end
   object DosCommand1: TDosCommand
