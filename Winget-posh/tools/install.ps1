@@ -83,5 +83,5 @@ if (-not (Test-Path -Path "~/.config/.wingetposh/params.$version")) {
 $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
 $process = $(Get-Process WGGui -ErrorAction Ignore)
 if (-not $process) {
-  Invoke-Expression "$include\..\WGGui.exe"  
+  Invoke-Expression "$include\..\WingetPoshGui.exe"  
 }
