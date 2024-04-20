@@ -1,10 +1,9 @@
 object fMain: TfMain
   Left = 0
   Top = 0
-  ActiveControl = eSearch
   Caption = 'WingetPosh GUI'
-  ClientHeight = 862
-  ClientWidth = 1588
+  ClientHeight = 858
+  ClientWidth = 1586
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -8084,27 +8083,28 @@ object fMain: TfMain
   object pnlMain: TPanel
     Left = 0
     Top = 73
-    Width = 1588
-    Height = 711
+    Width = 1586
+    Height = 707
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlMain'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = 67
+    ExplicitWidth = 1584
+    ExplicitHeight = 703
   end
   object pnlStatus: TPanel
     Left = 0
-    Top = 821
-    Width = 1588
+    Top = 817
+    Width = 1586
     Height = 41
     Align = alBottom
     BevelOuter = bvNone
     Caption = 'pnlStatus'
     ShowCaption = False
     TabOrder = 1
-    ExplicitTop = 817
-    ExplicitWidth = 1586
+    ExplicitTop = 813
+    ExplicitWidth = 1584
     object AI1: TActivityIndicator
       Left = 8
       Top = 4
@@ -8114,28 +8114,28 @@ object fMain: TfMain
   end
   object Panel1: TPanel
     Left = 0
-    Top = 784
-    Width = 1588
+    Top = 780
+    Width = 1586
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
-    ExplicitTop = 780
-    ExplicitWidth = 1586
+    ExplicitTop = 776
+    ExplicitWidth = 1584
   end
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 1588
+    Width = 1586
     Height = 73
     Align = alTop
     BevelOuter = bvNone
     Caption = 'Panel2'
     ShowCaption = False
     TabOrder = 3
-    ExplicitWidth = 1586
+    ExplicitWidth = 1584
     object lblSearch: TLabel
       Left = 8
       Top = 14
@@ -11010,12 +11010,6 @@ object fMain: TfMain
       Caption = 'Update'
     end
     object N1: TMenuItem
-      Caption = '-'
-    end
-    object S1: TMenuItem
-      Action = actSearch
-    end
-    object Configuration1: TMenuItem
       Caption = '-'
     end
     object mnuConfigurtion: TMenuItem

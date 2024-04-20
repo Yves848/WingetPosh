@@ -61,7 +61,7 @@ end;
 
 procedure TFrmList.init;
 begin
-  Application.MainForm.Show;
+  //Application.MainForm.Show;
   framePnl.Visible := false;
   terminated(nil);
 

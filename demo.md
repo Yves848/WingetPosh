@@ -20,4 +20,6 @@ Build-WGInstallFile -
 Invoke-Winget "winget list"
 Invoke-Winget "winget list" | Out-Object
 Invoke-Winget "winget list" | Out-Object | Where-Object {$_.Nom -like "*code*"}
+Get-WGList -quiet $true | Out-JSON
+Search-WGPackage "cpu-z,notepad++" -quiet $true | Out-JSON
 clear

@@ -13,8 +13,6 @@ inherited FrmList: TFrmList
     Caption = 'sPanel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = 33
-    ExplicitHeight = 639
     object sButton1: TsButton
       Left = 24
       Top = 368
@@ -163,9 +161,6 @@ inherited FrmList: TFrmList
       SortSettings.HeaderMirrorColor = clWhite
       SortSettings.HeaderMirrorColorTo = clWhite
       Version = '8.6.14.2'
-      ExplicitLeft = 6
-      ExplicitTop = 6
-      ExplicitHeight = 637
       RowHeights = (
         22
         22)
@@ -186,9 +181,6 @@ inherited FrmList: TFrmList
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 2
-    ExplicitLeft = -5
-    ExplicitTop = 39
-    ExplicitHeight = 639
     object btnUpdate: TButton
       Left = 1
       Top = 1

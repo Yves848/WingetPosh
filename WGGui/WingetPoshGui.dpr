@@ -2,7 +2,6 @@ program WingetPoshGui;
 
 uses
   Vcl.Forms,
-  uOldMain in 'uOldMain.pas' {fOldMain},
   uConsts in 'uConsts.pas',
   uMain in 'uMain.pas' {fMain},
   uBaseFrame in 'uBaseFrame.pas' {BaseFrame: TFrame},
@@ -21,11 +20,10 @@ begin
   Application.Initialize;
 
   Application.MainFormOnTaskbar := True;
-  Application.ShowMainForm :=  true;
+  Application.ShowMainForm :=  False;
   TStyleManager.TrySetStyle('Glow');
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TDM, DM);
-  Application.CreateForm(TfSearchPackage, fSearchPackage);
   fMain.Onshow := Nil;
 
 
