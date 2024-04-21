@@ -1298,7 +1298,7 @@ function Search-WGPackage {
         }
       }
       if (-not $quiet) {
-       closeSpinner -Session $Session -Runspace $Runspace
+        closeSpinner -Session $Session -Runspace $Runspace
       }
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
@@ -1509,8 +1509,8 @@ function Out-JSON {
   }
   end {
     return (@{
-      "packages"= $result
-    }) | ConvertTo-Json
+        "packages" = $result
+      }) | ConvertTo-Json
   }
 }
 
@@ -1560,6 +1560,101 @@ function Reset-WingetposhConfig {
 }
 
 function Start-Gui {
-  $path =  (Get-Module -Name wingetposh).path | Split-Path -Parent
+  $path = (Get-Module -Name wingetposh).path | Split-Path -Parent
   Invoke-Expression "$path\WGGui.exe"
 }
+
+function test {
+  [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+  $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $stateInstall.exp = "winget list"
+  $stateInstall.SearchResult = ""
+  $runspaceInstall = [runspacefactory]::CreateRunspace()
+  $runspaceInstall.Open()
+  $RunspaceInstall.SessionStateProxy.SetVariable("StateInstall", $StateInstall)
+
+  $sbInstall = {
+    $Host.UI.RawUI.BufferSize = New-Object System.Management.Automation.Host.Size (100, 25)
+    $Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size (100, 25)
+    $StateInstall.SearchResult = Invoke-Expression $stateInstall.exp | Out-String -Stream
+  }
+
+  $sessionInstall = [powershell]::create()
+  $null = $sessionInstall.AddScript($sbInstall)
+  $sessionInstall.Runspace = $runspaceInstall
+  $handleInstall = $sessionInstall.BeginInvoke()
+  while (-not $handleInstall.IsCompleted) {
+    
+  }
+  $SearchResults = $StateInstall.SearchResult
+  $sessionInstall.stop()
+  $runspaceInstall.Dispose() 
+  
+  #$searchresults = Invoke-Expression "winget list" | Out-String -Stream
+  
+  $partialKey = '---'
+  $index = 0
+  $searchresults | ForEach-Object {
+    if ($_ -match $partialKey) {
+      $index = $searchresults.IndexOf($_) - 1
+    }
+  }
+  $tempCols = ($searchresults[$index] | Select-String -Pattern "(?:\S+)" -AllMatches).Matches
+  $i = $index + 2
+  $list = @()
+  while ($i -lt $searchresults.Length) {
+    $offset = 0
+    $tempcols | ForEach-Object {
+      if ($_.Index -gt 0) {
+        $searchresults[$i] = ([string]$searchresults[$i]).Insert($_.Index + $offset, "|")
+        $offset++
+      }
+    }
+    $fields = [ordered]@{}
+    $idx = 0
+    ([string]$searchresults[$i]).Split("|") | ForEach-Object {
+      $fields.add($tempcols[$Idx].Value, $_.Trim())
+      $idx++
+    }
+    $list += $fields
+    $i++
+  }
+  $tempcols2 = @()
+  
+  $w = $Host.UI.RawUI.BufferSize.Width;
+  $w0 = $searchresults[$index].Length
+  $proportion = [System.Math]::Round($W / $w0 * 100)
+  Write-Host "Proportion : $proportion"
+  $tempcols | ForEach-Object {
+    [pscustomobject]$obj = New-Object -TypeName psobject -Property @{Index = [System.Math]::Round($_.Index * $proportion / 100) }
+    $tempcols2 += $obj
+
+  }
+  $blankline = "".PadRight($w, " ")
+  Write-Host "UI Width : $w - Line Width : $w0 - Proportion : $proportion"
+  $bl1 = "".PadRight($w0, " ")
+  $offset = 0
+  $tempcols | ForEach-Object {
+    if ($_.Index -gt 0) {
+      $bl1 = ([string]$bl1).Insert($_.Index + $offset, "|")
+      $offset++
+    }
+  }
+  # $list | ForEach-Object {
+  #   $offset = 0
+  #   $fields = $_
+  #   $bl2 = $blankline
+  #   $tempcols2 | ForEach-Object {
+  #     #if ($_.Index -gt 0) { 
+  #     $bl2 = ([string]$bl2).Remove($_.Index, ([string]$fields[$offset]).Length).Insert($_.Index, $fields[$offset])
+  #     $offset++
+  #     #}
+  #   }
+  #   #$bl2
+  # }
+  
+  
+}
+
+test
