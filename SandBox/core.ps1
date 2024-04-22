@@ -17,6 +17,36 @@ $baseFields = @{
   "SourceListArg"     = "Argument"
 }
 
+function Get-FieldBAseNAme {
+  param(
+    [string]$name
+  )
+  $base = $script:fields.psobject.Properties | Where-Object { $_.Value -eq $name }
+  if ($base.count -eq 1) {
+    $BaseName = $base.Name
+  }
+  else {
+    $BaseName = ($base | Where-Object { $_.Name.StartsWith("Search") }).Name
+  }
+  
+  return $baseFields[$BaseName]
+}
+
+function Get-FieldLength {
+  param(
+    [string]$buffer
+  )
+  $i = 0
+  $buffer.ToCharArray() | ForEach-Object {
+    $l = [Text.Encoding]::UTF8.GetByteCount($_)
+    if ($l -gt 2) {
+      $l = $l -1
+    }  
+    $i += $l 
+  }
+  return $i
+}
+
 enum lineAction {
   None = 0
   Install = 1
@@ -35,6 +65,49 @@ class wingetItems {
     $this.list = $list
     $this.items = @()
     $this.ParseList()
+  }
+
+  [void] ParseOutput() {  
+    $w = $this.bufferWidth
+    $w0 = $this.lineWidth
+    $proportion = [System.Math]::round($W / $w0 * 100)
+    $tempcols2 = @()
+    $this.columns | ForEach-Object {
+      $name = Get-FieldBAseNAme -name $_.Value
+      [psobject]$obj = New-Object -TypeName psobject -Property @{
+        Index = [System.Math]::Floor($_.Index * $proportion / 100)
+        Name  = $name
+      }
+      $tempcols2 += $obj
+    }
+    
+    $blankline = "".PadRight($w, " ")
+    $this.items | ForEach-Object {
+      $offset = 0
+      $fields = $_.data
+      $bl2 = $blankline
+      $tempcols2 | ForEach-Object {
+        $l0 = Get-FieldLength -buffer $fields."$($_.Name)"
+        $l2 = Get-FieldLength -buffer $bl2
+        $l1= $fields."$($_.Name)".Length
+        #$l2 = $bl2.Length
+        $offset += ($l0 - $l1)
+        if (($_.Index + $l1) -le $l2) {
+          $l = $l1
+        }
+        else {
+          $l = $l2 - $_.Index
+        }
+        if ($_.index -gt 0) {
+          $position = ($_.Index - $offset) -2
+        } else {
+          $position = $_.Index
+        }
+        $buffer = ($fields."$($_.Name)").trim()
+        $bl2 = ([string]$bl2).Remove($position, $l).Insert($position, $buffer)
+      }
+      Write-Host $bl2
+    }
   }
 
   [void] ParseList() {
@@ -61,7 +134,7 @@ class wingetItems {
   [void] ParseData(
     $line
   ) {
-    $line = $line.PadRight($this.lineWidth, " ").Replace("|", " ").Replace('…',' ')
+    $line = $line.PadRight($this.lineWidth, " ").Replace("|", " ").Replace('…', ' ')
     $i = 0
     $pos = 0
     $insertat = 0
@@ -89,7 +162,6 @@ class wingetItems {
         $line = ($line).Insert($insertat + $offset, "|") 
         $offset++
       }
-
     }
     
     $fields = [ordered]@{}
@@ -160,12 +232,7 @@ function InvokeWinget {
   return $SearchResults
 }
 
-function ParseOutput {
-  param (
-    [Object[]]$list
-  )  
-  $list
-}
+
 
 function Invoke-Winget {
   param(
@@ -177,8 +244,10 @@ function Invoke-Winget {
   $list = InvokeWinget -command $params
 
   [wingetItems]$items = [wingetItems]::new($list)
+  $items.ParseOutput()
   return $items.items.data
 }
 
-Invoke-Winget -visual $args
+$l = Invoke-Winget -visual $args
+
 
