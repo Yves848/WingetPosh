@@ -2,6 +2,21 @@ $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition
 
 . "$include\visuals.ps1"
 
+$script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
+
+$baseFields = @{
+  'SearchName'        = 'Name'
+  'SearchID'          = 'Id'
+  'SearchVersion'     = 'Version'
+  'AvailableHeader'   = 'Available'
+  'SearchSource'      = 'Source'
+  'ShowVersion'       = 'Version'
+  'AvailableUpgrades' = 'upgrades available.'
+  "SearchMatch"       = "Moniker"
+  "SourceListName"    = "Name"
+  "SourceListArg"     = "Argument"
+}
+
 enum lineAction {
   None = 0
   Install = 1
@@ -46,13 +61,12 @@ class wingetItems {
   [void] ParseData(
     $line
   ) {
-    $line = $line.PadRight($this.lineWidth, " ")
+    $line = $line.PadRight($this.lineWidth, " ").Replace("|", " ").Replace('…',' ')
     $i = 0
     $pos = 0
     $insertat = 0
     $offset = 0
     $this.columns | ForEach-Object {
-      
       if ($_.Index -gt 0) {
         while ($pos -lt $_.Index) {
           $nbchars = [Text.Encoding]::UTF8.GetByteCount($line[$i])
@@ -60,12 +74,11 @@ class wingetItems {
           
           if ($nbchars -gt 1) {
             if ($pos -lt $_.Index) {
-              $insertat += ($nbchars - 1)
+              $insertat += 2
             }
             else {
-              $insertat = $_.Index             
+              $insertat += $nbchars
             }
-            
             
           }
           else {
@@ -81,8 +94,16 @@ class wingetItems {
     
     $fields = [ordered]@{}
     $idx = 0
+    
     $line.Split("|") | ForEach-Object {
-      $fields.add($this.columns[$Idx].Value, $_.Trim())
+      $base = $script:fields.psobject.Properties | Where-Object { $_.Value -eq $this.columns[$Idx].Value }
+      if ($base.count -eq 1) {
+        $BaseName = $base.Name
+      }
+      else {
+        $BaseName = ($base | Where-Object { $_.Name.StartsWith("Search") }).Name
+      }
+      $fields.add($baseFields[$BaseName], $_.Trim())
       $idx++
     }
     [item]$item = [item]::new()
@@ -151,7 +172,9 @@ function Invoke-Winget {
     [switch]$visual,
     $_args
   )
-  $list = InvokeWinget -command $_args
+  $params = $_args -join " "
+  $params = $params -replace "\*", "' '"
+  $list = InvokeWinget -command $params
 
   [wingetItems]$items = [wingetItems]::new($list)
   return $items.items.data
