@@ -3,6 +3,23 @@
 . "$include\visuals.ps1"
 
 $widths = @(32, 32, 14, 14  , 8)
+
+enum lineAction {
+  None = 0
+  Install = 1
+  Remove = 2
+  Update = 3
+}
+
+class displayOptions{
+  [System.Boolean]$selected
+  [System.Boolean]$checked
+  [lineAction]$action
+}
+class displayItem {
+  [displayOptions]$options
+  [PSCustomObject]$data
+}
 class upgradeSoftware {
   [boolean]$Selected
   [string]$Name
@@ -1625,36 +1642,31 @@ function test {
   $w = $Host.UI.RawUI.BufferSize.Width;
   $w0 = $searchresults[$index].Length
   $proportion = [System.Math]::Round($W / $w0 * 100)
-  Write-Host "Proportion : $proportion"
+
   $tempcols | ForEach-Object {
-    [pscustomobject]$obj = New-Object -TypeName psobject -Property @{Index = [System.Math]::Round($_.Index * $proportion / 100) }
+    [psobject]$obj = New-Object -TypeName psobject -Property @{Index = [System.Math]::Floor($_.Index * $proportion / 100) }
     $tempcols2 += $obj
 
   }
-  $blankline = "".PadRight($w, " ")
-  Write-Host "UI Width : $w - Line Width : $w0 - Proportion : $proportion"
-  $bl1 = "".PadRight($w0, " ")
-  $offset = 0
-  $tempcols | ForEach-Object {
-    if ($_.Index -gt 0) {
-      $bl1 = ([string]$bl1).Insert($_.Index + $offset, "|")
+  $blankline = "".PadRight($w, ".")
+  $list | ForEach-Object {
+    $offset = 0
+    $fields = $_
+    $bl2 = $blankline
+    $tempcols2 | ForEach-Object {
+      #if ($_.Index -gt 0) { 
+      if (($_.Index +([string]$fields[$offset]).Length) -lt [string]$bl2.Length) {
+        $l = [string]$fields[$offset].Length
+      }
+      else {
+        $l = [string]$bl2.Length - $_.Index
+      }
+      $bl2 = ([string]$bl2).Remove($_.Index, $l).Insert($_.Index, $fields[$offset])
       $offset++
+      #}
     }
+    $bl2
   }
-  # $list | ForEach-Object {
-  #   $offset = 0
-  #   $fields = $_
-  #   $bl2 = $blankline
-  #   $tempcols2 | ForEach-Object {
-  #     #if ($_.Index -gt 0) { 
-  #     $bl2 = ([string]$bl2).Remove($_.Index, ([string]$fields[$offset]).Length).Insert($_.Index, $fields[$offset])
-  #     $offset++
-  #     #}
-  #   }
-  #   #$bl2
-  # }
-  
-  
 }
 
 test

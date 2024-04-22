@@ -1,4 +1,4 @@
-class Frame {
+﻿class Frame {
   [char]$UL
   [char]$UR
   [char]$TOP

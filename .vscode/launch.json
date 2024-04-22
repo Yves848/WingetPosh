@@ -9,8 +9,8 @@
       "name": "PowerShell: Launch Current File",
       "type": "PowerShell",
       "request": "launch",
-      "script": "testWG.ps1",
-      "args": []
+      "script": "${file}",
+      "args": ["search code"]
     }
   ]
 }
