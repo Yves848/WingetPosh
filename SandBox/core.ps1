@@ -39,8 +39,8 @@ function Get-FieldLength {
   $i = 0
   $buffer.ToCharArray() | ForEach-Object {
     $l = [Text.Encoding]::UTF8.GetByteCount($_)
-    if ($l -gt 2) {
-      $l = $l -1
+    if ($l -ge 2) {
+      $l = $l - 1
     }  
     $i += $l 
   }
@@ -59,7 +59,7 @@ class wingetItems {
   [item[]]$items
   [Object[]]$list
 
-  [Int16]$bufferWidth = $Host.UI.RawUI.BufferSize.Width
+  [Int16]$bufferWidth = ($Host.UI.RawUI.BufferSize.Width)
   [Int16]$lineWidth
   wingetItems([Object[]]$list) {
     $this.list = $list
@@ -80,34 +80,44 @@ class wingetItems {
       }
       $tempcols2 += $obj
     }
-    
-    $blankline = "".PadRight($w, ".")
+    $block = ""
+    $blankline = "".PadRight($w, " ")
     $this.items | ForEach-Object {
       $offset = 0
       $fields = $_.data
       $bl2 = $blankline
       $tempcols2 | ForEach-Object {
-        $l0 = Get-FieldLength -buffer $fields."$($_.Name)"
-        $l2 = Get-FieldLength -buffer $bl2
-        $l1= $fields."$($_.Name)".Length
-        #$l2 = $bl2.Length
-        $offset += ($l0 - $l1)
-        if (($_.Index + $l0) -le $l2) {
-          $l = $l0
+        $buffer = ($fields."$($_.Name)").trim()
+        $l0 = Get-FieldLength -buffer $buffer # "real" length of the buffer
+        $l2 = Get-FieldLength -buffer $bl2 # "real" length of the line
+        $l1 = $buffer.Length # "visual" length of the buffer
+        $diff = $l0 - $l1
+        $offset +=$diff # Offset to adjust the position of the buffer
+        # if (($_.Index + $l1) -le $w) {
+        #   $l = $l1
+        # }
+        # else {
+        #   $l = $l2 - $_.Index
+        # }
+        if ($_.index -gt 0) {
+          $position = ($_.Index - $offset) - 2
         }
         else {
-          $l = $l0 - $_.Index
-        }
-        if ($_.index -gt 0) {
-          $position = ($_.Index - $offset) -2
-        } else {
           $position = $_.Index
         }
-        $buffer = ($fields."$($_.Name)").trim()
-        $bl2 = ([string]$bl2).Remove($position, $l).Insert($position, $buffer)
+        #Write-Host "Position: $position, l: $l, Buffer: $buffer l0: $l0, l1: $l1, l2: $l2 Index: $($_.Index), Offset: $offset w: $w0, w2: $w, proportion: $proportion"
+        if ($buffer -ne "") {
+          $bl2 = ([string]$bl2).Remove($position, $l1 + $diff).Insert($position, $buffer)
+        }
+        if ($_.Index -gt 0) {
+          # add separator
+          $bl2 = ([string]$bl2).Remove($position - 1, 1).Insert($position - 1, "|")
+        }
       }
-      Write-Host $bl2
+      Write-Host $bl2  
+      #$block = $block + $bl2
     }
+    #Write-Host $block
   }
 
   [void] ParseList() {
