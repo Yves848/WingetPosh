@@ -81,7 +81,7 @@ class wingetItems {
       $tempcols2 += $obj
     }
     
-    $blankline = "".PadRight($w, " ")
+    $blankline = "".PadRight($w, ".")
     $this.items | ForEach-Object {
       $offset = 0
       $fields = $_.data
@@ -92,11 +92,11 @@ class wingetItems {
         $l1= $fields."$($_.Name)".Length
         #$l2 = $bl2.Length
         $offset += ($l0 - $l1)
-        if (($_.Index + $l1) -le $l2) {
-          $l = $l1
+        if (($_.Index + $l0) -le $l2) {
+          $l = $l0
         }
         else {
-          $l = $l2 - $_.Index
+          $l = $l0 - $_.Index
         }
         if ($_.index -gt 0) {
           $position = ($_.Index - $offset) -2
