@@ -79,13 +79,13 @@ class wingetItems {
 
   [void] ParseOutput() {  
     $w = $this.bufferWidth
-    $w0 = $this.lineWidth
-    $proportion = [System.Math]::round($W / $w0 * 100)
+    $w0 = $this.lineWidth 
+    $proportion = [System.Math]::Floor($W / $w0 * 100)
     $tempcols2 = @()
     $this.columns | ForEach-Object {
       $name = Get-FieldBAseNAme -name $_.Value
       [psobject]$obj = New-Object -TypeName psobject -Property @{
-        Index = [System.Math]::Round($_.Index * $proportion / 100)
+        Index = [System.Math]::Floor($_.Index * $proportion / 100)
         Name  = $name
       }
       $tempcols2 += $obj
@@ -100,7 +100,7 @@ class wingetItems {
         $l0 = Get-FieldLength -buffer $buffer # "real" length of the buffer
         $l1 = $buffer.Length # "visual" length of the buffer
         $diff = $l0 - $l1
-        $offset +=$diff # Offset to adjust the position of the buffer
+        $offset += $diff # Offset to adjust the position of the buffer
         if ($_.index -gt 0) {
           $position = ($_.Index - $offset) - 1
         }
@@ -108,7 +108,19 @@ class wingetItems {
           $position = $_.Index
         }
         if ($buffer -ne "") {
-          $bl2 = ([string]$bl2).Remove($position, $l1 + $diff).Insert($position, $buffer)
+          try {
+            if (($position + ($l1 + $diff)) -gt $w) {
+              $sub = ($position + $l1 + $diff) - $w
+              $buffer = $buffer.Substring(0, $l1 - $sub)
+              $l1 = $buffer.Length
+            }
+            $bl2 = ([string]$bl2).Remove($position, $l1 + $diff).Insert($position, $buffer)  
+          }
+          catch {
+            <#Do this if a terminating exception happens#>
+            Write-Host "Buffer: $buffer position:$position l1:$l1 diff:$diff $($bl2.Length)"
+          }
+          
         }
         if ($_.Index -gt 0) {
           # add separator
@@ -252,14 +264,19 @@ function Invoke-Winget {
   $params = $params -replace "\*", "' '"
   $list = InvokeWinget -command $params
 
-  [wingetItems]$items = [wingetItems]::new($list,$source)
+  [wingetItems]$items = [wingetItems]::new($list, $source)
   if ($visual) {
-    $items.ParseOutput()
+    if ($Host.UI.RawUI.BufferSize.Width -ge 90) {
+      $items.ParseOutput()
+    } else {
+      Write-Host "The buffer width is too small to display the output. Please increase the buffer width to at least 90 characters."
+    }
   }
 
   if ($source) {
     $result = $items.items.data | Where-Object { $_.Source -eq $source }
-  } else {
+  }
+  else {
     $result = $items.items.data
   }
   return $result
