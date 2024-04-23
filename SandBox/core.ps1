@@ -17,6 +17,11 @@ $baseFields = @{
   "SourceListArg"     = "Argument"
 }
 
+$sources = @{
+  "winget" = "winget"
+  "scoop"  = "scoop"
+}
+
 function Get-FieldBAseNAme {
   param(
     [string]$name
@@ -58,11 +63,16 @@ class wingetItems {
   [System.Text.RegularExpressions.Match[]]$columns
   [item[]]$items
   [Object[]]$list
+  [string]$source
 
   [Int16]$bufferWidth = ($Host.UI.RawUI.BufferSize.Width)
   [Int16]$lineWidth
-  wingetItems([Object[]]$list) {
+  wingetItems(
+    [Object[]]$list,
+    [string]$source = $null
+  ) {
     $this.list = $list
+    $this.source = $source
     $this.items = @()
     $this.ParseList()
   }
@@ -75,12 +85,11 @@ class wingetItems {
     $this.columns | ForEach-Object {
       $name = Get-FieldBAseNAme -name $_.Value
       [psobject]$obj = New-Object -TypeName psobject -Property @{
-        Index = [System.Math]::Floor($_.Index * $proportion / 100)
+        Index = [System.Math]::Round($_.Index * $proportion / 100)
         Name  = $name
       }
       $tempcols2 += $obj
     }
-    $block = ""
     $blankline = "".PadRight($w, " ")
     $this.items | ForEach-Object {
       $offset = 0
@@ -89,23 +98,15 @@ class wingetItems {
       $tempcols2 | ForEach-Object {
         $buffer = ($fields."$($_.Name)").trim()
         $l0 = Get-FieldLength -buffer $buffer # "real" length of the buffer
-        $l2 = Get-FieldLength -buffer $bl2 # "real" length of the line
         $l1 = $buffer.Length # "visual" length of the buffer
         $diff = $l0 - $l1
         $offset +=$diff # Offset to adjust the position of the buffer
-        # if (($_.Index + $l1) -le $w) {
-        #   $l = $l1
-        # }
-        # else {
-        #   $l = $l2 - $_.Index
-        # }
         if ($_.index -gt 0) {
-          $position = ($_.Index - $offset) - 2
+          $position = ($_.Index - $offset) - 1
         }
         else {
           $position = $_.Index
         }
-        #Write-Host "Position: $position, l: $l, Buffer: $buffer l0: $l0, l1: $l1, l2: $l2 Index: $($_.Index), Offset: $offset w: $w0, w2: $w, proportion: $proportion"
         if ($buffer -ne "") {
           $bl2 = ([string]$bl2).Remove($position, $l1 + $diff).Insert($position, $buffer)
         }
@@ -115,9 +116,7 @@ class wingetItems {
         }
       }
       Write-Host $bl2  
-      #$block = $block + $bl2
     }
-    #Write-Host $block
   }
 
   [void] ParseList() {
@@ -154,7 +153,6 @@ class wingetItems {
         while ($pos -lt $_.Index) {
           $nbchars = [Text.Encoding]::UTF8.GetByteCount($line[$i])
           $pos = $pos + $nbchars
-          
           if ($nbchars -gt 1) {
             if ($pos -lt $_.Index) {
               $insertat += 2
@@ -162,7 +160,6 @@ class wingetItems {
             else {
               $insertat += $nbchars
             }
-            
           }
           else {
             $insertat++ 
@@ -188,6 +185,7 @@ class wingetItems {
       $fields.add($baseFields[$BaseName], $_.Trim())
       $idx++
     }
+    
     [item]$item = [item]::new()
     $item.data = New-Object -TypeName PSObject -Property $fields
     $this.items += $item
@@ -247,17 +245,26 @@ function InvokeWinget {
 function Invoke-Winget {
   param(
     [switch]$visual,
+    [string]$source = $null,
     $_args
   )
   $params = $_args -join " "
   $params = $params -replace "\*", "' '"
   $list = InvokeWinget -command $params
 
-  [wingetItems]$items = [wingetItems]::new($list)
-  $items.ParseOutput()
-  return $items.items.data
+  [wingetItems]$items = [wingetItems]::new($list,$source)
+  if ($visual) {
+    $items.ParseOutput()
+  }
+
+  if ($source) {
+    $result = $items.items.data | Where-Object { $_.Source -eq $source }
+  } else {
+    $result = $items.items.data
+  }
+  return $result
 }
 
-$l = Invoke-Winget -visual $args
+Invoke-Winget -visual -source "winget" $args
 
 
