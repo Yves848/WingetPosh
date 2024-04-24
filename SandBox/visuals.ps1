@@ -1,4 +1,93 @@
-﻿class Frame {
+﻿function color {
+  param (
+    $Text,
+    $ForegroundColor = 'default',
+    $BackgroundColor = 'default'
+  )
+  # Terminal Colors
+  $Colors = @{
+    "default"    = @(40, 50)
+    "black"      = @(30, 0)
+    "lightgrey"  = @(33, 43)
+    "grey"       = @(37, 47)
+    "darkgrey"   = @(90, 100)
+    "red"        = @(91, 101)
+    "darkred"    = @(31, 41)
+    "green"      = @(92, 102)
+    "darkgreen"  = @(32, 42)
+    "yellow"     = @(93, 103)
+    "white"      = @(97, 107)
+    "brightblue" = @(94, 104)
+    "darkblue"   = @(34, 44)
+    "indigo"     = @(35, 45)
+    "cyan"       = @(96, 106)
+    "darkcyan"   = @(36, 46)
+  }
+  
+  if ( $ForegroundColor -notin $Colors.Keys -or $BackgroundColor -notin $Colors.Keys) {
+    Write-Error "Invalid color choice!" -ErrorAction Stop
+  }
+  
+  "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
+}
+
+function Open-Spinner{
+  param(
+    [string]$label = "Loading"
+  )
+  $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+  $runspace = [runspacefactory]::CreateRunspace()
+  $statedata.X = $host.ui.rawui.CursorPosition.X # setting the cursor position (X)
+  $statedata.Y = $host.ui.rawui.CursorPosition.Y # setting the cursor position (Y)
+  $statedata.label = $label # setting the label
+  $runspace.Open()
+  $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
+  $sb = {
+
+    [system.Console]::CursorVisible = $false
+    $X = $StateData.X
+    $Y = $StateData.Y
+    #$Spinner = @("◜", "◠", "◝", "◞", "◡", "◟")
+    #$Spinner = @("◾", "◾", "◼️", "◼️", "⬛", "⬛", "◼️", "◼️")
+    #$Spinner = @("≻    ", " ≻   ", "  ≻  ", "   ≻ ", "    ≻","    ≺", "   ≺ ", "  ≺  ", " ≺   ", "≺    ")
+    #$Spinner = @("......","o.....","Oo....","oOo...",".oOo..","..oOo.","...oOo","....oO",".....o","....oO","...oOo","..oOo.",".oOo..","oOo...","Oo....","o.....","......")
+    #$Spinner = @("▰▱▱▱▱▱▱","▰▰▱▱▱▱▱","▰▰▰▱▱▱▱","▰▰▰▰▱▱▱","▰▰▰▰▰▱▱","▰▰▰▰▰▰▱","▰▰▰▰▰▰▰","▰▱▱▱▱▱▱")
+    #$Spinner = @("⣾⣿", "⣽⣿", "⣻⣿", "⢿⣿", "⡿⣿", "⣟⣿", "⣯⣿", "⣷⣿","⣿⣾", "⣿⣽", "⣿⣻", "⣿⢿", "⣿⡿", "⣿⣟", "⣿⣯", "⣿⣷")
+    $Spinner = @("⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷","⣿")
+    $i = 0
+    $offset = ($spinner | Measure-Object -Property Length -Maximum).Maximum
+    while ($true) {
+      [System.Console]::setcursorposition($X, $Y)
+      $text = "$([char]27)[35m$([char]27)[50m$($Spinner[$i])$([char]27)[0m"      
+      #[system.console]::write($Spinner[$i])
+      [system.console]::write($text)
+      [System.Console]::setcursorposition(($X + $offset) +1, $Y)
+      [system.console]::write($statedata.label)
+      $i = ($i + 1) % $Spinner.Length
+      Start-Sleep -Milliseconds 50
+    }
+  }
+  $session = [powershell]::create()
+  $null = $session.AddScript($sb)
+  $session.Runspace = $runspace
+  $null = $session.BeginInvoke()
+  return $Session, $runspace
+}
+
+function Close-Spinner {
+  param(
+    $Session,
+    $Runspace
+  )
+  $null = $session.Stop()
+  $null = $runspace.dispose() 
+  [System.Console]::setcursorposition(0,$host.ui.rawui.CursorPosition.Y) # setting the cursor position (X)
+  [system.console]::write(" ".PadLeft(($host.ui.rawui.BufferSize.Width), " "))
+  [System.Console]::setcursorposition(0,$host.ui.rawui.CursorPosition.Y)
+  [System.Console]::CursorVisible = $true
+}
+
+class Frame {
   [char]$UL
   [char]$UR
   [char]$TOP
@@ -45,6 +134,8 @@
 
 $Single = [Frame]::new($false)
 $Double = [Frame]::new($true)
+
+
 
 
 class window {
@@ -128,7 +219,7 @@ class window {
     
   
   [void] drawVersion() {
-    $v =Get-WGPVersion -param WGP
+    $v = Get-WGPVersion -param WGP
     $version = $this.frameStyle.LEFTSPLIT, $v, $this.frameStyle.RIGHTSPLIT -join ""
     $isempty = [string]::IsNullOrEmpty($v)
     if ($isempty -eq $true) {

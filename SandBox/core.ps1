@@ -1,4 +1,4 @@
-$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
+﻿$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
 
 . "$include\visuals.ps1"
 
@@ -224,8 +224,8 @@ function InvokeWinget {
   param(
     [string]$command
   )
-  #[System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
+  [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+  
   $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $stateInstall.exp = "winget $command"
   $stateInstall.SearchResult = ""
@@ -248,7 +248,7 @@ function InvokeWinget {
   $SearchResults = $StateInstall.SearchResult
   $sessionInstall.stop()
   $runspaceInstall.Dispose() 
-
+  
   return $SearchResults
 }
 
@@ -256,32 +256,31 @@ function InvokeWinget {
 
 function Invoke-Winget {
   param(
-    [switch]$visual,
-    [string]$source = $null,
     $_args
   )
   $params = $_args -join " "
   $params = $params -replace "\*", "' '"
+  $Session, $runspace = Open-Spinner -label "Loading"
   $list = InvokeWinget -command $params
 
-  [wingetItems]$items = [wingetItems]::new($list, $source)
-  if ($visual) {
-    if ($Host.UI.RawUI.BufferSize.Width -ge 90) {
-      $items.ParseOutput()
-    } else {
-      Write-Host "The buffer width is too small to display the output. Please increase the buffer width to at least 90 characters."
-    }
-  }
-
-  if ($source) {
-    $result = $items.items.data | Where-Object { $_.Source -eq $source }
-  }
-  else {
-    $result = $items.items.data
-  }
+  [wingetItems]$items = [wingetItems]::new($list, $null)
+  $result = $items.items.data
+  Close-Spinner -session $Session -runspace $runspace
   return $result
 }
 
-Invoke-Winget -visual -source "winget" $args
+function Get-WingetList{
+  param(
+    [string]$source = $null
+  )
+  Invoke-Winget "list"
+}
+function Search-WingetList{
+  param(
+    [string]$source = $null,
+    $_args
+  )
+  Invoke-Winget "search $($_args)"
+}
 
-
+Search-WingetList -source "winget" $args
