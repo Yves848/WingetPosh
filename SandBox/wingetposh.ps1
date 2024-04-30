@@ -439,6 +439,15 @@ function Invoke-Winget {
   if (-not $quiet) {
     [System.Console]::CursorVisible = $false
   }
+  $oldwidth = $Host.UI.RawUI.BufferSize.Width
+  $oldheight = $Host.UI.RawUI.BufferSize.Height
+
+  $width = 400
+  $height = $host.UI.RawUI.BufferSize.Height  
+
+  # Set the console window size for the current session
+  $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size($width, $height)
+  # $Host.UI.RawUI.WindowSize = New-Object Management.Automation.Host.Size($width, $height)
   $PackageList = @()
   $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $stateInstall.exp = $cmd
@@ -536,6 +545,10 @@ function Invoke-Winget {
     }
     $i++
   }
+  
+  $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size($oldwidth, $oldheight)
+  # $Host.UI.RawUI.WindowSize = New-Object Management.Automation.Host.Size($oldwidth, $oldheight)
+  
   if (-not $quiet) {
     [System.Console]::CursorVisible = $true
   }
@@ -1581,92 +1594,94 @@ function Start-Gui {
   Invoke-Expression "$path\WGGui.exe"
 }
 
-function test {
-  [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+# function test {
+#   [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-  $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $stateInstall.exp = "winget list"
-  $stateInstall.SearchResult = ""
-  $runspaceInstall = [runspacefactory]::CreateRunspace()
-  $runspaceInstall.Open()
-  $RunspaceInstall.SessionStateProxy.SetVariable("StateInstall", $StateInstall)
+#   $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
+#   $stateInstall.exp = "winget list"
+#   $stateInstall.SearchResult = ""
+#   $runspaceInstall = [runspacefactory]::CreateRunspace()
+#   $runspaceInstall.Open()
+#   $RunspaceInstall.SessionStateProxy.SetVariable("StateInstall", $StateInstall)
 
-  $sbInstall = {
-    $Host.UI.RawUI.BufferSize = New-Object System.Management.Automation.Host.Size (100, 25)
-    $Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size (100, 25)
-    $StateInstall.SearchResult = Invoke-Expression $stateInstall.exp | Out-String -Stream
-  }
+#   $sbInstall = {
+#     $Host.UI.RawUI.BufferSize = New-Object System.Management.Automation.Host.Size (100, 25)
+#     $Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size (100, 25)
+#     $StateInstall.SearchResult = Invoke-Expression $stateInstall.exp | Out-String -Stream
+#   }
 
-  $sessionInstall = [powershell]::create()
-  $null = $sessionInstall.AddScript($sbInstall)
-  $sessionInstall.Runspace = $runspaceInstall
-  $handleInstall = $sessionInstall.BeginInvoke()
-  while (-not $handleInstall.IsCompleted) {
+#   $sessionInstall = [powershell]::create()
+#   $null = $sessionInstall.AddScript($sbInstall)
+#   $sessionInstall.Runspace = $runspaceInstall
+#   $handleInstall = $sessionInstall.BeginInvoke()
+#   while (-not $handleInstall.IsCompleted) {
     
-  }
-  $SearchResults = $StateInstall.SearchResult
-  $sessionInstall.stop()
-  $runspaceInstall.Dispose() 
+#   }
+#   $SearchResults = $StateInstall.SearchResult
+#   $sessionInstall.stop()
+#   $runspaceInstall.Dispose() 
   
-  #$searchresults = Invoke-Expression "winget list" | Out-String -Stream
+#   #$searchresults = Invoke-Expression "winget list" | Out-String -Stream
   
-  $partialKey = '---'
-  $index = 0
-  $searchresults | ForEach-Object {
-    if ($_ -match $partialKey) {
-      $index = $searchresults.IndexOf($_) - 1
-    }
-  }
-  $tempCols = ($searchresults[$index] | Select-String -Pattern "(?:\S+)" -AllMatches).Matches
-  $i = $index + 2
-  $list = @()
-  while ($i -lt $searchresults.Length) {
-    $offset = 0
-    $tempcols | ForEach-Object {
-      if ($_.Index -gt 0) {
-        $searchresults[$i] = ([string]$searchresults[$i]).Insert($_.Index + $offset, "|")
-        $offset++
-      }
-    }
-    $fields = [ordered]@{}
-    $idx = 0
-    ([string]$searchresults[$i]).Split("|") | ForEach-Object {
-      $fields.add($tempcols[$Idx].Value, $_.Trim())
-      $idx++
-    }
-    $list += $fields
-    $i++
-  }
-  $tempcols2 = @()
+#   $partialKey = '---'
+#   $index = 0
+#   $searchresults | ForEach-Object {
+#     if ($_ -match $partialKey) {
+#       $index = $searchresults.IndexOf($_) - 1
+#     }
+#   }
+#   $tempCols = ($searchresults[$index] | Select-String -Pattern "(?:\S+)" -AllMatches).Matches
+#   $i = $index + 2
+#   $list = @()
+#   while ($i -lt $searchresults.Length) {
+#     $offset = 0
+#     $tempcols | ForEach-Object {
+#       if ($_.Index -gt 0) {
+#         $searchresults[$i] = ([string]$searchresults[$i]).Insert($_.Index + $offset, "|")
+#         $offset++
+#       }
+#     }
+#     $fields = [ordered]@{}
+#     $idx = 0
+#     ([string]$searchresults[$i]).Split("|") | ForEach-Object {
+#       $fields.add($tempcols[$Idx].Value, $_.Trim())
+#       $idx++
+#     }
+#     $list += $fields
+#     $i++
+#   }
+#   $tempcols2 = @()
   
-  $w = $Host.UI.RawUI.BufferSize.Width;
-  $w0 = $searchresults[$index].Length
-  $proportion = [System.Math]::Round($W / $w0 * 100)
+#   $w = $Host.UI.RawUI.BufferSize.Width;
+#   $w0 = $searchresults[$index].Length
+#   $proportion = [System.Math]::Round($W / $w0 * 100)
 
-  $tempcols | ForEach-Object {
-    [psobject]$obj = New-Object -TypeName psobject -Property @{Index = [System.Math]::Floor($_.Index * $proportion / 100) }
-    $tempcols2 += $obj
+#   $tempcols | ForEach-Object {
+#     [psobject]$obj = New-Object -TypeName psobject -Property @{Index = [System.Math]::Floor($_.Index * $proportion / 100) }
+#     $tempcols2 += $obj
 
-  }
-  $blankline = "".PadRight($w, ".")
-  $list | ForEach-Object {
-    $offset = 0
-    $fields = $_
-    $bl2 = $blankline
-    $tempcols2 | ForEach-Object {
-      #if ($_.Index -gt 0) { 
-      if (($_.Index +([string]$fields[$offset]).Length) -lt [string]$bl2.Length) {
-        $l = [string]$fields[$offset].Length
-      }
-      else {
-        $l = [string]$bl2.Length - $_.Index
-      }
-      $bl2 = ([string]$bl2).Remove($_.Index, $l).Insert($_.Index, $fields[$offset])
-      $offset++
-      #}
-    }
-    $bl2
-  }
-}
+#   }
+#   $blankline = "".PadRight($w, ".")
+#   $list | ForEach-Object {
+#     $offset = 0
+#     $fields = $_
+#     $bl2 = $blankline
+#     $tempcols2 | ForEach-Object {
+#       #if ($_.Index -gt 0) { 
+#       if (($_.Index +([string]$fields[$offset]).Length) -lt [string]$bl2.Length) {
+#         $l = [string]$fields[$offset].Length
+#       }
+#       else {
+#         $l = [string]$bl2.Length - $_.Index
+#       }
+#       $bl2 = ([string]$bl2).Remove($_.Index, $l).Insert($_.Index, $fields[$offset])
+#       $offset++
+#       #}
+#     }
+#     $bl2
+#   }
+# }
 
-test
+# test
+
+Get-WGList -quiet $true

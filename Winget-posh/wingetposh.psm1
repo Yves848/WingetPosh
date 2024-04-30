@@ -422,6 +422,15 @@ function Invoke-Winget {
   if (-not $quiet) {
     [System.Console]::CursorVisible = $false
   }
+  $oldwidth = $Host.UI.RawUI.WindowSize.Width
+  $oldheight = $Host.UI.RawUI.WindowSize.Height
+
+  $width = 200
+  $height = 50
+
+  # Set the console window size for the current session
+  $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size($width, $height)
+  $Host.UI.RawUI.WindowSize = New-Object Management.Automation.Host.Size($width, $height)
   $PackageList = @()
   $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $stateInstall.exp = $cmd
@@ -444,7 +453,8 @@ function Invoke-Winget {
   $SearchResult = $StateInstall.SearchResult
   $sessionInstall.stop()
   $runspaceInstall.Dispose() 
-
+  $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size($oldwidth, $oldheight)
+  $Host.UI.RawUI.WindowSize = New-Object Management.Automation.Host.Size($oldwidth, $oldheight)
   $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
     if ($_.StartsWith('---')) {
       $lWidth = $_.Length
@@ -1298,7 +1308,7 @@ function Search-WGPackage {
         }
       }
       if (-not $quiet) {
-       closeSpinner -Session $Session -Runspace $Runspace
+        closeSpinner -Session $Session -Runspace $Runspace
       }
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
@@ -1509,8 +1519,8 @@ function Out-JSON {
   }
   end {
     return (@{
-      "packages"= $result
-    }) | ConvertTo-Json
+        "packages" = $result
+      }) | ConvertTo-Json
   }
 }
 
@@ -1560,6 +1570,6 @@ function Reset-WingetposhConfig {
 }
 
 function Start-Gui {
-  $path =  (Get-Module -Name wingetposh).path | Split-Path -Parent
+  $path = (Get-Module -Name wingetposh).path | Split-Path -Parent
   Invoke-Expression "$path\WGGui.exe"
 }
