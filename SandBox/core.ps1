@@ -22,6 +22,19 @@ $sources = @{
   "scoop"  = "scoop"
 }
 
+$list_columns = @(
+  @{ Name = "Name"; Width = 45 }
+  @{ Name = "Id"; Width = 45 }
+  @{ Name = "Version"; Width = 10 }
+)
+
+$search_columns = @(
+  @{ Name = "Name"; Width = 45 }
+  @{ Name = "Id"; Width = 45 }
+  @{ Name = "Version"; Width = 10 }
+)
+
+
 function Get-FieldBAseNAme {
   param(
     [string]$name
@@ -50,6 +63,20 @@ function Get-FieldLength {
     $i += $l 
   }
   return $i
+}
+
+function Truncate-String {
+  param (
+      [string]$InputString,
+      [int]$MaxLength
+  )
+
+  if ($InputString.Length -le $MaxLength) {
+      return $InputString
+  }
+
+  $TruncatedString = $InputString.Substring(0, $MaxLength - 3) + "…"
+  return $TruncatedString
 }
 
 enum lineAction {
@@ -269,13 +296,13 @@ function Invoke-Winget {
   return $result
 }
 
-function Get-WingetList{
+function Get-WGList{
   param(
     [string]$source = $null
   )
   Invoke-Winget "list"
 }
-function Search-WingetList{
+function Search-WG{
   param(
     [string]$source = $null,
     $_args
@@ -283,4 +310,60 @@ function Search-WingetList{
   Invoke-Winget "search $($_args)"
 }
 
-Search-WingetList -source "winget" $args
+function Get-WGPackage{ 
+  param(
+    [string]$source = $null,
+    $_args
+  )
+  $GetParams = @{}
+  if ($source) {
+    $GetParams.Add("source", $source)
+  }
+  
+  $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Dots"
+  $packages = Get-WinGetPackage | Where-Object { $_.Source -eq $source }
+  Close-Spinner -session $Session -runspace $runspace
+
+  return $packages
+}
+
+function Find-WGPackage {
+  param(
+    [string]$query = $null,
+    [string]$source = $null,
+    $_args
+  )
+  $Session, $runspace = Open-Spinner -label "Searching for $query in $source"
+  $SearchParams = @{}
+  if ($query) {
+    $SearchParams.Add("query", $query)
+  }
+  if ($source) {
+    $SearchParams.Add("source", $source)
+  }
+  $packages = Find-WinGetPackage @SearchParams
+  Close-Spinner -session $Session -runspace $runspace
+  return $packages
+}
+
+function isGumInstalled {
+  $gum = get-command -CommandType Application -Name gum -ErrorAction SilentlyContinue
+  if ($gum) {
+    return $true
+  }
+  return $false
+}
+
+function installGum {
+  $command = "winget install --id charmbracelet.gum"
+  Invoke-Expression $command | Out-Null
+  $env:path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+
+Get-WGPackage -source "winget" | Format-Table -AutoSize
+# Find-WGPackage -query "code" -source "winget" 
+# $win = [window]::new(0,0, $Host.UI.RawUI.BufferSize.Width-1, $Host.UI.RawUI.BufferSize.Height-1 ,"Rounded","White")
+# $win.title = "Search"
+# $Win.titleColor = "Green"
+# $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
+# $win.drawWindow();

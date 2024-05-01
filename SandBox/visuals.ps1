@@ -23,6 +23,8 @@
     "cyan"       = @(96, 106)
     "darkcyan"   = @(36, 46)
   }
+
+  
   
   if ( $ForegroundColor -notin $Colors.Keys -or $BackgroundColor -notin $Colors.Keys) {
     Write-Error "Invalid color choice!" -ErrorAction Stop
@@ -31,15 +33,51 @@
   "$([char]27)[$($colors[$ForegroundColor][0])m$([char]27)[$($colors[$BackgroundColor][1])m$($Text)$([char]27)[0m"    
 }
 
-function Open-Spinner{
+function Open-Spinner {
   param(
-    [string]$label = "Loading"
+    [string]$label = "Loading",
+    [string]$type = "Dot"
   )
+  $Spinners = @{
+    "Circle" = @{
+      "Frames" = @("◜", "◠", "◝", "◞", "◡", "◟")
+      "Sleep"  = 50
+    }
+    "Dots"    = @{
+      "Frames" = @("⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷", "⣿")
+      "Sleep"  = 50
+    }
+    "Line"   = @{
+      "Frames" = @("▰▱▱▱▱▱▱", "▰▰▱▱▱▱▱", "▰▰▰▱▱▱▱", "▰▰▰▰▱▱▱", "▰▰▰▰▰▱▱", "▰▰▰▰▰▰▱", "▰▰▰▰▰▰▰", "▰▱▱▱▱▱▱")
+      "Sleep"  = 50
+    }
+    "Square" = @{
+      "Frames" = @("⣾⣿", "⣽⣿", "⣻⣿", "⢿⣿", "⡿⣿", "⣟⣿", "⣯⣿", "⣷⣿","⣿⣾", "⣿⣽", "⣿⣻", "⣿⢿", "⣿⡿", "⣿⣟", "⣿⣯", "⣿⣷")
+      "Sleep"  = 50
+    }
+    "Bubble" = @{
+      "Frames" = @("......","o.....","Oo....","oOo...",".oOo..","..oOo.","...oOo","....oO",".....o","....oO","...oOo","..oOo.",".oOo..","oOo...","Oo....","o.....","......")
+      "Sleep"  = 50
+    }
+    "Arrow"  = @{
+      "Frames" = @("≻    ", " ≻   ", "  ≻  ", "   ≻ ", "    ≻","    ≺", "   ≺ ", "  ≺  ", " ≺   ", "≺    ")
+      "Sleep"  = 50
+    }
+    "Pulse"  = @{
+      "Frames" = @("◾", "◾", "◼️", "◼️", "⬛", "⬛", "◼️", "◼️")
+      "Sleep"  = 50
+    }
+  }
+
+
+
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $runspace = [runspacefactory]::CreateRunspace()
-  $statedata.X = $host.ui.rawui.CursorPosition.X # setting the cursor position (X)
-  $statedata.Y = $host.ui.rawui.CursorPosition.Y # setting the cursor position (Y)
-  $statedata.label = $label # setting the label
+  $statedata.X = $host.ui.rawui.CursorPosition.X 
+  $statedata.Y = $host.ui.rawui.CursorPosition.Y 
+  $statedata.Frames = $Spinners[$type].Frames
+  $statedata.Sleep = $Spinners[$type].Sleep
+  $statedata.label = $label 
   $runspace.Open()
   $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
   $sb = {
@@ -47,24 +85,18 @@ function Open-Spinner{
     [system.Console]::CursorVisible = $false
     $X = $StateData.X
     $Y = $StateData.Y
-    #$Spinner = @("◜", "◠", "◝", "◞", "◡", "◟")
-    #$Spinner = @("◾", "◾", "◼️", "◼️", "⬛", "⬛", "◼️", "◼️")
-    #$Spinner = @("≻    ", " ≻   ", "  ≻  ", "   ≻ ", "    ≻","    ≺", "   ≺ ", "  ≺  ", " ≺   ", "≺    ")
-    #$Spinner = @("......","o.....","Oo....","oOo...",".oOo..","..oOo.","...oOo","....oO",".....o","....oO","...oOo","..oOo.",".oOo..","oOo...","Oo....","o.....","......")
-    #$Spinner = @("▰▱▱▱▱▱▱","▰▰▱▱▱▱▱","▰▰▰▱▱▱▱","▰▰▰▰▱▱▱","▰▰▰▰▰▱▱","▰▰▰▰▰▰▱","▰▰▰▰▰▰▰","▰▱▱▱▱▱▱")
-    #$Spinner = @("⣾⣿", "⣽⣿", "⣻⣿", "⢿⣿", "⡿⣿", "⣟⣿", "⣯⣿", "⣷⣿","⣿⣾", "⣿⣽", "⣿⣻", "⣿⢿", "⣿⡿", "⣿⣟", "⣿⣯", "⣿⣷")
-    $Spinner = @("⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷","⣿")
+    
+    $Frames = $statedata.Frames
     $i = 0
-    $offset = ($spinner | Measure-Object -Property Length -Maximum).Maximum
+    $offset = ($Frames | Measure-Object -Property Length -Maximum).Maximum
     while ($true) {
       [System.Console]::setcursorposition($X, $Y)
-      $text = "$([char]27)[35m$([char]27)[50m$($Spinner[$i])$([char]27)[0m"      
-      #[system.console]::write($Spinner[$i])
+      $text = "$([char]27)[35m$([char]27)[50m$($Frames[$i])$([char]27)[0m"      
       [system.console]::write($text)
-      [System.Console]::setcursorposition(($X + $offset) +1, $Y)
+      [System.Console]::setcursorposition(($X + $offset) + 1, $Y)
       [system.console]::write($statedata.label)
-      $i = ($i + 1) % $Spinner.Length
-      Start-Sleep -Milliseconds 50
+      $i = ($i + 1) % $Frames.Length
+      Start-Sleep -Milliseconds $Statedata.Sleep
     }
   }
   $session = [powershell]::create()
@@ -81,9 +113,9 @@ function Close-Spinner {
   )
   $null = $session.Stop()
   $null = $runspace.dispose() 
-  [System.Console]::setcursorposition(0,$host.ui.rawui.CursorPosition.Y) # setting the cursor position (X)
+  [System.Console]::setcursorposition(0, $host.ui.rawui.CursorPosition.Y) # setting the cursor position (X)
   [system.console]::write(" ".PadLeft(($host.ui.rawui.BufferSize.Width), " "))
-  [System.Console]::setcursorposition(0,$host.ui.rawui.CursorPosition.Y)
+  [System.Console]::setcursorposition(0, $host.ui.rawui.CursorPosition.Y)
   [System.Console]::CursorVisible = $true
 }
 
@@ -99,44 +131,60 @@ class Frame {
   [char]$LEFTSPLIT
   [char]$RIGHTSPLIT
   
-  Frame (
-    [bool]$Double
-  ) {
-    if ($Double) {
-      $this.UL = "╔"
-      $this.UR = "╗"
-      $this.TOP = "═"
-      $this.LEFT = "║"
-      $this.RIGHT = "║"
-      $this.BL = "╚"
-      $this.BR = "╝"
-      $this.BOTTOM = "═"
-      $this.LEFTSPLIT = "⊫"
+
+  $FrameStyles = @{
+    "Single"  = @{
+      "UL"         = "┌"
+      "UR"         = "┐"
+      "TOP"        = "─"
+      "LEFT"       = "│"
+      "RIGHT"      = "│"
+      "BL"         = "└"
+      "BR"         = "┘"
+      "BOTTOM"     = "─"
+      "LEFTSPLIT"  = "├"
+      "RIGHTSPLIT" = "┤"
     }
-    else {
-      #$this.UL = "┌"
-      $this.UL = [char]::ConvertFromUtf32(0x256d)
-      #$this.UR = "┐"
-      $this.UR = [char]::ConvertFromUtf32(0x256e)
-      $this.TOP = "─"
-      $this.LEFT = "│"
-      $this.RIGHT = "│"
-      $this.BL = [char]::ConvertFromUtf32(0x2570)
-      #$this.BL = "└"
-      $this.BR = [char]::ConvertFromUtf32(0x256f)
-      #$this.BR = "┘"
-      $this.BOTTOM = "─"
-      $this.LEFTSPLIT = [char]::ConvertFromUtf32(0x2524)
-      $this.RIGHTSPLIT = [char]::ConvertFromUtf32(0x251c)
+    "Double"  = @{
+      "UL"         = "╔"
+      "UR"         = "╗"
+      "TOP"        = "═"
+      "LEFT"       = "║"
+      "RIGHT"      = "║"
+      "BL"         = "╚"
+      "BR"         = "╝"
+      "BOTTOM"     = "═"
+      "LEFTSPLIT"  = "╠"
+      "RIGHTSPLIT" = "╣"
+    }
+    "Rounded" = @{
+      "UL"         = "╭"
+      "UR"         = "╮"
+      "TOP"        = "─"
+      "LEFT"       = "│"
+      "RIGHT"      = "│"
+      "BL"         = "╰"
+      "BR"         = "╯"
+      "BOTTOM"     = "─"
+      "LEFTSPLIT"  = "├"
+      "RIGHTSPLIT" = "┤"
     }
   }
+  Frame (
+    [string]$FrameStyle
+  ) {
+    $this.UL = $this.FrameStyles[$FrameStyle].UL
+    $this.UR = $this.FrameStyles[$FrameStyle].UR
+    $this.TOP = $this.FrameStyles[$FrameStyle].TOP
+    $this.LEFT = $this.FrameStyles[$FrameStyle].LEFT
+    $this.RIGHT = $this.FrameStyles[$FrameStyle].RIGHT
+    $this.BL = $this.FrameStyles[$FrameStyle].BL
+    $this.BR = $this.FrameStyles[$FrameStyle].BR
+    $this.BOTTOM = $this.FrameStyles[$FrameStyle].BOTTOM
+    $this.LEFTSPLIT = $this.FrameStyles[$FrameStyle].LEFTSPLIT
+    $this.RIGHTSPLIT = $this.FrameStyles[$FrameStyle].RIGHTSPLIT
+  }
 }
-
-$Single = [Frame]::new($false)
-$Double = [Frame]::new($true)
-
-
-
 
 class window {
   [int]$X
@@ -156,14 +204,14 @@ class window {
     [int]$y,
     [int]$w,
     [int]$h,
-    [bool]$Double,
+    [string]$FrameStyle = "Single",
     [System.ConsoleColor]$color = "White"
   ) {
     $this.X = $X
     $this.Y = $y
     $this.W = $W
     $this.H = $H
-    $this.frameStyle = [Frame]::new($Double)
+    $this.frameStyle = [Frame]::new($FrameStyle)
     $this.frameColor = $color
       
   }
@@ -173,7 +221,7 @@ class window {
     [int]$y,
     [int]$w,
     [int]$h,
-    [bool]$Double,
+    [string]$FrameStyle = "Single",
     [System.ConsoleColor]$color = "White",
     [string]$title = "",
     [System.ConsoleColor]$titlecolor = "Blue"
@@ -182,7 +230,7 @@ class window {
     $this.Y = $y
     $this.W = $W
     $this.H = $H
-    $this.frameStyle = [Frame]::new($Double)
+    $this.frameStyle = [Frame]::new($FrameStyle)
     $this.frameColor = $color
     $this.title = $title
     $this.titleColor = $titlecolor
@@ -233,13 +281,13 @@ class window {
     if ($this.title -ne "") {
       $local:X = $this.x + 2
       $this.setPosition($local:X, $this.Y)
-      Write-Host ($this.frameStyle.LEFTSPLIT, " " -join "") -NoNewline -ForegroundColor $this.frameColor
+      Write-Host ($this.frameStyle.RIGHTSPLIT, " " -join "") -NoNewline -ForegroundColor $this.frameColor
       $local:X = $local:X + 2
       $this.setPosition($local:X, $this.Y)
       Write-Host $this.title -NoNewline -ForegroundColor $this.titleColor
       $local:X = $local:X + $this.title.Length
       $this.setPosition($local:X, $this.Y)
-      Write-Host (" ", $this.frameStyle.RIGHTSPLIT -join "") -NoNewline -ForegroundColor $this.frameColor
+      Write-Host (" ", $this.frameStyle.LEFTSPLIT -join "") -NoNewline -ForegroundColor $this.frameColor
     }
   }
   
@@ -252,7 +300,7 @@ class window {
       $local:x = $this.x + 2
       $local:Y = $this.Y + $this.h
       $this.setPosition($local:X, $local:Y)
-      $foot = $this.frameStyle.LEFTSPLIT, " ", $this.footer, " ", $this.frameStyle.RIGHTSPLIT -join ""
+      $foot = $this.frameStyle.RIGHTSPLIT, " ", $this.footer, " ", $this.frameStyle.LEFTSPLIT -join ""
       [console]::write($foot)
     }
   }
