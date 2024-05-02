@@ -294,10 +294,11 @@ function Find-WGPackage {
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
     $width = $Host.UI.RawUI.BufferSize.Width - 2
+    $height = $Host.UI.RawUI.BufferSize.Height - 5
     gum style --border "rounded" --width $width "Choose a package to Install"
-    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
+    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
     $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
-    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
+    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height 
     $packages = @()
     if ($c) {
       $c | ForEach-Object {
