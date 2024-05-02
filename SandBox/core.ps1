@@ -230,7 +230,7 @@ class Item {
 function Get-WGPackage { 
   param(
     [string]$source = $null,
-    $_args
+    [switch]$interactive = $false
   )
   $GetParams = @{}
   if ($source) {
@@ -242,7 +242,22 @@ function Get-WGPackage {
   $packages = Get-WinGetPackage | Where-Object { $_.Source -eq $source }
 
   Close-Spinner -session $Session -runspace $runspace
-
+  if ($interactive) {
+    [column[]]$cols = @()
+    $cols += [column]::new("Name", "Name", 40)
+    $cols += [column]::new("Id", "Id", 40)
+    $cols += [column]::new("InstalledVersion", "Version", 20)
+    [package[]]$InstalledPackages = @()
+    $packages | ForEach-Object {
+      $InstalledPackages += [package]::new($_.Name, $_.Id, $_.AvailableVersions[0])
+    }
+    $choices = makeLines -columns $cols -items $InstalledPackages
+    $width = $Host.UI.RawUI.BufferSize.Width - 2
+    gum style --border "rounded" --width $width "List of Installed Packages"
+    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
+    $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
+    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
+  }
   return $packages
 }
 
@@ -277,7 +292,7 @@ function Find-WGPackage {
     $queries = $query.Split(",")
     $packages = @()
     $queries | ForEach-Object {
-      $SearchParams["query"] = $_
+      $SearchParams["query"] = [string]$_.Trim()
       #$SearchParams.Add("query", $query)
       $packs = Find-WinGetPackage @SearchParams
       $packs | ForEach-Object {
@@ -288,7 +303,8 @@ function Find-WGPackage {
     Close-Spinner -session $Session -runspace $runspace
   }
   else {
-    $buffer = gum style "No query specified" --border "rounded" --width ($Host.UI.RawUI.BufferSize.Width - 2)
+    [System.Console]::setcursorposition(0, $Y)
+    $buffer = gum style "No query specified" --border "rounded" --width ($Host.UI.RawUI.BufferSize.Width - 2) --foreground "#FF0000"
     $buffer | ForEach-Object {
       [System.Console]::write($_)
     }
@@ -362,4 +378,5 @@ function installGum {
 # $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
 # $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
 
-Find-WGPackage -interactive
+# Find-WGPackage -interactive  -source "winget"
+Get-WGPackage -source "winget" -interactive

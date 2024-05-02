@@ -41,6 +41,6 @@ function TruncateString {
       return $TruncatedString
   }
 
-  $TruncatedString = $InputString.Substring(0, $MaxLength - 2) + "…"
+  $TruncatedString = $InputString.Substring(0, $MaxLength - 1) + "…"
   return $TruncatedString
 }
