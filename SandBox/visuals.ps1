@@ -350,6 +350,28 @@ function makeLines {
     }
     $index ++
   }
-
   return $line
+}
+
+function makeHeader {
+  param(
+    [column[]]$columns
+  )
+  $header = ""
+  $columns | ForEach-Object {
+    $w = Get-ProportionalLength -MaxLength $_.Width
+    $header = [string]::Concat($header, $_.Label.PadRight($w," "), " ")
+  }
+  return [string]::Concat("    ",$header)
+}
+
+function makeTitle {
+  param(
+    [string]$title,
+    [int]$width
+  )
+  $w = ($width / 2) + ($title.Length / 2)
+  $title = $title.PadLeft($w, "—")
+  $title = $title.PadRight($width, "—")
+  return gum style $title --foreground "#6436ba" --bold --align "center"
 }

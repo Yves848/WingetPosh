@@ -253,8 +253,57 @@ function Get-WGPackage {
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
     $width = $Host.UI.RawUI.BufferSize.Width - 2
-    gum style --border "rounded" --width $width "List of Installed Packages"
-    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
+    $height = $Host.UI.RawUI.BufferSize.Height - 6
+    $title = makeTitle -title "List of Installed Packages" -width $width
+    $header = makeHeader -columns $cols
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5"
+    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
+    $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
+    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
+    $packages = @()
+    if ($c) {
+      $c | ForEach-Object {
+        $index = ($choices -split '\n').IndexOf($_)
+        $packages += $InstalledPackages[$index]
+      }
+    }
+    Clear-Host
+  }
+  return $packages
+}
+
+function Update-WGPackage { 
+  param(
+    [string]$source = $null,
+    [switch]$interactive = $false
+  )
+  $GetParams = @{}
+  if ($source) {
+    $GetParams.Add("source", $source)
+  }
+  
+  $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Dots"
+  
+  $packages = Get-WinGetPackage | Where-Object { $_.IsUpdateAvailable }
+
+  Close-Spinner -session $Session -runspace $runspace
+  if ($interactive) {
+    [column[]]$cols = @()
+    $cols += [column]::new("Name", "Name", 35)
+    $cols += [column]::new("Id", "Id", 35)
+    $cols += [column]::new("InstalledVersion", "Version", 15)
+    $cols += [column]::new("Available", "Available", 15)
+    [package[]]$InstalledPackages = @()
+    $packages | ForEach-Object {
+      $InstalledPackages += [package]::new($_.Name, $_.Id, $_.InstalledVersion, $_.AvailableVersions[0])
+    }
+    $choices = makeLines -columns $cols -items $InstalledPackages
+    $width = $Host.UI.RawUI.BufferSize.Width - 2
+    $t = makeTitle -title "Choose a package to update" -width $width
+    $title = gum style $t --foreground "#6436ba" --bold --align "center"
+    $header = makeHeader -columns $cols
+    gum style --border "rounded" --width $width "$title`n    $header"
+    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
     $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
     $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
     $packages = @()
@@ -264,7 +313,7 @@ function Get-WGPackage {
         $packages += $InstalledPackages[$index]
       }
     }
-    Clear-Host
+    # Clear-Host
   }
   return $packages
 }
@@ -301,7 +350,6 @@ function Find-WGPackage {
     $packages = @()
     $queries | ForEach-Object {
       $SearchParams["query"] = [string]$_.Trim()
-      #$SearchParams.Add("query", $query)
       $packs = Find-WinGetPackage @SearchParams
       $packs | ForEach-Object {
         $packages += $_
@@ -329,10 +377,10 @@ function Find-WGPackage {
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
     $width = $Host.UI.RawUI.BufferSize.Width - 2
-    $height = $Host.UI.RawUI.BufferSize.Height - 5
+    $height = $Host.UI.RawUI.BufferSize.Height - 6
     [System.Console]::setcursorposition(0, $Y)
     gum style --border "rounded" --width $width "Choose a package to Install"
-    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
+    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "23"
     $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
     $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height 
     $packages = @()
@@ -388,3 +436,4 @@ function installGum {
 
 # Find-WGPackage -interactive  -source "winget"
 Get-WGPackage -source "winget" -interactive
+#Update-WGPackage -interactive
