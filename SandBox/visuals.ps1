@@ -341,7 +341,7 @@ function makeLines {
       $fieldname = $_.FieldName
       $width = [int32]$_.Width
       $buffer = TruncateString -InputString $([string]$item."$fieldname") -MaxLength $width
-      $temp = [string]::Concat($temp,[string]$buffer.PadRight($width ," ")," ")
+      $temp = [string]::Concat($temp,[string]$buffer," ")
     }
     # $line = $line -join $temp , "`n"
     $line = [string]::Concat($line, $temp)

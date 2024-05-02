@@ -19,8 +19,26 @@ function TruncateString {
       [int]$MaxLength
   )
   $l = Get-FieldLength -buffer $InputString 
+
   if ($l -le $MaxLength) {
-      return $InputString.PadRight($MaxLength, " ")
+      $pos = 0
+      $result = 0
+      $offset = 0
+      $TruncatedString = $InputString
+      while ($pos -lt $InputString.Length) {
+          $c = $InputString[$pos]
+          $nbchars = [Text.Encoding]::UTF8.GetByteCount($c)
+          if ($nbchars -gt 1) {
+              $offset += ($nbchars -2)
+          }
+          # $result += $nbchars
+          $pos++
+      }
+      while ($pos -lt $MaxLength-$offset) {
+          $TruncatedString += " "
+          $pos++
+      }
+      return $TruncatedString
   }
 
   $TruncatedString = $InputString.Substring(0, $MaxLength - 2) + "…"

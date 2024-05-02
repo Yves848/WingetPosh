@@ -9,6 +9,8 @@ $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition
 
 $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
 
+[System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 $baseFields = @{
   'SearchName'        = 'Name'
   'SearchID'          = 'Id'
@@ -252,28 +254,37 @@ function Find-WGPackage {
   )
   
   $SearchParams = @{}
+  $Y = $host.ui.rawui.CursorPosition.Y 
   $buffer = gum style "Enter search query" --border "rounded" --width ($Host.UI.RawUI.BufferSize.Width - 2)
   $buffer | ForEach-Object {
     [System.Console]::write($_)
   }
   
-  if ($query) {
-    $SearchParams.Add("query", $query)
-  }
-  else {
+  if (-not $query) {
     $query = gum input --placeholder "Search for a package" 
     $SearchParams.Add("query", $query)
   }
+
   if ($source) {
     $SearchParams.Add("source", $source)
   }
   else {
-    $source = gum style "everysources" --foreground "#FF0000"
+    $source = gum style "every sources" --foreground "#FF0000"
   }
   if ($query) {
-    $query = gum style $query --foreground "#00FF00" --bold
-    $Session, $runspace = Open-Spinner -label "Searching for $query in $source" -type "Dots"
-    $packages = Find-WinGetPackage @SearchParams
+    $title = gum style $query --foreground "#00FF00" --bold
+    $Session, $runspace = Open-Spinner -label "Searching for $title in $source" -type "Dots"
+    $queries = $query.Split(",")
+    $packages = @()
+    $queries | ForEach-Object {
+      $SearchParams["query"] = $_
+      #$SearchParams.Add("query", $query)
+      $packs = Find-WinGetPackage @SearchParams
+      $packs | ForEach-Object {
+        $packages += $_
+      }
+    }
+    
     Close-Spinner -session $Session -runspace $runspace
   }
   else {
@@ -283,7 +294,7 @@ function Find-WGPackage {
     }
   }
   if ($packages -and $interactive) {
-    Clear-Host
+    # Clear-Host
     [column[]]$cols = @()
     $cols += [column]::new("Name", "Name", 40)
     $cols += [column]::new("Id", "Id", 40)
@@ -295,6 +306,7 @@ function Find-WGPackage {
     $choices = makeLines -columns $cols -items $InstalledPackages
     $width = $Host.UI.RawUI.BufferSize.Width - 2
     $height = $Host.UI.RawUI.BufferSize.Height - 5
+    [System.Console]::setcursorposition(0, $Y)
     gum style --border "rounded" --width $width "Choose a package to Install"
     $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
     $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
