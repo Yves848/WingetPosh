@@ -11,6 +11,9 @@ $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | 
 
 [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+$env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
+$env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
+
 $baseFields = @{
   'SearchName'        = 'Name'
   'SearchID'          = 'Id'
@@ -257,8 +260,6 @@ function Get-WGPackage {
     $title = makeTitle -title "List of Installed Packages" -width $width
     $header = makeHeader -columns $cols
     gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5"
-    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
-    $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
     $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
     $packages = @()
     if ($c) {
@@ -298,14 +299,12 @@ function Update-WGPackage {
       $InstalledPackages += [package]::new($_.Name, $_.Id, $_.InstalledVersion, $_.AvailableVersions[0])
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
+    $height = $Host.UI.RawUI.BufferSize.Height - 6
     $width = $Host.UI.RawUI.BufferSize.Width - 2
-    $t = makeTitle -title "Choose a package to update" -width $width
-    $title = gum style $t --foreground "#6436ba" --bold --align "center"
+    $title = makeTitle -title "Choose a package to update" -width $width
     $header = makeHeader -columns $cols
-    gum style --border "rounded" --width $width "$title`n    $header"
-    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
-    $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
-    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5" 
+    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
     $packages = @()
     if ($c) {
       $c | ForEach-Object {
@@ -355,8 +354,8 @@ function Find-WGPackage {
         $packages += $_
       }
     }
-    
     Close-Spinner -session $Session -runspace $runspace
+    [System.Console]::setcursorposition(0, $Y)
   }
   else {
     [System.Console]::setcursorposition(0, $Y)
@@ -379,9 +378,9 @@ function Find-WGPackage {
     $width = $Host.UI.RawUI.BufferSize.Width - 2
     $height = $Host.UI.RawUI.BufferSize.Height - 6
     [System.Console]::setcursorposition(0, $Y)
-    gum style --border "rounded" --width $width "Choose a package to Install"
-    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "23"
-    $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
+    $title = makeTitle -title "Choose Packages to Install" -width $width
+    $header = makeHeader -columns $cols
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5" 
     $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height 
     $packages = @()
     if ($c) {
@@ -435,5 +434,5 @@ function installGum {
 # $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
 
 # Find-WGPackage -interactive  -source "winget"
-Get-WGPackage -source "winget" -interactive
-#Update-WGPackage -interactive
+# Get-WGPackage -source "winget" -interactive
+Update-WGPackage -interactive
