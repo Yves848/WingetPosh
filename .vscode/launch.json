@@ -10,7 +10,7 @@
       "type": "PowerShell",
       "request": "launch",
       "script": "${file}",
-      "args": ["search","code"]
+      "args": []
     }
   ]
 }

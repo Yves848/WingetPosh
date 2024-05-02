@@ -5,6 +5,7 @@ $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition
 
 . "$include\visuals.ps1"
 . "$include\classes.ps1"
+. "$include\tools.ps1"
 
 $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
 
@@ -54,20 +55,6 @@ function Get-FieldLength {
     $i += $l 
   }
   return $i
-}
-
-function TruncateString {
-  param (
-      [string]$InputString,
-      [int]$MaxLength
-  )
-
-  if ($InputString.Length -le $MaxLength) {
-      return $InputString
-  }
-
-  $TruncatedString = $InputString.Substring(0, $MaxLength - 3) + "…"
-  return $TruncatedString
 }
 
 enum lineAction {
@@ -238,7 +225,7 @@ class Item {
   [PSCustomObject]$data
 }
 
-function Get-WGPackage{ 
+function Get-WGPackage { 
   param(
     [string]$source = $null,
     $_args
@@ -248,7 +235,7 @@ function Get-WGPackage{
     $GetParams.Add("source", $source)
   }
   
-  $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Square"
+  $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Dots"
   
   $packages = Get-WinGetPackage | Where-Object { $_.Source -eq $source }
 
@@ -261,23 +248,70 @@ function Find-WGPackage {
   param(
     [string]$query = $null,
     [string]$source = $null,
-    $_args
+    [switch]$interactive = $false
   )
-  $Session, $runspace = Open-Spinner -label "Searching for $query in $source"
+  
   $SearchParams = @{}
+  $buffer = gum style "Enter search query" --border "rounded" --width ($Host.UI.RawUI.BufferSize.Width - 2)
+  $buffer | ForEach-Object {
+    [System.Console]::write($_)
+  }
+  
   if ($query) {
+    $SearchParams.Add("query", $query)
+  }
+  else {
+    $query = gum input --placeholder "Search for a package" 
     $SearchParams.Add("query", $query)
   }
   if ($source) {
     $SearchParams.Add("source", $source)
   }
-  $packages = Find-WinGetPackage @SearchParams
-  Close-Spinner -session $Session -runspace $runspace
+  else {
+    $source = gum style "everysources" --foreground "#FF0000"
+  }
+  if ($query) {
+    $query = gum style $query --foreground "#00FF00" --bold
+    $Session, $runspace = Open-Spinner -label "Searching for $query in $source" -type "Dots"
+    $packages = Find-WinGetPackage @SearchParams
+    Close-Spinner -session $Session -runspace $runspace
+  }
+  else {
+    $buffer = gum style "No query specified" --border "rounded" --width ($Host.UI.RawUI.BufferSize.Width - 2)
+    $buffer | ForEach-Object {
+      [System.Console]::write($_)
+    }
+  }
+  if ($packages -and $interactive) {
+    Clear-Host
+    [column[]]$cols = @()
+    $cols += [column]::new("Name", "Name", 40)
+    $cols += [column]::new("Id", "Id", 40)
+    $cols += [column]::new("InstalledVersion", "Version", 20)
+    [package[]]$InstalledPackages = @()
+    $packages | ForEach-Object {
+      $InstalledPackages += [package]::new($_.Name, $_.Id, $_.Version)
+    }
+    $choices = makeLines -columns $cols -items $InstalledPackages
+    $width = $Host.UI.RawUI.BufferSize.Width - 2
+    gum style --border "rounded" --width $width "Choose a package to Install"
+    $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
+    $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
+    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
+    $packages = @()
+    if ($c) {
+      $c | ForEach-Object {
+        $index = ($choices -split '\n').IndexOf($_)
+        $packages += $InstalledPackages[$index]
+      }
+    }
+    Clear-Host
+  }
   return $packages
 }
 
 function isGumInstalled {
-  $gum = get-command -CommandType Application -Name gum -ErrorAction SilentlyContinue
+  $gum = Get-Command -CommandType Application -Name gum -ErrorAction SilentlyContinue
   if ($gum) {
     return $true
   }
@@ -287,7 +321,7 @@ function isGumInstalled {
 function installGum {
   $command = "winget install --id charmbracelet.gum"
   Invoke-Expression $command | Out-Null
-  $env:path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+  $env:path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
 
 # Get-WGPackage -source "winget"
@@ -298,5 +332,21 @@ function installGum {
 # $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
 # $win.drawWindow();
 # [System.Console]::setcursorposition(1,1)
-$packages = Get-WGPackage -source "winget"
-Start-Sleep -Seconds 5
+
+# $packages = Get-WGPackage -source "winget"
+# [column[]]$cols = @()
+# $cols += [column]::new("Name", "Name", 40)
+# $cols += [column]::new("Id", "Id",  40)
+# $cols += [column]::new("InstalledVersion", "Version", 20)
+# [package[]]$InstalledPackages = @()
+# $packages | ForEach-Object {
+#   $InstalledPackages += [package]::new($_.Name, $_.Id, $_.AvailableVersions[0])
+# }
+# $choices = makeLines -columns $cols -items $InstalledPackages
+# $width = $Host.UI.RawUI.BufferSize.Width -2
+# gum style --border "rounded" --width $width "Choose a package to update"
+# $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
+# $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
+# $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
+
+Find-WGPackage -interactive

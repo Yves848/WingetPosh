@@ -325,3 +325,31 @@ class Grid {
   [int]$Height
   
 }
+
+function makeLines {
+  param(
+    [column[]]$columns,
+    [package[]]$items
+  )
+
+  $index = 0
+  [string]$line = ""
+  while ($index -lt $items.Count) {
+    $item = $items[$index]
+    [string]$temp = ""
+    $columns | ForEach-Object {
+      $fieldname = $_.FieldName
+      $width = [int32]$_.Width
+      $buffer = TruncateString -InputString $([string]$item."$fieldname") -MaxLength $width
+      $temp = [string]::Concat($temp,[string]$buffer.PadRight($width ," ")," ")
+    }
+    # $line = $line -join $temp , "`n"
+    $line = [string]::Concat($line, $temp)
+    if ($index -lt $items.Count - 1) {
+      $line = [string]::Concat($line, "`n")
+    }
+    $index ++
+  }
+
+  return $line
+}
