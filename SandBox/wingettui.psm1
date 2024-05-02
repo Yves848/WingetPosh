@@ -360,31 +360,3 @@ function installGum {
   Invoke-Expression $command | Out-Null
   $env:path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
-
-# Get-WGPackage -source "winget"
-# Find-WGPackage -query "code" -source "winget" 
-# $win = [window]::new(0,0, $Host.UI.RawUI.BufferSize.Width, $Host.UI.RawUI.BufferSize.Height-1 ,"Rounded","White")
-# $win.title = "Packages List"
-# $Win.titleColor = "Green"
-# $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
-# $win.drawWindow();
-# [System.Console]::setcursorposition(1,1)
-
-# $packages = Get-WGPackage -source "winget"
-# [column[]]$cols = @()
-# $cols += [column]::new("Name", "Name", 40)
-# $cols += [column]::new("Id", "Id",  40)
-# $cols += [column]::new("InstalledVersion", "Version", 20)
-# [package[]]$InstalledPackages = @()
-# $packages | ForEach-Object {
-#   $InstalledPackages += [package]::new($_.Name, $_.Id, $_.AvailableVersions[0])
-# }
-# $choices = makeLines -columns $cols -items $InstalledPackages
-# $width = $Host.UI.RawUI.BufferSize.Width -2
-# gum style --border "rounded" --width $width "Choose a package to update"
-# $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
-# $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
-# $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
-
-# Find-WGPackage -interactive  -source "winget"
-Get-WGPackage -source "winget" -interactive

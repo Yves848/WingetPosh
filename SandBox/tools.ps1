@@ -22,7 +22,6 @@ function TruncateString {
 
   if ($l -le $MaxLength) {
       $pos = 0
-      $result = 0
       $offset = 0
       $TruncatedString = $InputString
       while ($pos -lt $InputString.Length) {
