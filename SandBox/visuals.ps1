@@ -68,9 +68,7 @@ function Open-Spinner {
       "Sleep"  = 50
     }
   }
-
-
-
+  
   $statedata = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $runspace = [runspacefactory]::CreateRunspace()
   $statedata.X = $host.ui.rawui.CursorPosition.X 
@@ -81,7 +79,7 @@ function Open-Spinner {
   $runspace.Open()
   $Runspace.SessionStateProxy.SetVariable("StateData", $StateData)
   $sb = {
-
+    [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     [system.Console]::CursorVisible = $false
     $X = $StateData.X
     $Y = $StateData.Y
@@ -244,7 +242,7 @@ class window {
   }
   
   [void] drawWindow() {
-    $esc = $([char]0x1b)
+    # $esc = $([char]0x1b)
 
     [System.Console]::CursorVisible = $false
     $this.setPosition($this.X, $this.Y)
@@ -318,4 +316,12 @@ class window {
       Write-Host $blank 
     } 
   }
+}
+
+class Grid {
+  [int]$X
+  [int]$Y
+  [int]$Width
+  [int]$Height
+  
 }

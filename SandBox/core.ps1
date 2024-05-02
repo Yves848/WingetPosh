@@ -1,6 +1,10 @@
-﻿$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
+﻿#Add-Type -path C:\Users\yvesg\Documents\PowerShell\Modules\Microsoft.WinGet.Client\1.6.3133.0\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll
+
+
+$include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
 
 . "$include\visuals.ps1"
+. "$include\classes.ps1"
 
 $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
 
@@ -21,19 +25,6 @@ $sources = @{
   "winget" = "winget"
   "scoop"  = "scoop"
 }
-
-$list_columns = @(
-  @{ Name = "Name"; Width = 45 }
-  @{ Name = "Id"; Width = 45 }
-  @{ Name = "Version"; Width = 10 }
-)
-
-$search_columns = @(
-  @{ Name = "Name"; Width = 45 }
-  @{ Name = "Id"; Width = 45 }
-  @{ Name = "Version"; Width = 10 }
-)
-
 
 function Get-FieldBAseNAme {
   param(
@@ -65,7 +56,7 @@ function Get-FieldLength {
   return $i
 }
 
-function Truncate-String {
+function TruncateString {
   param (
       [string]$InputString,
       [int]$MaxLength
@@ -247,69 +238,6 @@ class Item {
   [PSCustomObject]$data
 }
 
-function InvokeWinget {
-  param(
-    [string]$command
-  )
-  [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-  
-  $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
-  $stateInstall.exp = "winget $command"
-  $stateInstall.SearchResult = ""
-  $runspaceInstall = [runspacefactory]::CreateRunspace()
-  $runspaceInstall.Open()
-  $RunspaceInstall.SessionStateProxy.SetVariable("StateInstall", $StateInstall)
-
-  $sbInstall = {
-    [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-    $StateInstall.SearchResult = Invoke-Expression $stateInstall.exp | Out-String -Stream 
-  }
-
-  $sessionInstall = [powershell]::create()
-  $null = $sessionInstall.AddScript($sbInstall)
-  $sessionInstall.Runspace = $runspaceInstall
-  $handleInstall = $sessionInstall.BeginInvoke()
-  while (-not $handleInstall.IsCompleted) {
-    
-  }
-  $SearchResults = $StateInstall.SearchResult
-  $sessionInstall.stop()
-  $runspaceInstall.Dispose() 
-  
-  return $SearchResults
-}
-
-
-
-function Invoke-Winget {
-  param(
-    $_args
-  )
-  $params = $_args -join " "
-  $params = $params -replace "\*", "' '"
-  $Session, $runspace = Open-Spinner -label "Loading"
-  $list = InvokeWinget -command $params
-
-  [wingetItems]$items = [wingetItems]::new($list, $null)
-  $result = $items.items.data
-  Close-Spinner -session $Session -runspace $runspace
-  return $result
-}
-
-function Get-WGList{
-  param(
-    [string]$source = $null
-  )
-  Invoke-Winget "list"
-}
-function Search-WG{
-  param(
-    [string]$source = $null,
-    $_args
-  )
-  Invoke-Winget "search $($_args)"
-}
-
 function Get-WGPackage{ 
   param(
     [string]$source = $null,
@@ -320,8 +248,10 @@ function Get-WGPackage{
     $GetParams.Add("source", $source)
   }
   
-  $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Dots"
+  $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Square"
+  
   $packages = Get-WinGetPackage | Where-Object { $_.Source -eq $source }
+
   Close-Spinner -session $Session -runspace $runspace
 
   return $packages
@@ -360,10 +290,13 @@ function installGum {
   $env:path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
-Get-WGPackage -source "winget" | Format-Table -AutoSize
+# Get-WGPackage -source "winget"
 # Find-WGPackage -query "code" -source "winget" 
-# $win = [window]::new(0,0, $Host.UI.RawUI.BufferSize.Width-1, $Host.UI.RawUI.BufferSize.Height-1 ,"Rounded","White")
-# $win.title = "Search"
+# $win = [window]::new(0,0, $Host.UI.RawUI.BufferSize.Width, $Host.UI.RawUI.BufferSize.Height-1 ,"Rounded","White")
+# $win.title = "Packages List"
 # $Win.titleColor = "Green"
 # $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
 # $win.drawWindow();
+# [System.Console]::setcursorposition(1,1)
+$packages = Get-WGPackage -source "winget"
+Start-Sleep -Seconds 5
