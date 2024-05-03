@@ -7,7 +7,8 @@
 $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
 
 [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
+$script:BORDER_FOREGROUND = "#1e2030"
+$script:TEXT_FOREGROUND = "#cad3f5"
 $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
 $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
 
@@ -230,13 +231,20 @@ class Item {
 function Get-WGPackage { 
   param(
     [string]$source = $null,
-    [switch]$interactive = $false
+    [switch]$interactive = $false,
+    [switch]$update = $false,
+    [switch]$uninstall = $false
   )
   $GetParams = @{}
   if ($source) {
     $GetParams.Add("source", $source)
   }
   
+  if ($update -and $uninstall) {
+    
+    return $null
+  }
+
   $Session, $runspace = Open-Spinner -label "Loading Packages List" -type "Dots"
   
   $packages = Get-WinGetPackage | Where-Object { $_.Source -eq $source }
@@ -253,11 +261,11 @@ function Get-WGPackage {
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
     $width = $Host.UI.RawUI.BufferSize.Width - 2
-    $height = $Host.UI.RawUI.BufferSize.Height - 6
+    $height = $Host.UI.RawUI.BufferSize.Height - 7
     $title = makeTitle -title "List of Installed Packages" -width $width
     $header = makeHeader -columns $cols
-    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5"
-    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground $($Theme["purple"])
+    $c = $choices | gum filter  --no-limit  --height $height --indicator "👉 " --placeholder "Search in the list" --prompt.foreground $($Theme["yellow"]) --prompt "🔎 "
     $packages = @()
     if ($c) {
       $c | ForEach-Object {
@@ -265,7 +273,7 @@ function Get-WGPackage {
         $packages += $InstalledPackages[$index]
       }
     }
-    Clear-Host
+    # Clear-Host
   }
   return $packages
 }
@@ -300,7 +308,7 @@ function Update-WGPackage {
     $width = $Host.UI.RawUI.BufferSize.Width - 2
     $title = makeTitle -title "Choose a package to update" -width $width
     $header = makeHeader -columns $cols
-    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5" 
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground $($Theme["purple"])
     $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
     $packages = @()
     if ($c) {
@@ -351,7 +359,6 @@ function Find-WGPackage {
         $packages += $_
       }
     }
-    Close-Spinner -session $Session -runspace $runspace
     [System.Console]::setcursorposition(0, $Y)
   }
   else {
@@ -360,6 +367,7 @@ function Find-WGPackage {
     $buffer | ForEach-Object {
       [System.Console]::write($_)
     }
+    return $null
   }
   if ($packages -and $interactive) {
     # Clear-Host
@@ -372,13 +380,15 @@ function Find-WGPackage {
       $InstalledPackages += [package]::new($_.Name, $_.Id, $_.Version)
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
+    Close-Spinner -session $Session -runspace $runspace
     $width = $Host.UI.RawUI.BufferSize.Width - 2
     $height = $Host.UI.RawUI.BufferSize.Height - 6
     [System.Console]::setcursorposition(0, $Y)
     $title = makeTitle -title "Choose Packages to Install" -width $width
     $header = makeHeader -columns $cols
-    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5" 
-    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height 
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground $($Theme["purple"]) 
+    # $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height 
+    $c = $choices | gum filter  --no-limit  --height $height --indicator "👉 " --placeholder "Search in the list" --prompt.foreground $($Theme["yellow"]) --prompt "🔎 "
     $packages = @()
     if ($c) {
       $c | ForEach-Object {
@@ -387,6 +397,9 @@ function Find-WGPackage {
       }
     }
     Clear-Host
+  }
+  else {
+    Close-Spinner -session $Session -runspace $runspace
   }
   return $packages
 }

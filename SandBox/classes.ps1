@@ -37,6 +37,7 @@ class package {
     $this.Source = $Source
     $this.IsUpdateAvailable = $IsUpdateAvailable
     $this.InstalledVersion = $InstalledVersion
+    $this.Available = $AvailableVersions[0]
   }
 
   package(

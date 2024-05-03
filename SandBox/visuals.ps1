@@ -71,7 +71,12 @@ function Open-Spinner {
   $runspace = [runspacefactory]::CreateRunspace()
   $statedata.X = $host.ui.rawui.CursorPosition.X 
   $statedata.Y = $host.ui.rawui.CursorPosition.Y 
-  $statedata.Frames = $Spinners[$type].Frames
+  $statedata.offset = ($Spinners[$type].Frames | Measure-Object -Property Length -Maximum).Maximum
+  $ThemedFrames = @()
+  $Spinners[$type].Frames | ForEach-Object {
+    $ThemedFrames += gum style $_ --foreground $($Theme["brightPurple"]) 
+  }
+  $statedata.Frames =$ThemedFrames
   $statedata.Sleep = $Spinners[$type].Sleep
   $statedata.label = $label 
   $runspace.Open()
@@ -84,12 +89,12 @@ function Open-Spinner {
     
     $Frames = $statedata.Frames
     $i = 0
-    $offset = ($Frames | Measure-Object -Property Length -Maximum).Maximum
     while ($true) {
       [System.Console]::setcursorposition($X, $Y)
-      $text = "$([char]27)[35m$([char]27)[50m$($Frames[$i])$([char]27)[0m"      
+      # $text = "$([char]27)[35m$([char]27)[50m$($Frames[$i])$([char]27)[0m"  
+      $text = $Frames[$i]    
       [system.console]::write($text)
-      [System.Console]::setcursorposition(($X + $offset) + 1, $Y)
+      [System.Console]::setcursorposition(($X + $statedata.offset) + 1, $Y)
       [system.console]::write($statedata.label)
       $i = ($i + 1) % $Frames.Length
       Start-Sleep -Milliseconds $Statedata.Sleep
@@ -341,8 +346,11 @@ function makeLines {
       $buffer = TruncateString -InputString $([string]$item."$fieldname") -MaxLength $width
       $temp = [string]::Concat($temp,[string]$buffer," ")
     }
-    # $line = $line -join $temp , "`n"
+    if ($item.IsUpdateAvailable) {
+      $temp =  gum style $temp --foreground $($Theme["brightRed"])
+    }
     $line = [string]::Concat($line, $temp)
+    
     if ($index -lt $items.Count - 1) {
       $line = [string]::Concat($line, "`n")
     }
@@ -369,7 +377,7 @@ function makeTitle {
     [int]$width
   )
   $w = ($width / 2) + ($title.Length / 2)
-  $title = $title.PadLeft($w, "—")
-  $title = $title.PadRight($width, "—")
-  return gum style $title --foreground "#6436ba" --bold --align "center"
+  $title = $title.PadLeft($w, " ")
+  $title = $title.PadRight($width, " ")
+  return gum style $title --foreground $($Theme["brightPurple"]) --background $($Theme["background"]) --bold --align "center"
 }
