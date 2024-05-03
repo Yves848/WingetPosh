@@ -7,23 +7,10 @@
 $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
 
 [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$script:BORDER_FOREGROUND = "#1e2030"
-$script:TEXT_FOREGROUND = "#cad3f5"
+
 $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
 $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
 
-$baseFields = @{
-  'SearchName'        = 'Name'
-  'SearchID'          = 'Id'
-  'SearchVersion'     = 'Version'
-  'AvailableHeader'   = 'Available'
-  'SearchSource'      = 'Source'
-  'ShowVersion'       = 'Version'
-  'AvailableUpgrades' = 'upgrades available.'
-  "SearchMatch"       = "Moniker"
-  "SourceListName"    = "Name"
-  "SourceListArg"     = "Argument"
-}
 
 $sources = @{
   "winget" = "winget"
@@ -59,174 +46,6 @@ function Get-FieldLength {
   }
   return $i
 }
-
-enum lineAction {
-  None = 0
-  Install = 1
-  Remove = 2
-  Update = 3
-}
-
-# class wingetItems {
-#   [System.Text.RegularExpressions.Match[]]$columns
-#   [item[]]$items
-#   [Object[]]$list
-#   [string]$source
-
-#   [Int16]$bufferWidth = ($Host.UI.RawUI.BufferSize.Width)
-#   [Int16]$lineWidth
-#   wingetItems(
-#     [Object[]]$list,
-#     [string]$source = $null
-#   ) {
-#     $this.list = $list
-#     $this.source = $source
-#     $this.items = @()
-#     $this.ParseList()
-#   }
-
-#   [void] ParseOutput() {  
-#     $w = $this.bufferWidth
-#     $w0 = $this.lineWidth 
-#     $proportion = [System.Math]::Floor($W / $w0 * 100)
-#     $tempcols2 = @()
-#     $this.columns | ForEach-Object {
-#       $name = Get-FieldBAseNAme -name $_.Value
-#       [psobject]$obj = New-Object -TypeName psobject -Property @{
-#         Index = [System.Math]::Floor($_.Index * $proportion / 100)
-#         Name  = $name
-#       }
-#       $tempcols2 += $obj
-#     }
-#     $blankline = "".PadRight($w, " ")
-#     $this.items | ForEach-Object {
-#       $offset = 0
-#       $fields = $_.data
-#       $bl2 = $blankline
-#       $tempcols2 | ForEach-Object {
-#         $buffer = ($fields."$($_.Name)").trim()
-#         $l0 = Get-FieldLength -buffer $buffer # "real" length of the buffer
-#         $l1 = $buffer.Length # "visual" length of the buffer
-#         $diff = $l0 - $l1
-#         $offset += $diff # Offset to adjust the position of the buffer
-#         if ($_.index -gt 0) {
-#           $position = ($_.Index - $offset) - 1
-#         }
-#         else {
-#           $position = $_.Index
-#         }
-#         if ($buffer -ne "") {
-#           try {
-#             if (($position + ($l1 + $diff)) -gt $w) {
-#               $sub = ($position + $l1 + $diff) - $w
-#               $buffer = $buffer.Substring(0, $l1 - $sub)
-#               $l1 = $buffer.Length
-#             }
-#             $bl2 = ([string]$bl2).Remove($position, $l1 + $diff).Insert($position, $buffer)  
-#           }
-#           catch {
-#             <#Do this if a terminating exception happens#>
-#             Write-Host "Buffer: $buffer position:$position l1:$l1 diff:$diff $($bl2.Length)"
-#           }
-          
-#         }
-#         if ($_.Index -gt 0) {
-#           # add separator
-#           $bl2 = ([string]$bl2).Remove($position - 1, 1).Insert($position - 1, "|")
-#         }
-#       }
-#       Write-Host $bl2  
-#     }
-#   }
-
-#   [void] ParseList() {
-#     $partialKey = "---"
-#     $index = 0
-#     $data = $false
-#     $this.list | ForEach-Object {
-#       if ($_ -match $partialKey) {
-#         # Found the columns headers
-#         $index = $this.list.IndexOf($_) - 1
-#         $this.GetColumnHeaders($this.list[$index])
-#         $this.lineWidth = ([string]$this.list[$index]).Length
-#         $data = $true
-#       }
-#       else {
-#         if ($data) {
-#           # parse the real data
-#           $this.ParseData($_)  
-#         }  
-#       }
-#     } 
-#   }
-
-#   [void] ParseData(
-#     $line
-#   ) {
-#     $line = $line.PadRight($this.lineWidth, " ").Replace("|", " ").Replace('…', ' ')
-#     $i = 0
-#     $pos = 0
-#     $insertat = 0
-#     $offset = 0
-#     $this.columns | ForEach-Object {
-#       if ($_.Index -gt 0) {
-#         while ($pos -lt $_.Index) {
-#           $nbchars = [Text.Encoding]::UTF8.GetByteCount($line[$i])
-#           $pos = $pos + $nbchars
-#           if ($nbchars -gt 1) {
-#             if ($pos -lt $_.Index) {
-#               $insertat += 2
-#             }
-#             else {
-#               $insertat += $nbchars
-#             }
-#           }
-#           else {
-#             $insertat++ 
-#           }
-#           $i++
-#         }
-#         $line = ($line).Insert($insertat + $offset, "|") 
-#         $offset++
-#       }
-#     }
-    
-#     $fields = [ordered]@{}
-#     $idx = 0
-    
-#     $line.Split("|") | ForEach-Object {
-#       $base = $script:fields.psobject.Properties | Where-Object { $_.Value -eq $this.columns[$Idx].Value }
-#       if ($base.count -eq 1) {
-#         $BaseName = $base.Name
-#       }
-#       else {
-#         $BaseName = ($base | Where-Object { $_.Name.StartsWith("Search") }).Name
-#       }
-#       $fields.add($baseFields[$BaseName], $_.Trim())
-#       $idx++
-#     }
-    
-#     [item]$item = [item]::new()
-#     $item.data = New-Object -TypeName PSObject -Property $fields
-#     $this.items += $item
-#   }
-
-#   GetColumnHeaders(
-#     [string]$header
-#   ) {
-#     $this.columns = ($header | Select-String -Pattern "(?:\S+)" -AllMatches).Matches
-#   }
-# }
-
-# class displayOptions {
-#   [System.Boolean]$selected
-#   [System.Boolean]$checked
-#   [lineAction]$action
-# }
-# class Item {
-#   [displayOptions]$options
-#   [PSCustomObject]$data
-# }
 
 function Get-WGPackage { 
   param(
@@ -391,10 +210,10 @@ function Find-WGPackage {
     [column[]]$cols = @()
     $cols += [column]::new("Name", "Name", 40)
     $cols += [column]::new("Id", "Id", 40)
-    $cols += [column]::new("InstalledVersion", "Version", 20)
+    $cols += [column]::new("Available", "Version", 20)
     [package[]]$InstalledPackages = @()
     $packages | ForEach-Object {
-      $InstalledPackages += [package]::new($_.Name, $_.Id, $_.Version)
+      $InstalledPackages += [package]::new($_.Name, $_.Id, $_.AvailableVersions, $_.Source, $_.IsUpdateAvailable, $_.InstalledVersion)
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
     Close-Spinner -session $Session -runspace $runspace
@@ -435,31 +254,6 @@ function installGum {
   $env:path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
 
-# Get-WGPackage -source "winget"
-# Find-WGPackage -query "code" -source "winget" 
-# $win = [window]::new(0,0, $Host.UI.RawUI.BufferSize.Width, $Host.UI.RawUI.BufferSize.Height-1 ,"Rounded","White")
-# $win.title = "Packages List"
-# $Win.titleColor = "Green"
-# $win.footer = "$(color "[Enter]" "red") : Accept $(color "[Esc]" "red") : Abort"
-# $win.drawWindow();
-# [System.Console]::setcursorposition(1,1)
-
-# $packages = Get-WGPackage -source "winget"
-# [column[]]$cols = @()
-# $cols += [column]::new("Name", "Name", 40)
-# $cols += [column]::new("Id", "Id",  40)
-# $cols += [column]::new("InstalledVersion", "Version", 20)
-# [package[]]$InstalledPackages = @()
-# $packages | ForEach-Object {
-#   $InstalledPackages += [package]::new($_.Name, $_.Id, $_.AvailableVersions[0])
-# }
-# $choices = makeLines -columns $cols -items $InstalledPackages
-# $width = $Host.UI.RawUI.BufferSize.Width -2
-# gum style --border "rounded" --width $width "Choose a package to update"
-# $env:GUM_CHOOSE_SELECTED_BACKGROUND = "21"
-# $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
-# $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
-
-# Find-WGPackage -interactive  -source "winget"
-Get-WGPackage -source "winget" -update 
+Find-WGPackage -interactive -source "winget"
+# Get-WGPackage -source "winget" -update 
 #Update-WGPackage -interactive

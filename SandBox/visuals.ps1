@@ -340,15 +340,18 @@ function makeLines {
   while ($index -lt $items.Count) {
     $item = $items[$index]
     [string]$temp = ""
+    if ($item.IsUpdateAvailable) {
+      $temp =  [string]::Concat($temp, "↺ ")
+    } else {
+      $temp =  [string]::Concat($temp, "  ")
+    }
     $columns | ForEach-Object {
       $fieldname = $_.FieldName
       $width = [int32]$_.Width
       $buffer = TruncateString -InputString $([string]$item."$fieldname") -MaxLength $width
       $temp = [string]::Concat($temp,[string]$buffer," ")
     }
-    if ($item.IsUpdateAvailable) {
-      $temp =  gum style $temp --foreground $($Theme["brightRed"])
-    }
+
     $line = [string]::Concat($line, $temp)
     
     if ($index -lt $items.Count - 1) {
@@ -363,12 +366,12 @@ function makeHeader {
   param(
     [column[]]$columns
   )
-  $header = ""
+  $header = "   "
   $columns | ForEach-Object {
     $w = Get-ProportionalLength -MaxLength $_.Width
     $header = [string]::Concat($header, $_.Label.PadRight($w," "), " ")
   }
-  return [string]::Concat("    ",$header)
+  return gum style $([string]::Concat("    ",$header)) --foreground $($Theme["brightYellow"])
 }
 
 function makeTitle {
