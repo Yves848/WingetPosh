@@ -23,8 +23,6 @@
     "cyan"       = @(96, 106)
     "darkcyan"   = @(36, 46)
   }
-
-  
   
   if ( $ForegroundColor -notin $Colors.Keys -or $BackgroundColor -notin $Colors.Keys) {
     Write-Error "Invalid color choice!" -ErrorAction Stop

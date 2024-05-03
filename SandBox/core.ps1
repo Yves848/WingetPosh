@@ -10,7 +10,8 @@ $include = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition
 $script:fields = Get-Content $env:USERPROFILE\.config\.wingetposh\locals.json | ConvertFrom-Json
 
 [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
+$script:BORDER_FOREGROUND = "#1e2030"
+$script:TEXT_FOREGROUND = "#cad3f5"
 $env:GUM_CHOOSE_SELECTED_BACKGROUND = "22"
 $env:GUM_CHOOSE_SELECTED_FOREGROUND = "#ffffff"
 
@@ -256,11 +257,12 @@ function Get-WGPackage {
     }
     $choices = makeLines -columns $cols -items $InstalledPackages
     $width = $Host.UI.RawUI.BufferSize.Width - 2
-    $height = $Host.UI.RawUI.BufferSize.Height - 6
+    $height = $Host.UI.RawUI.BufferSize.Height - 7
     $title = makeTitle -title "List of Installed Packages" -width $width
     $header = makeHeader -columns $cols
-    gum style --border "rounded" --width $width "$title`n$header" --border-foreground "#2303F5"
-    $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
+    gum style --border "rounded" --width $width "$title`n$header" --border-foreground $($Theme["purple"])
+    #$c = $choices | gum filter  --selected-prefix "✔️" --no-limit --cursor "👉 " --height $height
+    $c = $choices | gum filter  --no-limit  --height $height --indicator "👉 " --placeholder "Search in the list" --prompt.padding 1,1
     $packages = @()
     if ($c) {
       $c | ForEach-Object {
@@ -268,7 +270,7 @@ function Get-WGPackage {
         $packages += $InstalledPackages[$index]
       }
     }
-    Clear-Host
+    # Clear-Host
   }
   return $packages
 }
@@ -434,5 +436,5 @@ function installGum {
 # $c = $choices | gum choose  --selected-prefix "✔️" --no-limit --cursor "👉 "
 
 # Find-WGPackage -interactive  -source "winget"
-# Get-WGPackage -source "winget" -interactive
-Update-WGPackage -interactive
+Get-WGPackage -source "winget" -interactive
+#Update-WGPackage -interactive
