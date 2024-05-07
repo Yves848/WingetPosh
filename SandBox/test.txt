@@ -1,0 +1,1359 @@
+
+InstalledVersion  : 17.9.6
+Name              : Visual Studio Community 2022
+Id                : Microsoft.VisualStudio.2022.Community
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {17.9.1, 17.8.6, 17.8.5, 17.8.4…}
+
+InstalledVersion  : 18.0.0.0
+Name              : Defense zone 2
+Id                : 10991ArtemKotov.Defensezone2_6acec3smeeeap
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0
+Name              : YouTube
+Id                : 1feb86bc35ffb39f04790986c9423919
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.1.11
+Name              : NVM for Windows
+Id                : CoreyButler.NVMforWindows
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {1.1.12, 1.1.12, 1.1.11, 1.1.11…}
+
+InstalledVersion  : 1.0
+Name              : Facebook
+Id                : 532e0a6b3ea61465f1fce67688d013e2
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 04/27/2014 3.0.7.0
+Name              : Windows Driver Package - libusbK Nintendo Switch APX Mode (04/27/2014 3.0.7.0)
+Id                : 5C4BD94286C931BB5D47200B4AF1D1B99B3C08AB
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 23.01
+Name              : 7-Zip
+Id                : 7zip.7zip
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {23.01, 23.01, 22.01, 22.01…}
+
+InstalledVersion  : 3.0.28.0
+Name              : LinkedIn
+Id                : 7EE7776C.LinkedInforWindows_w1wdnht996qgy
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0
+Name              : YouTube Music
+Id                : 806f43600a6c860679eaa61cbaefbbd3
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 02/22/2013 6.1.7600.16385
+Name              : Windows Driver Package - Microsoft PS Vita Type B (02/22/2013 6.1.7600.16385)
+Id                : A0EC80B5719D4DA4CF40C9219D7CB9CCAD6DBA40
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.100.5435.0
+Name              : Centre de configuration des graphiques Intel®
+Id                : AppUp.IntelGraphicsExperience_8j3eq9eme6ctt
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2328.5.2.0
+Name              : Intel(R) Management and Security Status
+Id                : AppUp.IntelManagementandSecurityStatus_8j3eq9eme6ctt
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 6.5.2
+Name              : Canon Inkjet Printer/Scanner/Fax Extended Survey Program
+Id                : CANONIJPLM100
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.09
+Name              : CPUID CPU-Z
+Id                : CPUID.CPU-Z
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {2.09, 2.09, 2.08, 2.08…}
+
+InstalledVersion  : 1.9.1
+Name              : Printer Registration
+Id                : Canon EISRegistration
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.8.0
+Name              : Canon Easy-PhotoPrint Editor
+Id                : Canon Easy-PhotoPrint Editor
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.20.1.51
+Name              : Canon IJ Printer Assistant Tool
+Id                : Canon IJ Printer Assistant Tool
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.0.10.2
+Name              : Canon IJ Network Scanner Selector EX2
+Id                : Canon_IJ_Network_Scanner_Selector_EX2
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.5.0.69
+Name              : Canon IJ Scan Utility
+Id                : Canon_IJ_Scan_Utility
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2204.3.49.0
+Name              : Ubuntu 22.04 LTS
+Id                : Canonical.Ubuntu.2204
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {2204.1.7.0, 2204.0.10.0}
+
+InstalledVersion  : 3.1.10020.0
+Name              : Microsoft Clipchamp
+Id                : Clipchamp.Clipchamp_yxz26nhyzhsrt
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 24.0.0
+Name              : DBeaver Community Edition
+Id                : dbeaver.dbeaver
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {24.0.3, 24.0.2, 24.0.1, 24.0.0…}
+
+InstalledVersion  : 6.5.2
+Name              : DroidCam Client
+Id                : dev47apps.DroidCam
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {6.5.2, 6.4.3}
+
+InstalledVersion  : 1.3.22
+Name              : GExperts for RAD Studio 11
+Id                : GExpertsRADStudio11_is1
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.10.36
+Name              : GIMP
+Id                : GIMP.GIMP
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {2.10.36, 2.10.36, 2.10.34, 2.10.34…}
+
+InstalledVersion  : 3.3.11
+Name              : GitHub Desktop
+Id                : GitHub.GitHubDesktop
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {3.3.14, 3.3.14, 3.3.13, 3.3.13…}
+
+InstalledVersion  : 2.43.0
+Name              : Git
+Id                : Git.Git
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {2.44.0, 2.44.0, 2.43.0, 2.43.0…}
+
+InstalledVersion  : 124.0.2478.67
+Name              : Microsoft Edge
+Id                : Microsoft.Edge
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {124.0.2478.51, 123.0.2420.97, 123.0.2420.81, 123.0.2420.65…}
+
+InstalledVersion  : 1.3.185.29
+Name              : Microsoft Edge Update
+Id                : Microsoft Edge Update
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 124.0.2478.67
+Name              : Microsoft Edge WebView2 Runtime
+Id                : Microsoft.EdgeWebView2Runtime
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {124.0.2478.67, 123.0.2420.65, 122.0.2365.92, 120.0.2210.121…}
+
+InstalledVersion  : 21.0
+Name              : Microsoft Windows 10 SDK Installer
+Id                : Microsoft Windows 10 SDK Installer
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 4.2308.1005.0
+Name              : Cortana
+Id                : Microsoft.549981C3F5F10_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 4.55.62231.0
+Name              : Actualités
+Id                : Microsoft.BingNews_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.91.0
+Name              : Recherche Web de Microsoft Bing
+Id                : Microsoft.BingSearch_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 4.53.60911.0
+Name              : MSN Météo
+Id                : Microsoft.BingWeather_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.22.11132.0
+Name              : App Installer
+Id                : Microsoft.AppInstaller
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.22.11132.0, 1.22.11132.0, 1.22.10861.0, 1.22.10861.0…}
+
+InstalledVersion  : 2404.1001.25.0
+Name              : Xbox
+Id                : Microsoft.GamingApp_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 10.2308.12552.0
+Name              : Obtenir de l'aide
+Id                : Microsoft.GetHelp_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.3.42522.0
+Name              : Astuces Microsoft
+Id                : Microsoft.Getstarted_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.1.861.0
+Name              : HEIF Image Extensions
+Id                : Microsoft.HEIFImageExtension_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.0.61931.0
+Name              : Extensions vidéo HEVC du fabricant de l'appareil
+Id                : Microsoft.HEVCVideoExtension_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 123.0.2420.97
+Name              : Microsoft Edge
+Id                : Microsoft.MicrosoftEdge.Stable_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 4.19.3280.0
+Name              : Solitaire & Casual Games
+Id                : Microsoft.MicrosoftSolitaireCollection_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 4.0.6002.0
+Name              : Pense-bêtes Microsoft
+Id                : Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.2.29512.0
+Name              : Microsoft .Net Native Framework Package 2.2
+Id                : Microsoft.NET.Native.Framework.2.2_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.2.28604.0
+Name              : Microsoft .Net Native Runtime Package 2.2
+Id                : Microsoft.NET.Native.Runtime.2.2_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 23246.1127.2.0
+Name              : OneDrive
+Id                : Microsoft.OneDriveSync_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.2024.403.300
+Name              : Outlook for Windows
+Id                : Microsoft.OutlookForWindows_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 11.2402.32.0
+Name              : Paint
+Id                : Microsoft.Paint_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 10.2202.100.0
+Name              : Contacts Microsoft
+Id                : Microsoft.People_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.1148.0
+Name              : Power Automate
+Id                : Microsoft.PowerAutomateDesktop_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.0.0
+Name              : PowerToys FileLocksmith Context Menu
+Id                : Microsoft.PowerToys.FileLocksmithContextMenu_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.79.0.0
+Name              : PowerToys ImageResizer Context Menu
+Id                : Microsoft.PowerToys.ImageResizerContextMenu_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.79.0.0
+Name              : PowerToys PowerRename Context Menu
+Id                : Microsoft.PowerToys.PowerRenameContextMenu_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.3.611.0
+Name              : Raw Image Extension
+Id                : Microsoft.RawImageExtension_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 11.2403.8.0
+Name              : Outil Capture d'écran
+Id                : Microsoft.ScreenSketch_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1000.25992.9000.0
+Name              : Sécurité Windows
+Id                : Microsoft.SecHealthUI_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 10.0.23012.0
+Name              : Microsoft Engagement Framework
+Id                : Microsoft.Services.Store.Engagement_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 22403.1401.0.0
+Name              : Hôte de l'expérience du Microsoft Store
+Id                : Microsoft.StorePurchaseApp_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.114.7122.0
+Name              : Microsoft To Do
+Id                : Microsoft.Todos_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.62112.3002.0
+Name              : Microsoft.UI.Xaml.2.6
+Id                : Microsoft.UI.Xaml.2.6_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 7.2208.15002.0
+Name              : Microsoft.UI.Xaml
+Id                : Microsoft.UI.Xaml.2.7
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {7.2208.15002.0}
+
+InstalledVersion  : 8.2310.30001.0
+Name              : Microsoft.UI.Xaml
+Id                : Microsoft.UI.Xaml.2.8
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {8.2310.30001.0, 8.2306.22001.0, 8.2305.5001.0}
+
+InstalledVersion  : 14.0.33519.0
+Name              : Microsoft Visual C++ 2015 UWP Desktop Runtime Package
+Id                : Microsoft.VCLibs.Desktop.14
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {14.0.33321.0}
+
+InstalledVersion  : 14.0.33519.0
+Name              : Microsoft Visual C++ 2015 UWP Runtime Package
+Id                : Microsoft.VCLibs.140.00_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.1.451.0
+Name              : VP9 Video Extensions
+Id                : Microsoft.VP9VideoExtensions_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.1.663.0
+Name              : Extensions de support web
+Id                : Microsoft.WebMediaExtensions_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.62681.0
+Name              : Webp Image Extensions
+Id                : Microsoft.WebpImageExtension_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.3.0
+Name              : Microsoft Copilot
+Id                : Microsoft.Windows.Ai.Copilot.Provider_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.1300.477.0
+Name              : Dev Home (Preview)
+Id                : Microsoft.DevHome
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {0.1201.442.0, 0.1101.416.0, 0.1001.389.0, 0.801.344.0…}
+
+InstalledVersion  : 2024.11030.15001.0
+Name              : Photos Microsoft
+Id                : Microsoft.Windows.Photos_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.191.0
+Name              : Horloge Windows
+Id                : Microsoft.WindowsAlarms_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1005.616.1651.0
+Name              : WindowsAppRuntime.1.1
+Id                : Microsoft.WindowsAppRuntime.1.1_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2000.802.31.0
+Name              : WindowsAppRuntime.1.2
+Id                : Microsoft.WindowsAppRuntime.1.2_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 3000.934.1904.0
+Name              : WindowsAppRuntime.1.3
+Id                : Microsoft.WindowsAppRuntime.1.3_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 4000.1136.2333.0
+Name              : WindowsAppRuntime.1.4
+Id                : Microsoft.WindowsAppRuntime.1.4_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 5001.95.533.0
+Name              : WindowsAppRuntime.1.5
+Id                : Microsoft.WindowsAppRuntime.1.5_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 11.2401.0.0
+Name              : Calculatrice Windows
+Id                : Microsoft.WindowsCalculator_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2024.2402.5.0
+Name              : Caméra Windows
+Id                : Microsoft.WindowsCamera_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.2401.20253.0
+Name              : Hub de commentaires
+Id                : Microsoft.WindowsFeedbackHub_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.60.0
+Name              : Cartes Windows
+Id                : Microsoft.WindowsMaps_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 11.2402.22.0
+Name              : Bloc-notes Windows
+Id                : Microsoft.WindowsNotepad_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.77.0
+Name              : Magnétophone Windows
+Id                : Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 22403.1401.3.0
+Name              : Microsoft Store
+Id                : Microsoft.WindowsStore_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.19.10821.0
+Name              : Windows Terminal
+Id                : Microsoft.WindowsTerminal
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.19.10821.0, 1.19.10573.0, 1.19.10302.0, 1.19.10292.0…}
+
+InstalledVersion  : 2024.430.656.911
+Name              : Windows Package Manager Source (winget)
+Id                : Microsoft.Winget.Source_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.24.10001.0
+Name              : Xbox TCUI
+Id                : Microsoft.Xbox.TCUI_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.54.4001.0
+Name              : Xbox Game Bar Plugin
+Id                : Microsoft.XboxGameOverlay_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 7.124.3191.0
+Name              : Game Bar
+Id                : Microsoft.XboxGamingOverlay_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 12.95.3001.0
+Name              : Xbox Identity Provider
+Id                : Microsoft.XboxIdentityProvider_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.21.13002.0
+Name              : Xbox Game Speech Window
+Id                : Microsoft.XboxSpeechToTextOverlay_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.24032.123.0
+Name              : Mobile connecté
+Id                : Microsoft.YourPhone_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 11.2403.5.0
+Name              : Lecteur multimédia Windows
+Id                : Microsoft.ZuneMusic_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 10.22091.10061.0
+Name              : Films et TV
+Id                : Microsoft.ZuneVideo_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.2.40.0
+Name              : Microsoft Family
+Id                : MicrosoftCorporationII.MicrosoftFamily_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.0.30.0
+Name              : Assistance rapide
+Id                : MicrosoftCorporationII.QuickAssist_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.1.5.0
+Name              : Sous-système Windows pour Linux
+Id                : MicrosoftCorporationII.WindowsSubsystemForLinux_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 24033.1005.2701.7380
+Name              : Microsoft Teams
+Id                : Microsoft.Teams.Free
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {24060.3102.2733.5911, 24047.202.2704.38}
+
+InstalledVersion  : 424.1301.450.0
+Name              : Windows Web Experience Pack
+Id                : MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.24041.33.0
+Name              : Hôte d’expérience inter-appareils
+Id                : MicrosoftWindows.CrossDevice_cw5n1h2txyewy
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 8.1.966.0
+Name              : NVIDIA Control Panel
+Id                : NVIDIACorp.NVIDIAControlPanel_56jybvy8sckqj
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 30.0.0
+Name              : OBS Studio
+Id                : OBSProject.OBSStudio
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {30.1.2, 30.1.2, 30.1.1, 30.1.1…}
+
+InstalledVersion  : 19.20.0
+Name              : Oh My Posh
+Id                : JanDeDobbeleer.OhMyPosh
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {19.24.3, 19.24.3, 19.24.2, 19.24.2…}
+
+InstalledVersion  : 24.070.0407.0003
+Name              : Microsoft OneDrive
+Id                : OneDriveSetup.exe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 16.0.17425.20176
+Name              : Microsoft OneNote - fr-fr
+Id                : OneNoteFreeRetail - fr-fr
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 10.21.0
+Name              : Postman
+Id                : Postman.Postman
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {10.24.16, 10.24.3, 10.24.0, 10.23.9…}
+
+InstalledVersion  : 5.8.235.0
+Name              : SAPIEN PowerShell Studio 2023
+Id                : PowerShell Studio 2023 5.8.235.0
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.4.1
+Name              : Qcma
+Id                : Qcma
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 3.1423.712.0
+Name              : Killer Intelligence Center
+Id                : RivetNetworks.KillerControlCenter_rh07ty8m5nkag
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.27.0
+Name              : Rustup: the Rust toolchain installer
+Id                : Rustlang.Rustup
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.27.0, 1.26.0, 1.25.2, 1.25.1}
+
+InstalledVersion  : 1.2.49.0
+Name              : SAPIEN Updates
+Id                : SAPIEN Updates 1.2.49.0
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.10.91.91
+Name              : Steam
+Id                : Valve.Steam
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {2.10.91.91}
+
+InstalledVersion  : Unknown
+Name              : Project Playtime
+Id                : Steam App 1961460
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : Unknown
+Name              : Contagion
+Id                : Steam App 238430
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.6.0
+Name              : TegraRcmGUI
+Id                : eliboa.TegraRcmGUI
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {2.6.0}
+
+InstalledVersion  : 5.0.59.0
+Name              : Waves MaxxAudio Pro for Dell 2022
+Id                : WavesAudio.MaxxAudioProforDell2022_fh4rh281wavaa
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 39.0.1.0
+Name              : Fedora Remix for WSL
+Id                : whitewaterfoundry.fedora-remix-for-wsl
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {39.0.1.0, 38.0.0.0, 37.0.4.0, 36.0.5.0…}
+
+InstalledVersion  : Unknown
+Name              : Wondershare Filmora 13
+Id                : Wondershare.Filmora
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {13.3.8.6926, 13.3.2.6565, 13.2.8.6260, 13.2.6.6098…}
+
+InstalledVersion  : Unknown
+Name              : Wondershare NativePush(Build 1.0.0.7)
+Id                : Wondershare NativePush_is1
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.6.4.0
+Name              : XnView MP
+Id                : XnSoft.XnViewMP
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {1.7.1.0, 1.7.1.0}
+
+InstalledVersion  : 208.0.580469446
+Name              : Messenger
+Id                : c1b3adcf-2068-5e8d-b25d-30ce588e3a4c
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.244.5-16323
+Name              : CurseForge
+Id                : Overwolf.CurseForge
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {0.220.1-9343}
+
+InstalledVersion  : 1.4.2
+Name              : eID Web Browser Middleware
+Id                : eID Web Browser Middleware
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.7.1
+Name              : jq
+Id                : jqlang.jq
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.7.1, 1.7.1, 1.7, 1.7…}
+
+InstalledVersion  : 0.50.0
+Name              : fzf
+Id                : junegunn.fzf
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {0.50.0, 0.50.0, 0.49.0, 0.49.0…}
+
+InstalledVersion  : 16005.14326.21888.0
+Name              : Courrier et calendrier
+Id                : microsoft.windowscommunicationsapps_8wekyb3d8bbwe
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 0.24.0
+Name              : bat
+Id                : sharkdp.bat
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {0.24.0, 0.24.0, 0.23.0, 0.23.0}
+
+InstalledVersion  : 6.1.2
+Name              : WinSCP
+Id                : WinSCP.WinSCP
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {6.3.3, 6.3.3, 6.3.2, 6.3.2…}
+
+InstalledVersion  : 11.10.20.1104
+Name              : Realtek USB Ethernet Controller All-In-One Windows Driver
+Id                : {04201224-2B34-4EE7-862B-B7BBF89DB3AB}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 12.0.30501.0
+Name              : Microsoft Visual C++ 2013 Redistributable (x64)
+Id                : Microsoft.VCRedist.2013.x64
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {12.0.40664.0, 12.0.40660.0, 12.0.40649.5, 12.0.30501.0}
+
+InstalledVersion  : 17.10.6.1
+Name              : Microsoft ODBC Driver 17 for SQL Server
+Id                : {0E0F96AC-80DE-4400-A40C-429D63293651}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.01
+Name              : Canon G6000 series MP Drivers
+Id                : {1199FAD5-9546-44f3-81CF-FFDB8040B7BF}_Canon_G6000_series
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 7.0.18
+Name              : Microsoft ASP.NET Core Runtime 7.0
+Id                : Microsoft.DotNet.AspNetCore.7
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {7.0.18, 7.0.17, 7.0.16, 7.0.15…}
+
+InstalledVersion  : 10.0.30319
+Name              : Microsoft Visual C++ 2010 x86 Redistributable
+Id                : Microsoft.VCRedist.2010.x86
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {10.0.40219}
+
+InstalledVersion  : 3.0.6.0
+Name              : Brother MFL-Pro Suite ADS-2600W
+Id                : {1F4F8934-FD9B-4BF7-9798-3C38A150824C}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 43.11.0.27795
+Name              : Webex
+Id                : Cisco.Webex
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {44.4.0.29432, 44.4.0.29298, 44.3.0.28993, 44.2.0.28859…}
+
+InstalledVersion  : 3.23.0.32564
+Name              : Path of Exile
+Id                : {1c80c88e-0b81-4aeb-95a9-0e27531ce5ee}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 3.12.0
+Name              : Python Launcher
+Id                : Python.Launcher
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {3.12.0}
+
+InstalledVersion  : 11.0.61030.0
+Name              : Microsoft Visual C++ 2012 Redistributable (x86)
+Id                : Microsoft.VCRedist.2012.x86
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {11.0.61030.0}
+
+InstalledVersion  : 15.0.4153.1
+Name              : Microsoft SQL Server 2019 LocalDB 
+Id                : {36E492B8-CB83-4DA5-A5D2-D99A8E8228A1}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.22.2
+Name              : Go Programming Language
+Id                : GoLang.Go
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.22.2, 1.22.1, 1.22.0, 1.21.9…}
+
+InstalledVersion  : 8.2.424.17037
+Name              : Microsoft .NET SDK 8.0.204 (x64) from Visual Studio
+Id                : {3A83820E-867F-45B3-9FA4-3D513A9079EB}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.0
+Name              : Win32DiskImager
+Id                : Win32diskimager.win32diskimager
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.0.0}
+
+InstalledVersion  : 1.18.2
+Name              : starship
+Id                : Starship.Starship
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.18.2, 1.18.2, 1.18.1, 1.18.1…}
+
+InstalledVersion  : 11.0.256
+Name              : VirtViewer
+Id                : RedHat.VirtViewer
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {11.0.256, 10.0.256, 9.0.257}
+
+InstalledVersion  : 10.1.19041.685
+Name              : Windows Software Development Kit
+Id                : Microsoft.WindowsSDK.10.0.19041
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {10.0.19041.685}
+
+InstalledVersion  : 14.38.33135.0
+Name              : Microsoft Visual C++ 2015-2022 Redistributable (x64)
+Id                : Microsoft.VCRedist.2015+.x64
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {14.38.33135.0, 14.38.33135.0, 14.38.33130.0, 14.38.33130.0…}
+
+InstalledVersion  : 9.0.30729.4148
+Name              : Microsoft Visual C++ 2008 Redistributable - x64 9.0.30729.4148
+Id                : {4B6C7001-C7D6-3710-913E-5BC23FCE91E6}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.6.0
+Name              : Wondershare Helper Compact 2.6.0
+Id                : {5363CE84-5F09-48A1-8B6C-6BB590FFEDF2}_is1
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.0.6
+Name              : Keyviz
+Id                : mulaRahul.Keyviz
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.0.6, 1.0.6}
+
+InstalledVersion  : 10.0.22621.21366
+Name              : Realtek Card Reader
+Id                : {5BC2B5AB-80DE-4E83-B8CF-426902051D0A}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 15.0.2000.5
+Name              : Microsoft System CLR Types for SQL Server 2019
+Id                : Microsoft.CLRTypesSQLServer.2019
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {15.0.2000.5}
+
+InstalledVersion  : 9.0.30729.6161
+Name              : Microsoft Visual C++ 2008 Redistributable - x64
+Id                : Microsoft.VCRedist.2008.x64
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {9.0.30729.6161, 9.0.30729.4148, 9.0.21022.218}
+
+InstalledVersion  : 0.9.5
+Name              : Neovim
+Id                : Neovim.Neovim
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {0.9.5, 0.9.2, 0.9.0, 0.8.3…}
+
+InstalledVersion  : 1.2.2.867
+Name              : GoPro Webcam
+Id                : {6C6C979F-E6DF-4D6C-B190-2673030651BB}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 3.9.2180.11832
+Name              : Microsoft Visual Studio Installer
+Id                : {6F320B93-EE3C-4826-85E0-ADF79F8D4C61}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 3.68.3
+Name              : OneCommander
+Id                : MilosParipovic.OneCommander
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {3.78.2, 3.78.0, 3.67.0, 3.65.2.0…}
+
+InstalledVersion  : 7.6.6.4995
+Name              : Wondershare PDFelement
+Id                : Wondershare.PDFelement.7
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {7.6.10.5064}
+
+InstalledVersion  : 1.88.1
+Name              : Microsoft Visual Studio Code
+Id                : Microsoft.VisualStudioCode
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.88.1, 1.88.1, 1.88.0, 1.88.0…}
+
+InstalledVersion  : 2.39.2
+Name              : GitHub CLI
+Id                : GitHub.cli
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {2.48.0, 2.48.0, 2.47.0, 2.47.0…}
+
+InstalledVersion  : 4.8.04084
+Name              : Microsoft .NET Framework 4.8 Targeting Pack
+Id                : {7D846F37-3C30-47C5-BCEA-2929EE09BE9A}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 34.23.7186
+Name              : Killer Performance Driver Suite UWD
+Id                : {7E258447-8A66-4DAB-83D2-8A4AE825D6C7}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.70.551909
+Name              : Logi Options+
+Id                : Logitech.OptionsPlus
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {1.70.551909}
+
+InstalledVersion  : 10.0.8215
+Name              : Microsoft Web Deploy
+Id                : Microsoft.WebDeploy
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {10.0.1973}
+
+InstalledVersion  : 9.12.1031
+Name              : NVIDIA PhysX (Legacy)
+Id                : Nvidia.PhysXLegacy
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {9.13.0604}
+
+InstalledVersion  : 0.80.0
+Name              : PowerToys (Preview)
+Id                : Microsoft.PowerToys
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {0.80.1, 0.80.1, 0.80.0, 0.80.0…}
+
+InstalledVersion  : 8.0.4
+Name              : Microsoft .NET Windows Desktop Runtime 8.0
+Id                : Microsoft.DotNet.DesktopRuntime.8
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {8.0.4, 8.0.3, 8.0.2, 8.0.1…}
+
+InstalledVersion  : 3.0.20
+Name              : VLC media player
+Id                : VideoLAN.VLC
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {3.0.20, 3.0.20, 3.0.19, 3.0.19…}
+
+InstalledVersion  : 7.0.18
+Name              : Microsoft .NET Windows Desktop Runtime 7.0
+Id                : Microsoft.DotNet.DesktopRuntime.7
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {7.0.18, 7.0.17, 7.0.16, 7.0.15…}
+
+InstalledVersion  : 9.0.30729.6161
+Name              : Microsoft Visual C++ 2008 Redistributable - x86
+Id                : Microsoft.VCRedist.2008.x86
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {9.0.30729.6161, 9.0.30729.4148, 9.0.21022.218}
+
+InstalledVersion  : 10.0.08608
+Name              : IIS 10.0 Express
+Id                : {A43F6F96-4CED-4152-8086-AF954755E324}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 1.9.10
+Name              : Nilesoft Shell
+Id                : Nilesoft.Shell
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {1.9.15, 1.9.15, 1.9.10, 1.9.10…}
+
+InstalledVersion  : 3.32.3
+Name              : Install
+Id                : {ABC2CE01-78A5-4554-A32A-4402A4E83BB3}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 551.61
+Name              : NVIDIA Graphics Driver 551.61
+Id                : {B2FE1952-0186-46C3-BAEC-A80AA35AC5B8}_Display.Driver
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 3.28.0.412
+Name              : NVIDIA GeForce Experience
+Id                : Nvidia.GeForceExperience
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {3.27.0.120, 3.27.0.112, 3.26.0.160, 3.26.0.154…}
+
+InstalledVersion  : 1.3.8513.32290073
+Name              : NVIDIA FrameView SDK 1.3.8513.32290073
+Id                : {B2FE1952-0186-46C3-BAEC-A80AA35AC5B8}_FrameViewSdk
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 124.0.6367.91
+Name              : Google Chrome
+Id                : Google.Chrome
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {124.0.6367.92, 124.0.6367.92}
+
+InstalledVersion  : 5.72.0.0
+Name              : Microsoft Update Health Tools
+Id                : {C6FD611E-7EFE-488C-A0E0-974C09EF6473}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 5.0.2
+Name              : SD Card Formatter
+Id                : {D02212EA-E02A-4521-9036-5367734FC66E}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 22621.3007.63.3
+Name              : ExplorerPatcher
+Id                : valinet.ExplorerPatcher
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {22621.3296.64.1, 22621.3007.63.2, 22621.2861.62.2, 22621.2861.62.1…}
+
+InstalledVersion  : 1.20.146.0
+Name              : Microsoft Xbox 360 Accessories 1.2
+Id                : {D9C50188-12D5-4D3E-8F00-682346C2AA5F}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 10.0.30319
+Name              : Microsoft Visual C++ 2010 x64 Redistributable
+Id                : Microsoft.VCRedist.2010.x64
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {10.0.40219}
+
+InstalledVersion  : 4.8.04084
+Name              : Microsoft .NET Framework 4.8 SDK
+Id                : {DA855582-B360-4532-B8C4-ECD1E5A7095B}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 5.1.6030
+Name              : Belgium e-ID middleware
+Id                : BelgianGovernment.Belgium-eIDmiddleware
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {5.1.6030, 5.0.5498}
+
+InstalledVersion  : 10.1.0.0
+Name              : Windows SDK AddOn
+Id                : {E18618EC-D9DB-4BCE-B382-85ADA2CBB340}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 2.0.9
+Name              : Connective Signing Plugins
+Id                : {E77C1125-398A-4FF0-9F51-CBB5F7144E16}
+IsUpdateAvailable : False
+Source            : 
+AvailableVersions : {}
+
+InstalledVersion  : 18.0.2.1
+Name              : Java SE Development Kit 18
+Id                : Oracle.JDK.18
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {18.0.2.1, 18.0.2.1}
+
+InstalledVersion  : 7.4.2.0
+Name              : PowerShell
+Id                : Microsoft.PowerShell
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {7.4.2.0, 7.4.2.0, 7.4.1.0, 7.4.1.0…}
+
+InstalledVersion  : 6.0.421
+Name              : Microsoft .NET SDK 6.0
+Id                : Microsoft.DotNet.SDK.6
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {6.0.421, 6.0.421, 6.0.420, 6.0.420…}
+
+InstalledVersion  : 14.38.33135.0
+Name              : Microsoft Visual C++ 2015-2022 Redistributable (x64)
+Id                : Microsoft.VCRedist.2015+.x64
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {14.38.33135.0, 14.38.33135.0, 14.38.33130.0, 14.38.33130.0…}
+
+InstalledVersion  : 11.0.61030.0
+Name              : Microsoft Visual C++ 2012 Redistributable (x64)
+Id                : Microsoft.VCRedist.2012.x64
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {11.0.61030.0}
+
+InstalledVersion  : 3.12.0
+Name              : Python 3.12
+Id                : Python.Python.3.12
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {3.12.3, 3.12.3, 3.12.2, 3.12.2…}
+
+InstalledVersion  : 6.0.29
+Name              : Microsoft .NET Runtime 6.0
+Id                : Microsoft.DotNet.Runtime.6
+IsUpdateAvailable : False
+Source            : winget
+AvailableVersions : {6.0.29, 6.0.28, 6.0.27, 6.0.26…}
+
+InstalledVersion  : 12.0.30501.0
+Name              : Microsoft Visual C++ 2013 Redistributable (x86)
+Id                : Microsoft.VCRedist.2013.x86
+IsUpdateAvailable : True
+Source            : winget
+AvailableVersions : {12.0.40664.0, 12.0.40660.0, 12.0.40649.5, 12.0.30501.0}
+

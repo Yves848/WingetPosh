@@ -1,0 +1,1 @@
+ping -n localhost

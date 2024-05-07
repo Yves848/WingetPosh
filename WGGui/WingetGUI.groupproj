@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{D6AB65B5-9293-4595-BBFA-A0963FA6D68B}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="WGGui.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\WinDel\WGHelp.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="WGGui">
+        <MSBuild Projects="WGGui.dproj"/>
+    </Target>
+    <Target Name="WGGui:Clean">
+        <MSBuild Projects="WGGui.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="WGGui:Make">
+        <MSBuild Projects="WGGui.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="WGHelp">
+        <MSBuild Projects="..\..\WinDel\WGHelp.dproj"/>
+    </Target>
+    <Target Name="WGHelp:Clean">
+        <MSBuild Projects="..\..\WinDel\WGHelp.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="WGHelp:Make">
+        <MSBuild Projects="..\..\WinDel\WGHelp.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="WGGui;WGHelp"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="WGGui:Clean;WGHelp:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="WGGui:Make;WGHelp:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

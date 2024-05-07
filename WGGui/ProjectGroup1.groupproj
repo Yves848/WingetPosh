@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{56698A23-87DA-4791-A09B-31F26695301F}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="WGGui.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\components\TMS VCL UI Pack v10.7.8.1\Demos\AdvStringGrid\asg77\Project1.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="WGGui">
+        <MSBuild Projects="WGGui.dproj"/>
+    </Target>
+    <Target Name="WGGui:Clean">
+        <MSBuild Projects="WGGui.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="WGGui:Make">
+        <MSBuild Projects="WGGui.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Project1">
+        <MSBuild Projects="..\..\components\TMS VCL UI Pack v10.7.8.1\Demos\AdvStringGrid\asg77\Project1.dproj"/>
+    </Target>
+    <Target Name="Project1:Clean">
+        <MSBuild Projects="..\..\components\TMS VCL UI Pack v10.7.8.1\Demos\AdvStringGrid\asg77\Project1.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Project1:Make">
+        <MSBuild Projects="..\..\components\TMS VCL UI Pack v10.7.8.1\Demos\AdvStringGrid\asg77\Project1.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="WGGui;Project1"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="WGGui:Clean;Project1:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="WGGui:Make;Project1:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -414,12 +414,23 @@ function Invoke-Scoop {
 
 function Invoke-Winget {
   param (
-    [string]$cmd
+    [string]$cmd,
+    [bool]$quiet
+
   )
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
-  
-  [System.Console]::CursorVisible = $false
+  if (-not $quiet) {
+    [System.Console]::CursorVisible = $false
+  }
+  $oldwidth = $Host.UI.RawUI.WindowSize.Width
+  $oldheight = $Host.UI.RawUI.WindowSize.Height
 
+  $width = 200
+  $height = 50
+
+  # Set the console window size for the current session
+  $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size($width, $height)
+  $Host.UI.RawUI.WindowSize = New-Object Management.Automation.Host.Size($width, $height)
   $PackageList = @()
   $stateInstall = [System.Collections.Hashtable]::Synchronized([System.Collections.Hashtable]::new())
   $stateInstall.exp = $cmd
@@ -442,7 +453,8 @@ function Invoke-Winget {
   $SearchResult = $StateInstall.SearchResult
   $sessionInstall.stop()
   $runspaceInstall.Dispose() 
-
+  $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size($oldwidth, $oldheight)
+  $Host.UI.RawUI.WindowSize = New-Object Management.Automation.Host.Size($oldwidth, $oldheight)
   $SearchResult | ForEach-Object -Begin { $i = 0; $data = $false } -Process {
     if ($_.StartsWith('---')) {
       $lWidth = $_.Length
@@ -503,7 +515,13 @@ function Invoke-Winget {
             $field = adjustCol -len $columns.$($col.Name)[1] -col $field
           
             $sb = $null
-            $package.Add($col.Name, $field)
+            if ($quiet) {
+              $package.Add($col.Name, $field.trim())
+            }
+            else {
+              $package.Add($col.Name, $field)
+            }
+            
           }
           $PackageList += $package
         }
@@ -511,7 +529,9 @@ function Invoke-Winget {
     }
     $i++
   }
-  [System.Console]::CursorVisible = $true
+  if (-not $quiet) {
+    [System.Console]::CursorVisible = $true
+  }
   return $PackageList 
 } 
 
@@ -1076,7 +1096,8 @@ function Get-WGPackage {
     [switch]$update,
     [switch]$apply,
     [switch]$silent,
-    [switch]$Build
+    [switch]$Build,
+    [bool]$quiet
   )
   Get-WingetposhConfig
   if ($source) {
@@ -1128,28 +1149,40 @@ function Get-WGPackage {
     if ($uninstall) {
       $title = " ⟬ Uninstall ⟭ " 
     }
+  } 
+  if (-not $quiet) {
+    $Session, $Runspace, $win = openSpinner
   }
-
-  $Session, $Runspace, $win = openSpinner
-  
-  $list = @(Invoke-Winget $command)
+  $list = @(Invoke-Winget $command -quiet $quiet)
   # Include scoop search if configured
   if (Get-ScoopStatus) {
     [scoopList[]]$list2 = Invoke-Scoop -cmd "scoop list"
     if ($list2) {
       $list2 | ForEach-Object {
-        $package = [ordered]@{}
-        $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
-        $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
-        $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
-        $package.add("Available", $_.Version.PadRight($columns["Version"][1], " "))
-        $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+        if ($quiet) {
+          $package = [ordered]@{}
+          $package.add("Name", $_.Name.trim())
+          $package.add("Id", $_.Name.trim())
+          $package.add("Version", $_.Version.trim())
+          $package.add("Available", $_.Version.trim())
+          $package.add("Source", "scoop".trim())
+        }
+        else {
+          $package = [ordered]@{}
+          $package.add("Name", $_.Name.PadRight($columns["Name"][1], " "))
+          $package.add("Id", $_.Name.PadRight($columns["Id"][1], " "))
+          $package.add("Version", $_.Version.PadRight($columns["Version"][1], " "))
+          $package.add("Available", $_.Version.PadRight($columns["Version"][1], " "))
+          $package.add("Source", "scoop".PadRight($columns["Source"][1], " "))
+        }
+     
         $list += $package
       }
     }
   }
-  closeSpinner -Session $Session -Runspace $Runspace
-  
+  if (-not $quiet) {
+    closeSpinner -Session $Session -Runspace $Runspace
+  }
 
   if ($source) {
     $list = $list |  Where-Object { $_.source -eq $source }
@@ -1203,7 +1236,8 @@ function Search-WGPackage {
     [switch]$interactive,
     [switch]$allowSearch,
     [switch]$install,
-    [switch]$silent
+    [switch]$silent,
+    [bool]$quiet
   )
   begin {
     Get-WingetposhConfig
@@ -1230,11 +1264,13 @@ function Search-WGPackage {
   process {
     if ($terms -ne "") {
       $list = @()
-      $Session, $Runspace, $win = openSpinner
+      if (-not $quiet) {
+        $Session, $Runspace, $win = openSpinner
+      }
       $terms -split "," | ForEach-Object { 
         $term = $_
         $command = "winget search '$term'"
-        $result = @(Invoke-Winget $command)
+        $result = @(Invoke-Winget -quiet $quiet $command)
         $result | ForEach-Object { 
           $list += $_
         }
@@ -1271,8 +1307,9 @@ function Search-WGPackage {
           }
         }
       }
-      closeSpinner -Session $Session -Runspace $Runspace
-
+      if (-not $quiet) {
+        closeSpinner -Session $Session -Runspace $Runspace
+      }
       if ($interactive) {
         Get-ScoopBuckets | ForEach-Object { $buckets += $_.Name }
         $data = @()
@@ -1332,7 +1369,7 @@ function Get-WGPVersion {
   if ($param -in ("WGP", "All")) {
     [string]$v = $(Get-InstalledModule -Name wingetposh -ErrorAction Ignore).version
     if ($display) {
-    Write-Host "Wingetposh version : $v"
+      Write-Host "Wingetposh version : $v"
     }
     $v
   }
@@ -1341,9 +1378,14 @@ function Get-WGPVersion {
 
 function Get-WGList {
   param(
-    [string]$source
+    [string]$source,
+    [bool]$quiet
   )
-  Get-WGPackage -source $source
+  $params = @{
+    source = $source
+    quiet  = $quiet
+  }
+  Get-WGPackage @params
 }
 
 function Build-WGInstallFile {
@@ -1423,13 +1465,16 @@ function Install-WGPackage {
 function Update-WGPackage {
   param(
     [string]$source,
-    [switch]$apply
+    [switch]$apply,
+    [bool]$quiet
   )
+  $interactive = -not $quiet
   $params = @{
     Source      = $source
-    Interactive = $true
-    Update      = $true
+    Interactive = $interactive
+    Update      = -not $quiet
     Apply       = $apply
+    quiet       = $quiet
   }
   
   Get-WGPackage @params
@@ -1455,6 +1500,28 @@ function Uninstall-WGPackage {
     $params.Add("silent", $script:config.SilentInstall)
   }
   Get-WGPackage @params
+}
+
+function Out-JSON {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+    [hashtable]
+    $Data
+  )
+  begin {
+    [PSCustomObject[]]$result = @()
+  }
+  process {
+    foreach ($d in $data) {
+      $result += [pscustomobject]$d
+    }
+  }
+  end {
+    return (@{
+        "packages" = $result
+      }) | ConvertTo-Json
+  }
 }
 
 function Out-Object {
@@ -1500,4 +1567,9 @@ function Set-WingetposhConfig {
 
 function Reset-WingetposhConfig {
   '{ "UseNerdFont" : false, "SilentInstall": false, "AcceptPackageAgreements" : true, "AcceptSourceAgreements" : true,"Force": false, "IncludeScoop": false }' | Out-File -FilePath ~/.config/.wingetposh/config.json -Force | Out-Null
+}
+
+function Start-Gui {
+  $path = (Get-Module -Name wingetposh).path | Split-Path -Parent
+  Invoke-Expression "$path\WGGui.exe"
 }

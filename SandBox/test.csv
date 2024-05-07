@@ -1,0 +1,76 @@
+Name,Id,Version,Available,Source
+Visual Studio Community 2022,Microsoft.VisualStudio.2022.Community,17.9.6,False,winget
+NVM for Windows,CoreyButler.NVMforWindows,1.1.11,True,winget
+7-Zip,7zip.7zip,23.01,False,winget
+CPUID CPU-Z,CPUID.CPU-Z,2.09,False,winget
+Ubuntu 22.04 LTS,Canonical.Ubuntu.2204,2204.3.49.0,False,winget
+DBeaver Community Edition,dbeaver.dbeaver,24.0.0,True,winget
+DroidCam Client,dev47apps.DroidCam,6.5.2,False,winget
+GIMP,GIMP.GIMP,2.10.36,False,winget
+GitHub Desktop,GitHub.GitHubDesktop,3.3.11,True,winget
+Git,Git.Git,2.43.0,True,winget
+Microsoft Edge,Microsoft.Edge,124.0.2478.67,False,winget
+Microsoft Edge WebView2 Runtime,Microsoft.EdgeWebView2Runtime,124.0.2478.67,False,winget
+App Installer,Microsoft.AppInstaller,1.22.11132.0,False,winget
+Microsoft.UI.Xaml,Microsoft.UI.Xaml.2.7,7.2208.15002.0,False,winget
+Microsoft.UI.Xaml,Microsoft.UI.Xaml.2.8,8.2310.30001.0,False,winget
+Microsoft Visual C++ 2015 UWP Desktop Runtime Package,Microsoft.VCLibs.Desktop.14,14.0.33519.0,False,winget
+Dev Home (Preview),Microsoft.DevHome,0.1300.477.0,False,winget
+Windows Terminal,Microsoft.WindowsTerminal,1.19.10821.0,False,winget
+Microsoft Teams,Microsoft.Teams.Free,24033.1005.2701.7380,True,winget
+OBS Studio,OBSProject.OBSStudio,30.0.0,True,winget
+Oh My Posh,JanDeDobbeleer.OhMyPosh,19.20.0,True,winget
+Postman,Postman.Postman,10.21.0,True,winget
+Rustup: the Rust toolchain installer,Rustlang.Rustup,1.27.0,False,winget
+Steam,Valve.Steam,2.10.91.91,False,winget
+TegraRcmGUI,eliboa.TegraRcmGUI,2.6.0,False,winget
+Fedora Remix for WSL,whitewaterfoundry.fedora-remix-for-wsl,39.0.1.0,False,winget
+Wondershare Filmora 13,Wondershare.Filmora,Unknown,True,winget
+XnView MP,XnSoft.XnViewMP,1.6.4.0,True,winget
+CurseForge,Overwolf.CurseForge,0.244.5-16323,False,winget
+jq,jqlang.jq,1.7.1,False,winget
+fzf,junegunn.fzf,0.50.0,False,winget
+bat,sharkdp.bat,0.24.0,False,winget
+WinSCP,WinSCP.WinSCP,6.1.2,True,winget
+Microsoft Visual C++ 2013 Redistributable (x64),Microsoft.VCRedist.2013.x64,12.0.30501.0,True,winget
+Microsoft ASP.NET Core Runtime 7.0,Microsoft.DotNet.AspNetCore.7,7.0.18,False,winget
+Microsoft Visual C++ 2010 x86 Redistributable,Microsoft.VCRedist.2010.x86,10.0.30319,True,winget
+Webex,Cisco.Webex,43.11.0.27795,True,winget
+Python Launcher,Python.Launcher,3.12.0,False,winget
+Microsoft Visual C++ 2012 Redistributable (x86),Microsoft.VCRedist.2012.x86,11.0.61030.0,False,winget
+Go Programming Language,GoLang.Go,1.22.2,False,winget
+Win32DiskImager,Win32diskimager.win32diskimager,1.0.0,False,winget
+starship,Starship.Starship,1.18.2,False,winget
+VirtViewer,RedHat.VirtViewer,11.0.256,False,winget
+Windows Software Development Kit,Microsoft.WindowsSDK.10.0.19041,10.1.19041.685,False,winget
+Microsoft Visual C++ 2015-2022 Redistributable (x64),Microsoft.VCRedist.2015+.x64,14.38.33135.0,False,winget
+Keyviz,mulaRahul.Keyviz,1.0.6,False,winget
+Microsoft System CLR Types for SQL Server 2019,Microsoft.CLRTypesSQLServer.2019,15.0.2000.5,False,winget
+Microsoft Visual C++ 2008 Redistributable - x64,Microsoft.VCRedist.2008.x64,9.0.30729.6161,False,winget
+Neovim,Neovim.Neovim,0.9.5,False,winget
+OneCommander,MilosParipovic.OneCommander,3.68.3,True,winget
+Wondershare PDFelement,Wondershare.PDFelement.7,7.6.6.4995,True,winget
+Microsoft Visual Studio Code,Microsoft.VisualStudioCode,1.88.1,False,winget
+GitHub CLI,GitHub.cli,2.39.2,True,winget
+Logi Options+,Logitech.OptionsPlus,1.70.551909,False,winget
+Microsoft Web Deploy,Microsoft.WebDeploy,10.0.8215,False,winget
+NVIDIA PhysX (Legacy),Nvidia.PhysXLegacy,9.12.1031,True,winget
+PowerToys (Preview),Microsoft.PowerToys,0.80.0,True,winget
+Microsoft .NET Windows Desktop Runtime 8.0,Microsoft.DotNet.DesktopRuntime.8,8.0.4,False,winget
+VLC media player,VideoLAN.VLC,3.0.20,False,winget
+Microsoft .NET Windows Desktop Runtime 7.0,Microsoft.DotNet.DesktopRuntime.7,7.0.18,False,winget
+Microsoft Visual C++ 2008 Redistributable - x86,Microsoft.VCRedist.2008.x86,9.0.30729.6161,False,winget
+Nilesoft Shell,Nilesoft.Shell,1.9.10,True,winget
+NVIDIA GeForce Experience,Nvidia.GeForceExperience,3.28.0.412,False,winget
+Google Chrome,Google.Chrome,124.0.6367.91,True,winget
+ExplorerPatcher,valinet.ExplorerPatcher,22621.3007.63.3,True,winget
+Microsoft Visual C++ 2010 x64 Redistributable,Microsoft.VCRedist.2010.x64,10.0.30319,True,winget
+Belgium e-ID middleware,BelgianGovernment.Belgium-eIDmiddleware,5.1.6030,False,winget
+Java SE Development Kit 18,Oracle.JDK.18,18.0.2.1,False,winget
+PowerShell,Microsoft.PowerShell,7.4.2.0,False,winget
+Microsoft .NET SDK 6.0,Microsoft.DotNet.SDK.6,6.0.421,False,winget
+Microsoft Visual C++ 2015-2022 Redistributable (x64),Microsoft.VCRedist.2015+.x64,14.38.33135.0,False,winget
+Microsoft Visual C++ 2012 Redistributable (x64),Microsoft.VCRedist.2012.x64,11.0.61030.0,False,winget
+Python 3.12,Python.Python.3.12,3.12.0,True,winget
+Microsoft .NET Runtime 6.0,Microsoft.DotNet.Runtime.6,6.0.29,False,winget
+Microsoft Visual C++ 2013 Redistributable (x86),Microsoft.VCRedist.2013.x86,12.0.30501.0,True,winget

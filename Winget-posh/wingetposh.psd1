@@ -12,7 +12,7 @@
 RootModule = 'wingetposh.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.1'
+ModuleVersion = '2.0.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -71,7 +71,8 @@ ScriptsToProcess = @('tools\install.ps1')
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @('Get-WGPackage', 
                       'Invoke-Winget', 
-                      'Out-Object', 
+                      'Out-Object',
+                      'Out-JSON', 
                       'Search-WGPackage', 
                       'Uninstall-WGPackage',
                       'Update-WGPackage',
@@ -84,7 +85,8 @@ FunctionsToExport = @('Get-WGPackage',
                       "Reset-WingetposhConfig",
                       "Get-WingetposhConfig",
                       "Get-WGPVersion",
-                      "Build-WGInstallFile" )
+                      "Build-WGInstallFile",
+                      "Start-Gui" )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -104,7 +106,8 @@ AliasesToExport = @()
 # List of all files packaged with this module
 FileList = @(
     'visuals.ps1',
-    'wingetposh.psm1'
+    'wingetposh.psm1',
+    'WingetPoshGui.exe'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
@@ -119,7 +122,7 @@ PrivateData = @{
         LicenseUri = 'https://github.com/Yves848/WingetPosh/blob/master/licence.txt'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/Yves848/WingetPosh/tree/0.9.8-(scoop-integration)'
+        ProjectUri = 'https://github.com/Yves848/WingetPosh/tree/Delphi-GUI'
 
         # A URL to an icon representing this module.
         IconUri = 'https://raw.githubusercontent.com/Yves848/WingetPosh/master/Winget-posh/wingetposh2.ico'
@@ -129,7 +132,7 @@ PrivateData = @{
 
         
         # Prerelease string of this module
-        #Prerelease = 'beta01'
+        Prerelease = 'alpha03'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $true
