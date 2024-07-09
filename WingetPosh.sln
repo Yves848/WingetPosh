@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SandBox", "SandBox", "{AB2AAC75-26E7-43D2-859C-3F028C9D133F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TerminalGuiApp", "TerminalGuiApp", "{A10FA295-BFDA-4940-9135-E2F0EFE321A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerminalGuiApp", "SandBox\TerminalGuiApp\TerminalGuiApp\TerminalGuiApp.csproj", "{FFD054F7-2A73-44AE-B36C-B613FFA3C99F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFD054F7-2A73-44AE-B36C-B613FFA3C99F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFD054F7-2A73-44AE-B36C-B613FFA3C99F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFD054F7-2A73-44AE-B36C-B613FFA3C99F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFD054F7-2A73-44AE-B36C-B613FFA3C99F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A10FA295-BFDA-4940-9135-E2F0EFE321A9} = {AB2AAC75-26E7-43D2-859C-3F028C9D133F}
+		{FFD054F7-2A73-44AE-B36C-B613FFA3C99F} = {A10FA295-BFDA-4940-9135-E2F0EFE321A9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F00FA0E9-B032-4573-B928-69BF8D50FC88}
+	EndGlobalSection
+EndGlobal

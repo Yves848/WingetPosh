@@ -12,7 +12,8 @@ function testcolor {
     $esc = $([char]0x1b)
   }
   0..255 | ForEach-Object {
-    Write-Host "$($_) $esc[4m$esc[38;5;$($_)m'test'$esc[0m"
+    Write-Host "$($_) $esc[4m$esc[48;5;$($_)m'test'$esc[0m"
+    # Write-Host "$($_) $esc[4m$esc[38;5;$($_)m'test'$esc[0m"
   } 
 }
 
